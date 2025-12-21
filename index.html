@@ -29,28 +29,17 @@ body{
 .app{
   width:100%;
   max-width:430px;
-  padding:28px 18px 40px;
+  padding:22px 18px 40px;
 }
 
-/* ===== LOGO ESTILO MOCKUP ===== */
-.logo-box{
-  background:#fff;
-  border-radius:16px;
-  padding:12px 18px;
-  display:inline-flex;
-  justify-content:center;
-  align-items:center;
-  box-shadow:0 8px 22px rgba(0,0,0,.12);
-  margin:10px auto 20px;
-}
-
+/* LOGO – ESTILO MOCKUP (SIN TARJETA) */
 .logo{
-  width:100%;
-  max-width:230px;
-  height:auto;
   display:block;
+  margin:12px auto 16px;
+  max-width:240px;
+  width:100%;
+  height:auto;
 }
-/* ============================== */
 
 h1{
   margin:0;
@@ -68,9 +57,9 @@ h1{
 }
 
 .id-pill{
-  margin:22px auto 26px;
+  margin:20px auto 24px;
   display:inline-block;
-  padding:12px 28px;
+  padding:12px 26px;
   border-radius:999px;
   background:#eef2ff;
   font-weight:600;
@@ -131,17 +120,19 @@ select{
 
 <div class="app">
 
-  <div class="logo-box">
-    <img class="logo" src="LOGO_EDITABLE_oficial.png" alt="Bolivia Imports">
-  </div>
+  <!-- LOGO -->
+  <img class="logo" src="LOGO_EDITABLE_oficial.png" alt="Bolivia Imports">
 
+  <!-- TITULOS -->
   <h1>Gestor de Entregas</h1>
   <div class="subtitle">Confirmación de entrega del pedido</div>
 
+  <!-- ID -->
   <div style="text-align:center">
     <div class="id-pill">ID Cliente: AI-025</div>
   </div>
 
+  <!-- FORMULARIO -->
   <div class="card">
 
     <label>Empleado que realiza la entrega</label>

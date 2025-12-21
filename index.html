@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Gestor de Entregas</title>
 
+<!-- LIBRERÍA QR -->
+<script src="https://unpkg.com/html5-qrcode"></script>
+
 <style>
 :root{
   --bg:#f2f5fb;
@@ -33,12 +36,10 @@ body{
   padding:22px 18px 40px;
 }
 
-/* LOGO */
 .logo{
   display:block;
   margin:12px auto 16px;
   max-width:240px;
-  width:100%;
 }
 
 /* TEXTOS */
@@ -59,7 +60,7 @@ h1{
 
 .id-pill{
   margin:20px auto 24px;
-  display:inline-block;
+  display:none;
   padding:12px 26px;
   border-radius:999px;
   background:#eef2ff;
@@ -80,10 +81,9 @@ label{
   font-weight:700;
   font-size:15px;
   margin-bottom:8px;
-  color:var(--text);
 }
 
-/* SELECT CUSTOM */
+/* SELECT */
 .select-wrap{
   position:relative;
   margin-bottom:22px;
@@ -97,7 +97,6 @@ label{
   background:var(--soft);
   font-size:16px;
   appearance:none;
-  -webkit-appearance:none;
 }
 
 .select-wrap::after{
@@ -106,9 +105,7 @@ label{
   right:18px;
   top:50%;
   transform:translateY(-50%);
-  font-size:16px;
   color:#555;
-  pointer-events:none;
 }
 
 /* BOTONES */
@@ -120,25 +117,28 @@ label{
   font-size:17px;
   font-weight:800;
   cursor:pointer;
-  transition:transform .15s ease, box-shadow .15s ease;
 }
 
 .btn-primary{
   background:linear-gradient(135deg,var(--primary),var(--primary-dark));
   color:#fff;
-  margin-top:8px;
-  box-shadow:0 10px 22px rgba(47,111,237,.35);
+  margin-top:10px;
 }
 
-.btn:active{
-  transform:scale(.97);
+.btn-secondary{
+  background:#111827;
+  color:#fff;
+  margin-bottom:14px;
 }
 
-.file-info{
-  text-align:center;
-  font-size:14px;
-  color:var(--muted);
-  margin:10px 0 22px;
+.btn:disabled{
+  opacity:.4;
+}
+
+/* QR */
+#qr-reader{
+  display:none;
+  margin-bottom:16px;
 }
 
 /* MODAL */
@@ -149,7 +149,6 @@ label{
   display:none;
   align-items:center;
   justify-content:center;
-  backdrop-filter:blur(4px);
 }
 
 .modal{
@@ -159,24 +158,11 @@ label{
   width:85%;
   max-width:360px;
   text-align:center;
-  animation:pop .25s ease;
-}
-
-@keyframes pop{
-  from{transform:scale(.9);opacity:0}
-  to{transform:scale(1);opacity:1}
 }
 
 .check{
   font-size:56px;
   color:#22c55e;
-  margin-bottom:12px;
-}
-
-.modal h2{
-  margin:0 0 22px;
-  font-size:22px;
-  font-weight:800;
 }
 </style>
 </head>
@@ -185,20 +171,26 @@ label{
 
 <div class="app">
 
-  <img class="logo" src="LOGO_EDITABLE_oficial.png" alt="Bolivia Imports">
+  <img class="logo" src="LOGO_EDITABLE_oficial.png">
 
   <h1>Gestor de Entregas</h1>
   <div class="subtitle">Confirmación de entrega del pedido</div>
 
+  <!-- ID DINÁMICO -->
   <div style="text-align:center">
-    <div class="id-pill">ID Cliente: AI-025</div>
+    <div class="id-pill" id="idCliente"></div>
   </div>
 
   <div class="card">
 
+    <!-- QR -->
+    <button class="btn btn-secondary" onclick="iniciarQR()">📷 Escanear QR</button>
+    <div id="qr-reader"></div>
+
+    <!-- FORM -->
     <label>Empleado que realiza la entrega</label>
     <div class="select-wrap">
-      <select>
+      <select id="empleado" disabled>
         <option>Seleccione</option>
         <option>Fernando</option>
         <option>Felipe</option>
@@ -209,10 +201,9 @@ label{
     </div>
 
     <label>Foto de la entrega</label>
-    <button class="btn btn-primary" onclick="confirmar()">Seleccionar foto</button>
-    <div class="file-info">Ningún archivo seleccionado</div>
+    <button class="btn btn-primary" disabled>Seleccionar foto</button>
 
-    <button class="btn btn-primary" onclick="mostrarPopup()">Confirmar entrega</button>
+    <button class="btn btn-primary" disabled onclick="mostrarPopup()">Confirmar entrega</button>
 
   </div>
 
@@ -228,6 +219,33 @@ label{
 </div>
 
 <script>
+let qr;
+
+function iniciarQR(){
+  const reader = document.getElementById('qr-reader');
+  reader.style.display='block';
+
+  qr = new Html5Qrcode("qr-reader");
+  qr.start(
+    { facingMode: "environment" },
+    { fps: 10, qrbox: 220 },
+    (text) => {
+      qr.stop();
+      reader.style.display='none';
+      establecerID(text);
+    }
+  );
+}
+
+function establecerID(id){
+  const pill = document.getElementById('idCliente');
+  pill.textContent = "ID Cliente: " + id;
+  pill.style.display = 'inline-block';
+
+  document.getElementById('empleado').disabled = false;
+  document.querySelectorAll('.btn-primary').forEach(b => b.disabled=false);
+}
+
 function mostrarPopup(){
   document.getElementById('overlay').style.display='flex';
 }

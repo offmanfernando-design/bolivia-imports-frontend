@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Gestor de Entregas</title>
 
-<!-- LIBRERÍA QR -->
 <script src="https://unpkg.com/html5-qrcode"></script>
 
 <style>
@@ -48,7 +47,6 @@ h1{
   text-align:center;
   font-size:28px;
   font-weight:800;
-  color:var(--text);
 }
 
 .subtitle{
@@ -105,7 +103,6 @@ label{
   right:18px;
   top:50%;
   transform:translateY(-50%);
-  color:#555;
 }
 
 /* BOTONES */
@@ -176,18 +173,16 @@ label{
   <h1>Gestor de Entregas</h1>
   <div class="subtitle">Confirmación de entrega del pedido</div>
 
-  <!-- ID DINÁMICO -->
+  <!-- ID -->
   <div style="text-align:center">
     <div class="id-pill" id="idCliente"></div>
   </div>
 
   <div class="card">
 
-    <!-- QR -->
     <button class="btn btn-secondary" onclick="iniciarQR()">📷 Escanear QR</button>
     <div id="qr-reader"></div>
 
-    <!-- FORM -->
     <label>Empleado que realiza la entrega</label>
     <div class="select-wrap">
       <select id="empleado" disabled>
@@ -237,7 +232,19 @@ function iniciarQR(){
   );
 }
 
-function establecerID(id){
+function establecerID(textoQR){
+  let id = textoQR;
+
+  // Si es URL, extraer ?id=
+  if (textoQR.includes("id=")) {
+    try {
+      const url = new URL(textoQR);
+      id = url.searchParams.get("id");
+    } catch (e) {
+      id = textoQR.split("id=")[1];
+    }
+  }
+
   const pill = document.getElementById('idCliente');
   pill.textContent = "ID Cliente: " + id;
   pill.style.display = 'inline-block';

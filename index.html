@@ -1,8 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#2f6fed">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Gestor de Entregas</title>
@@ -12,11 +10,15 @@
 <style>
 :root{
   --bg:#f2f5fb;
-  --card:#fff;
+  --card:#ffffff;
   --soft:#f4f6fb;
   --primary:#2f6fed;
   --primary-dark:#2459c8;
+  --text:#0f172a;
+  --muted:#6b7280;
 }
+
+*{box-sizing:border-box}
 
 body{
   margin:0;
@@ -27,65 +29,144 @@ body{
 }
 
 .app{
-  max-width:430px;
   width:100%;
+  max-width:430px;
   padding:22px 18px 40px;
 }
 
 .logo{
   display:block;
-  margin:14px auto;
+  margin:14px auto 18px;
   max-width:240px;
 }
 
-h1{text-align:center;margin:0}
-.subtitle{text-align:center;color:#6b7280;margin:6px 0 14px}
+h1{
+  margin:0;
+  text-align:center;
+  font-size:28px;
+  font-weight:800;
+  color:var(--text);
+}
 
+.subtitle{
+  text-align:center;
+  margin-top:6px;
+  margin-bottom:14px;
+  font-size:16px;
+  color:var(--muted);
+}
+
+/* ID CLIENTE */
 .id-pill{
   display:none;
-  margin:0 auto 20px;
-  padding:12px 26px;
+  margin:0 auto 22px;
+  padding:12px 28px;
   border-radius:999px;
   background:#eef2ff;
   font-weight:600;
+  font-size:15px;
+  text-align:center;
 }
 
+/* CARD */
 .card{
   background:var(--card);
   border-radius:30px;
-  padding:22px;
+  padding:22px 18px 26px;
   box-shadow:0 22px 45px rgba(0,0,0,.12);
 }
 
-label{font-weight:700;display:block;margin:14px 0 8px}
+label{
+  display:block;
+  font-weight:700;
+  font-size:15px;
+  margin:18px 0 8px;
+}
 
-select,input[type=file]{
+/* SELECT */
+.select-wrap{
+  position:relative;
+}
+
+.select-wrap select{
   width:100%;
-  padding:18px;
+  padding:18px 46px 18px 18px;
   border-radius:22px;
   border:none;
   background:var(--soft);
+  font-size:16px;
+  appearance:none;
 }
 
+.select-wrap::after{
+  content:"▾";
+  position:absolute;
+  right:18px;
+  top:50%;
+  transform:translateY(-50%);
+  color:#555;
+}
+
+/* BOTONES */
 button{
   width:100%;
-  padding:18px;
   border:none;
   border-radius:26px;
+  padding:18px;
+  font-size:17px;
   font-weight:800;
-  margin-top:12px;
   cursor:pointer;
 }
 
-.primary{
-  background:linear-gradient(135deg,var(--primary),var(--primary-dark));
+.btn-dark{
+  background:#111827;
   color:#fff;
+  margin-bottom:16px;
 }
 
-.dark{background:#111827;color:#fff}
+.btn-primary{
+  background:linear-gradient(135deg,var(--primary),var(--primary-dark));
+  color:#fff;
+  margin-top:16px;
+}
 
-#qr-reader{display:none;margin-bottom:12px}
+button:disabled{
+  opacity:.4;
+}
 
+/* FOTO */
+.upload-btn{
+  background:var(--primary);
+  color:#fff;
+  border-radius:26px;
+  padding:18px;
+  text-align:center;
+  font-weight:800;
+  margin-top:6px;
+}
+
+.upload-info{
+  text-align:center;
+  font-size:13px;
+  color:var(--muted);
+  margin-top:6px;
+}
+
+input[type=file]{
+  display:none;
+}
+
+/* LOADER */
+.loader{
+  display:none;
+  margin-top:14px;
+  text-align:center;
+  font-size:14px;
+  font-weight:600;
+  color:var(--muted);
+}
+
+/* MODAL */
 .overlay{
   position:fixed;
   inset:0;
@@ -97,15 +178,11 @@ button{
 
 .modal{
   background:#fff;
-  padding:36px;
   border-radius:26px;
+  padding:36px 26px;
+  width:85%;
+  max-width:360px;
   text-align:center;
-}
-
-.loader{
-  display:none;
-  text-align:center;
-  font-weight:700;
 }
 </style>
 </head>
@@ -123,23 +200,29 @@ button{
 
 <div class="card">
 
-<button class="dark" onclick="iniciarQR()">📷 Escanear QR</button>
+<button class="btn-dark" onclick="iniciarQR()">📷 Escanear QR</button>
 <div id="qr-reader"></div>
 
 <label>Empleado que realiza la entrega</label>
-<select id="empleado" disabled>
-  <option>Seleccione</option>
-  <option>Fernando</option>
-  <option>Felipe</option>
-  <option>Brandon</option>
-  <option>Iver</option>
-  <option>Leonardo</option>
-</select>
+<div class="select-wrap">
+  <select id="empleado" disabled>
+    <option>Seleccione</option>
+    <option>Fernando</option>
+    <option>Felipe</option>
+    <option>Brandon</option>
+    <option>Iver</option>
+    <option>Leonardo</option>
+  </select>
+</div>
 
 <label>Foto de la entrega</label>
+<div class="upload-btn" onclick="document.getElementById('foto').click()">
+  Seleccionar foto
+</div>
+<div class="upload-info" id="fileName">Ningún archivo seleccionado</div>
 <input type="file" id="foto" accept="image/*" capture disabled>
 
-<button class="primary" onclick="enviar()" disabled id="btnEnviar">
+<button class="btn-primary" id="btnEnviar" onclick="enviar()" disabled>
   Confirmar entrega
 </button>
 
@@ -150,39 +233,39 @@ button{
 
 <div class="overlay" id="overlay">
   <div class="modal">
-    <h2>✔ Entrega registrada</h2>
-    <button class="primary" onclick="cerrar()">OK</button>
+    <h2>✔ Entrega registrada correctamente</h2>
+    <button class="btn-primary" onclick="cerrar()">OK</button>
   </div>
 </div>
 
 <audio id="sound" src="https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3"></audio>
 
 <script>
-const ENDPOINT = "https://script.google.com/macros/s/AKfycbyV-zd8vtaWoxdjwUw5vb1GIjQvyr5c2ZauiAQsaA08uIAqM7uWsBzAYMgNzMjZQeHy/exec";
-let ID = "";
+const ENDPOINT="https://script.google.com/macros/s/AKfycbyV-zd8vtaWoxdjwUw5vb1GIjQvyr5c2ZauiAQsaA08uIAqM7uWsBzAYMgNzMjZQeHy/exec";
+let ID="";
 
 function iniciarQR(){
-  const qr = new Html5Qrcode("qr-reader");
-  document.getElementById('qr-reader').style.display='block';
-
+  const qr=new Html5Qrcode("qr-reader");
   qr.start({facingMode:"environment"},{fps:10,qrbox:220},txt=>{
     qr.stop();
     if(navigator.vibrate) navigator.vibrate(200);
 
-    if(txt.includes("id=")){
-      ID = new URL(txt).searchParams.get("id");
-    } else {
-      ID = txt;
-    }
+    ID = txt.includes("id=") ? new URL(txt).searchParams.get("id") : txt;
 
-    document.getElementById('idCliente').textContent="ID Cliente: "+ID;
-    document.getElementById('idCliente').style.display="inline-block";
+    const pill=document.getElementById('idCliente');
+    pill.textContent="ID Cliente: "+ID;
+    pill.style.display="block";
 
     document.getElementById('empleado').disabled=false;
     document.getElementById('foto').disabled=false;
     document.getElementById('btnEnviar').disabled=false;
   });
 }
+
+document.getElementById('foto').addEventListener('change',e=>{
+  document.getElementById('fileName').textContent =
+    e.target.files[0]?.name || 'Ningún archivo seleccionado';
+});
 
 function enviar(){
   const emp=document.getElementById('empleado').value;

@@ -240,25 +240,30 @@ function iniciarQR(){
 }
 
 function validarQR(idCliente){
-  fetch(ENDPOINT,{
-    method:"POST",
-    headers:{ "Content-Type":"application/json" },
-    body:JSON.stringify({ action:"validarQR", idCliente })
-  })
-  .then(r=>r.json())
-  .then(resp=>{
+  fetch(
+    ENDPOINT +
+    "?action=validarQR&idCliente=" +
+    encodeURIComponent(idCliente)
+  )
+  .then(r => r.json())
+  .then(resp => {
     if(!resp.ok){
       mostrarError(resp.mensaje);
       bloquearFormulario();
       return;
     }
+
     ID = resp.data.id;
-    QR_VALIDO = true;
-    idClienteDiv.textContent = "ID Cliente: " + ID;
-    idClienteDiv.style.display="block";
+    document.getElementById("idCliente").textContent =
+      "ID Cliente: " + ID;
+    document.getElementById("idCliente").style.display = "block";
+
     habilitarFormulario();
   })
-  .catch(()=>mostrarError("Error validando el QR"));
+  .catch(() => {
+    mostrarError("Error validando el QR");
+    bloquearFormulario();
+  });
 }
 
 function habilitarFormulario(){

@@ -164,66 +164,91 @@ input[type=file]{display:none}
 
 <body>
 
+<!-- SONIDOS -->
+<audio id="soundOk" src="https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3"></audio>
+<audio id="soundError" src="https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3"></audio>
+
 <div class="app">
-<img class="logo" src="LOGO_EDITABLE_oficial.png">
+  <img class="logo" src="LOGO_EDITABLE_oficial.png">
 
-<h1>Gestor de Entregas</h1>
-<div class="subtitle">Confirmación de entrega del pedido</div>
+  <h1>Gestor de Entregas</h1>
+  <div class="subtitle">Confirmación de entrega del pedido</div>
 
-<div class="id-pill" id="idCliente"></div>
+  <div class="id-pill" id="idCliente"></div>
 
-<div class="card">
-<button class="btn-dark" onclick="iniciarQR()">📷 Escanear QR</button>
-<div id="qr-reader"></div>
+  <div class="card">
+    <button class="btn-dark" id="btnQR">📷 Escanear QR</button>
+    <div id="qr-reader"></div>
 
-<label>Empleado que realiza la entrega</label>
-<div class="select-wrap">
-<select id="empleado" disabled>
-<option value="">Seleccione</option>
-<option>Fernando</option>
-<option>Felipe</option>
-<option>Brandon</option>
-<option>Iver</option>
-<option>Leonardo</option>
-</select>
+    <label>Empleado que realiza la entrega</label>
+    <div class="select-wrap">
+      <select id="empleado" disabled>
+        <option value="">Seleccione</option>
+        <option>Fernando</option>
+        <option>Felipe</option>
+        <option>Brandon</option>
+        <option>Iver</option>
+        <option>Leonardo</option>
+      </select>
+    </div>
+
+    <label>Foto de la entrega</label>
+    <div class="upload-btn" id="btnFoto">Seleccionar foto</div>
+    <div class="upload-info" id="fileName">Ningún archivo seleccionado</div>
+    <input type="file" id="foto" accept="image/*" capture disabled>
+
+    <button class="btn-primary" id="btnEnviar" disabled>Confirmar entrega</button>
+    <div class="loader" id="loader">Registrando entrega…</div>
+  </div>
 </div>
 
-<label>Foto de la entrega</label>
-<div class="upload-btn" onclick="foto.click()">Seleccionar foto</div>
-<div class="upload-info" id="fileName">Ningún archivo seleccionado</div>
-<input type="file" id="foto" accept="image/*" capture disabled>
-
-<button class="btn-primary" id="btnEnviar" disabled>Confirmar entrega</button>
-<div class="loader" id="loader">Registrando entrega…</div>
-</div>
-</div>
-
-<!-- MODALES -->
+<!-- MODAL ERROR -->
 <div class="overlay" id="overlayError">
   <div class="modal">
     <h2 style="color:var(--danger)">QR inválido</h2>
     <p id="errorMsg"></p>
-    <button class="btn-primary" onclick="cerrarError()">OK</button>
+    <button class="btn-primary" id="btnCerrarError">OK</button>
   </div>
 </div>
 
+<!-- MODAL ÉXITO -->
 <div class="overlay" id="overlaySuccess">
   <div class="modal">
     <h2 style="color:var(--success)">✔ Entrega registrada</h2>
     <p>La entrega fue registrada correctamente.</p>
-    <button class="btn-primary" onclick="cerrarSuccess()">OK</button>
+    <button class="btn-primary" id="btnCerrarSuccess">OK</button>
   </div>
 </div>
 
 <script>
 const ENDPOINT = "https://script.google.com/macros/s/AKfycbyV-zd8vtaWoxdjwUw5vb1GIjQvyr5c2ZauiAQsaA08uIAqM7uWsBzAYMgNzMjZQeHy/exec";
 
+const idClienteDiv = document.getElementById("idCliente");
+const empleado = document.getElementById("empleado");
+const foto = document.getElementById("foto");
+const btnEnviar = document.getElementById("btnEnviar");
+const loader = document.getElementById("loader");
+const fileName = document.getElementById("fileName");
+
+const overlayError = document.getElementById("overlayError");
+const overlaySuccess = document.getElementById("overlaySuccess");
+const errorMsg = document.getElementById("errorMsg");
+
+const soundOk = document.getElementById("soundOk");
+const soundError = document.getElementById("soundError");
+
 let qrInstance = null;
 let ID = null;
-let QR_VALIDO = false;
+
+/* =====================
+   QR
+===================== */
+document.getElementById("btnQR").addEventListener("click", iniciarQR);
 
 function iniciarQR(){
-  if(qrInstance) qrInstance.clear();
+  if(qrInstance){
+    qrInstance.clear();
+  }
 
   qrInstance = new Html5Qrcode("qr-reader");
   qrInstance.start(
@@ -231,42 +256,46 @@ function iniciarQR(){
     { fps:10, qrbox:220 },
     textoQR=>{
       qrInstance.stop();
+
       let id = textoQR.includes("id=")
         ? new URL(textoQR).searchParams.get("id")
         : textoQR;
+
       validarQR(id.trim());
     }
   );
 }
 
 function validarQR(idCliente){
-  fetch(
-    ENDPOINT +
-    "?action=validarQR&id=" +
-    encodeURIComponent(idCliente)
-  )
-  .then(r => r.json())
-  .then(resp => {
-    if(!resp.ok){
-      mostrarError(resp.mensaje || "Este QR no pertenece a un cliente del sistema.");
+  fetch(ENDPOINT + "?action=validarQR&id=" + encodeURIComponent(idCliente))
+    .then(r=>r.json())
+    .then(resp=>{
+      if(!resp.ok){
+        soundError.play().catch(()=>{});
+        mostrarError(resp.mensaje || "Este QR no pertenece a un cliente del sistema.");
+        bloquearFormulario();
+        return;
+      }
+
+      soundOk.play().catch(()=>{});
+      if(navigator.vibrate) navigator.vibrate(150);
+
+      ID = resp.data.id;
+      idClienteDiv.textContent = "ID Cliente: " + ID;
+      idClienteDiv.style.display = "block";
+
+      habilitarFormulario();
+    })
+    .catch(()=>{
+      soundError.play().catch(()=>{});
+      mostrarError("Error validando el QR");
       bloquearFormulario();
-      return;
-    }
-
-    ID = resp.data.id;
-    QR_VALIDO = true;
-
-    document.getElementById("idCliente").textContent = "ID Cliente: " + ID;
-    document.getElementById("idCliente").style.display = "block";
-
-    habilitarFormulario();
-  })
-  .catch(() => {
-    mostrarError("Error validando el QR");
-    bloquearFormulario();
-  });
+    });
 }
 
+/* =====================
+   FORM
+===================== */
 function habilitarFormulario(){
   empleado.disabled = false;
   foto.disabled = false;
@@ -274,88 +303,84 @@ function habilitarFormulario(){
 }
 
 function bloquearFormulario(){
-  ID=null;
-  QR_VALIDO=false;
-  idClienteDiv.style.display="none";
-  empleado.disabled=true;
-  foto.disabled=true;
-  btnEnviar.disabled=true;
+  ID = null;
+  idClienteDiv.style.display = "none";
+  empleado.disabled = true;
+  foto.disabled = true;
+  btnEnviar.disabled = true;
 }
 
-foto.addEventListener("change",e=>{
+document.getElementById("btnFoto").addEventListener("click", ()=>foto.click());
+
+foto.addEventListener("change", e=>{
   fileName.textContent = e.target.files[0]?.name || "Ningún archivo seleccionado";
 });
 
-/* CLICK REAL DEL BOTÓN */
+/* =====================
+   ENTREGA
+===================== */
 btnEnviar.addEventListener("click", confirmarEntrega);
 
 function confirmarEntrega(){
-  const empleadoEl = document.getElementById('empleado');
-  const fotoEl = document.getElementById('foto');
-  const loaderEl = document.getElementById('loader');
+  const emp = empleado.value;
+  const file = foto.files[0];
 
-  const emp = empleadoEl.value;
-  const file = fotoEl.files[0];
-
-  // VALIDACIONES CLARAS (no silenciosas)
-  if(!QR_VALIDO || !ID){
-    mostrarError("Debe escanear un QR válido primero.");
+  if(!ID || !emp || !file){
+    mostrarError("Complete todos los campos antes de confirmar.");
     return;
   }
 
-  if(!emp){
-    mostrarError("Seleccione el empleado que realiza la entrega.");
-    return;
-  }
-
-  if(!file){
-    mostrarError("Debe seleccionar una foto de la entrega.");
-    return;
-  }
-
-  // UX inmediata (lo que querías)
-  loaderEl.style.display = "block";
-  mostrarSuccess();          // visual rápido
-  bloquearFormulario();     // evita doble envío
+  loader.style.display = "block";
+  if(navigator.vibrate) navigator.vibrate([120,80,120]);
 
   const reader = new FileReader();
-
-  reader.onload = () => {
-    fetch(ENDPOINT, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
+  reader.onload = ()=>{
+    fetch(ENDPOINT,{
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body:JSON.stringify({
         idCliente: ID,
         empleado: emp,
         foto: reader.result
       })
     })
-    .then(r => r.json())
-    .then(res => {
-      loaderEl.style.display = "none";
+    .then(r=>r.json())
+    .then(res=>{
+      loader.style.display="none";
 
       if(!res.ok){
-        cerrarSuccess();
-        mostrarError(res.mensaje || "Error registrando la entrega.");
+        soundError.play().catch(()=>{});
+        mostrarError(res.mensaje || "Error registrando la entrega");
+        return;
       }
+
+      soundOk.play().catch(()=>{});
+      mostrarSuccess();
+      bloquearFormulario();
     })
-    .catch(() => {
-      loaderEl.style.display = "none";
-      cerrarSuccess();
-      mostrarError("No se pudo conectar con el servidor.");
+    .catch(()=>{
+      loader.style.display="none";
+      soundError.play().catch(()=>{});
+      mostrarError("No se pudo registrar la entrega");
     });
   };
 
   reader.readAsDataURL(file);
 }
 
+/* =====================
+   MODALES
+===================== */
 function mostrarError(msg){
-  errorMsg.textContent=msg;
-  overlayError.style.display="flex";
+  errorMsg.textContent = msg;
+  overlayError.style.display = "flex";
 }
-function cerrarError(){overlayError.style.display="none";}
-function mostrarSuccess(){overlaySuccess.style.display="flex";}
-function cerrarSuccess(){overlaySuccess.style.display="none";}
+document.getElementById("btnCerrarError").onclick = ()=>overlayError.style.display="none";
+
+function mostrarSuccess(){
+  overlaySuccess.style.display = "flex";
+}
+document.getElementById("btnCerrarSuccess").onclick = ()=>overlaySuccess.style.display="none";
 </script>
 
 </body>

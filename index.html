@@ -289,35 +289,54 @@ foto.addEventListener("change",e=>{
 });
 
 function confirmarEntrega(){
-  const emp=empleado.value;
-  const file=foto.files[0];
-  if(!ID||!emp||!file) return;
+  const emp = empleado.value;
+  const file = foto.files[0];
 
-  loader.style.display="block";
+  if(!QR_VALIDO || !ID || !emp || !file){
+    mostrarError("Complete todos los campos antes de confirmar.");
+    return;
+  }
 
-  const reader=new FileReader();
-  reader.onload=()=>{
-    fetch(ENDPOINT,{
-      method:"POST",
-      body:JSON.stringify({
-        idCliente:ID,
-        empleado:emp,
-        foto:reader.result
+  // Mostrar loader
+  loader.style.display = "block";
+
+  const reader = new FileReader();
+
+  reader.onload = () => {
+
+    // ⚡ UX RÁPIDA: mostramos éxito visual inmediato
+    mostrarSuccess();
+    bloquearFormulario();
+
+    fetch(ENDPOINT, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        idCliente: ID,
+        empleado: emp,
+        foto: reader.result
       })
     })
-    .then(r=>r.json())
-    .then(res=>{
-      loader.style.display="none";
+    .then(r => r.json())
+    .then(res => {
+      loader.style.display = "none";
+
+      // Si backend falla, corregimos UX
       if(!res.ok){
-        mostrarError(res.mensaje);
-        return;
+        cerrarSuccess();
+        mostrarError(res.mensaje || "Error registrando la entrega.");
       }
-      mostrarSuccess();
-      bloquearFormulario();
+    })
+    .catch(() => {
+      loader.style.display = "none";
+      cerrarSuccess();
+      mostrarError("No se pudo conectar con el servidor.");
     });
   };
+
   reader.readAsDataURL(file);
 }
+
 
 function mostrarError(msg){
   errorMsg.textContent=msg;

@@ -81,11 +81,15 @@ label{
 }
 .select-wrap select{
   width:100%;
-  padding:18px 46px 18px 18px;
+  padding:18px 44px 18px 18px;
   border-radius:22px;
   border:none;
   background:var(--soft);
   font-size:16px;
+
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
 }
 .select-wrap::after{
   content:"▾";
@@ -93,6 +97,8 @@ label{
   right:18px;
   top:50%;
   transform:translateY(-50%);
+  color:#6b7280;
+  font-size:18px;
 }
 button{
   width:100%;
@@ -289,25 +295,26 @@ foto.addEventListener("change",e=>{
 });
 
 function confirmarEntrega(){
-  const emp = empleado.value;
-  const file = foto.files[0];
+  const empleadoEl = document.getElementById('empleado');
+  const fotoEl = document.getElementById('foto');
+  const loaderEl = document.getElementById('loader');
 
-  if(!QR_VALIDO || !ID || !emp || !file){
+  const emp = empleadoEl.value;
+  const file = fotoEl.files[0];
+
+  if(!QR_VALIDO || !ID || !emp || emp === 'Seleccione' || !file){
     mostrarError("Complete todos los campos antes de confirmar.");
     return;
   }
 
-  // Mostrar loader
-  loader.style.display = "block";
+  // UX inmediata
+  loaderEl.style.display = "block";
+  mostrarSuccess();
+  bloquearFormulario();
 
   const reader = new FileReader();
 
   reader.onload = () => {
-
-    // ⚡ UX RÁPIDA: mostramos éxito visual inmediato
-    mostrarSuccess();
-    bloquearFormulario();
-
     fetch(ENDPOINT, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -319,16 +326,15 @@ function confirmarEntrega(){
     })
     .then(r => r.json())
     .then(res => {
-      loader.style.display = "none";
+      loaderEl.style.display = "none";
 
-      // Si backend falla, corregimos UX
       if(!res.ok){
         cerrarSuccess();
         mostrarError(res.mensaje || "Error registrando la entrega.");
       }
     })
     .catch(() => {
-      loader.style.display = "none";
+      loaderEl.style.display = "none";
       cerrarSuccess();
       mostrarError("No se pudo conectar con el servidor.");
     });

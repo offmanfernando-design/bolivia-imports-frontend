@@ -26,11 +26,8 @@ function confirmar() {
 
   estado.textContent = "Confirmando entrega...";
 
-  fetch(`${API_BASE}?accion=confirmarEntrega`, {
+  fetch(API_BASE, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
     body: JSON.stringify({
       accion: "confirmarEntrega",
       id: entrega.id
@@ -43,7 +40,6 @@ function confirmar() {
         return;
       }
 
-      // Limpieza y paso a resultado
       localStorage.removeItem("entrega");
       window.location.href = "resultado.html";
     })
@@ -52,4 +48,3 @@ function confirmar() {
       estado.textContent = "Error de conexión";
     });
 }
-

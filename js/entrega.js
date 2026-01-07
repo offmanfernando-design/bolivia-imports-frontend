@@ -1,44 +1,50 @@
 const entrega = JSON.parse(localStorage.getItem("entrega"));
 const info = document.getElementById("info");
+const estadoEl = document.getElementById("estado");
 
 if (!entrega) {
-  window.location.href = "confirmar.html";
+  window.location.href = "./confirmar.html";
 }
 
+// Render info
 info.innerHTML = `
-  <p><strong>Cliente:</strong> <span id="cliente"></span></p>
-  <p><strong>ID:</strong> <span id="id"></span></p>
-  <p><strong>Descripción:</strong> <span id="descripcion"></span></p>
+  <p><strong>Cliente:</strong> ${entrega.cliente}</p>
+  <p><strong>ID:</strong> ${entrega.id}</p>
+  <p><strong>Descripción:</strong> ${entrega.descripcion}</p>
 `;
 
-document.getElementById("cliente").textContent = entrega.cliente;
-document.getElementById("id").textContent = entrega.id;
-document.getElementById("descripcion").textContent = entrega.descripcion;
+// BLOQUEO SI YA ESTÁ ENTREGADO
+if (entrega.estado === "ENTREGADO") {
+  document.querySelector("button").style.display = "none";
+  estadoEl.textContent = "⚠️ Esta entrega ya fue confirmada anteriormente.";
+  estadoEl.style.color = "green";
+}
 
-function confirmar() {
-  const entrega = JSON.parse(localStorage.getItem("entrega"));
-  const estado = document.getElementById("estado");
+// Confirmar entrega
+async function confirmar() {
+  estadoEl.textContent = "Confirmando entrega…";
 
-  if (!entrega || !entrega.id) {
-    alert("Entrega inválida");
-    return;
-  }
-
-  estado.textContent = "Confirmando entrega...";
-
-  fetch(`${API_BASE}?accion=confirmarEntrega&id=${encodeURIComponent(entrega.id)}`)
-    .then(r => r.json())
-    .then(data => {
-      if (!data.ok) {
-        estado.textContent = data.mensaje || "Error al confirmar";
-        return;
-      }
-
-      localStorage.removeItem("entrega");
-      window.location.href = "resultado.html";
-    })
-    .catch(err => {
-      console.error(err);
-      estado.textContent = "Error de conexión";
+  try {
+    const res = await fetch(API_BASE, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        accion: "confirmarEntrega",
+        id: entrega.id
+      })
     });
+
+    const data = await res.json();
+
+    if (data.ok) {
+      entrega.estado = "ENTREGADO";
+      localStorage.setItem("entrega", JSON.stringify(entrega));
+      window.location.href = "./resultado.html";
+    } else {
+      estadoEl.textContent = data.mensaje || "Error al confirmar";
+    }
+
+  } catch (err) {
+    estadoEl.textContent = "Error de conexión";
+  }
 }

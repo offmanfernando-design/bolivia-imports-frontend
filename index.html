@@ -1,387 +1,44 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Gestor de Entregas</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Bolivia Imports | Sistema Logístico</title>
 
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#2f6fed">
+  <!-- CSS global -->
+  <link rel="stylesheet" href="css/app.css" />
 
-<script src="https://unpkg.com/html5-qrcode"></script>
-
-<style>
-:root{
-  --bg:#f2f5fb;
-  --card:#ffffff;
-  --soft:#f4f6fb;
-  --primary:#2f6fed;
-  --primary-dark:#2459c8;
-  --text:#0f172a;
-  --muted:#6b7280;
-  --danger:#dc2626;
-  --success:#16a34a;
-}
-*{box-sizing:border-box}
-body{
-  margin:0;
-  font-family:-apple-system,BlinkMacSystemFont,Roboto,Arial;
-  background:var(--bg);
-  display:flex;
-  justify-content:center;
-}
-.app{
-  width:100%;
-  max-width:430px;
-  padding:22px 18px 40px;
-}
-.logo{
-  display:block;
-  margin:14px auto 18px;
-  max-width:240px;
-}
-h1{
-  margin:0;
-  text-align:center;
-  font-size:28px;
-  font-weight:800;
-  color:var(--text);
-}
-.subtitle{
-  text-align:center;
-  margin-top:6px;
-  margin-bottom:14px;
-  font-size:16px;
-  color:var(--muted);
-}
-.id-pill{
-  display:none;
-  margin:0 auto 22px;
-  padding:12px 28px;
-  border-radius:999px;
-  background:#eef2ff;
-  font-weight:600;
-  font-size:15px;
-  text-align:center;
-}
-.card{
-  background:var(--card);
-  border-radius:30px;
-  padding:22px 18px 26px;
-  box-shadow:0 22px 45px rgba(0,0,0,.12);
-}
-label{
-  display:block;
-  font-weight:700;
-  font-size:15px;
-  margin:18px 0 8px;
-}
-.select-wrap{
-  position:relative;
-}
-.select-wrap select{
-  width:100%;
-  padding:18px 44px 18px 18px;
-  border-radius:22px;
-  border:none;
-  background:var(--soft);
-  font-size:16px;
-  appearance:none;
-}
-.select-wrap::after{
-  content:"▾";
-  position:absolute;
-  right:18px;
-  top:50%;
-  transform:translateY(-50%);
-  color:#6b7280;
-  font-size:18px;
-}
-button{
-  width:100%;
-  border:none;
-  border-radius:26px;
-  padding:18px;
-  font-size:17px;
-  font-weight:800;
-}
-.btn-dark{
-  background:#111827;
-  color:#fff;
-  margin-bottom:16px;
-}
-.btn-primary{
-  background:linear-gradient(135deg,var(--primary),var(--primary-dark));
-  color:#fff;
-  margin-top:16px;
-}
-button:disabled{opacity:.4}
-.upload-btn{
-  background:var(--primary);
-  color:#fff;
-  border-radius:26px;
-  padding:18px;
-  text-align:center;
-  font-weight:800;
-  margin-top:6px;
-}
-.upload-info{
-  text-align:center;
-  font-size:13px;
-  color:var(--muted);
-  margin-top:6px;
-}
-input[type=file]{display:none}
-.loader{
-  display:none;
-  margin-top:14px;
-  text-align:center;
-  font-size:14px;
-  font-weight:600;
-  color:var(--muted);
-}
-
-/* MODALES */
-.overlay{
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,.45);
-  display:none;
-  align-items:center;
-  justify-content:center;
-  z-index:999;
-}
-.modal{
-  background:#fff;
-  border-radius:26px;
-  padding:30px 22px;
-  width:85%;
-  max-width:340px;
-  text-align:center;
-}
-</style>
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#111111" />
 </head>
-
 <body>
 
-<!-- SONIDOS -->
-<audio id="soundOk" src="https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3"></audio>
-<audio id="soundError" src="https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3"></audio>
+  <header class="home-header">
+    <img src="LOGO_EDITABLE_oficial.png" alt="Bolivia Imports" class="logo" />
+    <h1>Bolivia Imports</h1>
+    <p>Sistema Logístico</p>
+  </header>
 
-<div class="app">
-  <img class="logo" src="LOGO_EDITABLE_oficial.png">
+  <main class="home-grid">
+    <a href="confirmar/" class="home-card primary">
+      <span class="icon">📦</span>
+      <span class="title">Confirmar entrega</span>
+      <span class="desc">Escanear QR o ingresar código</span>
+    </a>
 
-  <h1>Gestor de Entregas</h1>
-  <div class="subtitle">Confirmación de entrega del pedido</div>
+    <a href="cobros/" class="home-card">
+      <span class="icon">💰</span>
+      <span class="title">Cobros</span>
+      <span class="desc">Pagos y avisos pendientes</span>
+    </a>
 
-  <div class="id-pill" id="idCliente"></div>
-
-  <div class="card">
-    <button class="btn-dark" id="btnQR">📷 Escanear QR</button>
-    <div id="qr-reader"></div>
-
-    <label>Empleado que realiza la entrega</label>
-    <div class="select-wrap">
-      <select id="empleado" disabled>
-        <option value="">Seleccione</option>
-        <option>Fernando</option>
-        <option>Felipe</option>
-        <option>Brandon</option>
-        <option>Iver</option>
-        <option>Leonardo</option>
-      </select>
-    </div>
-
-    <label>Foto de la entrega</label>
-    <div class="upload-btn" id="btnFoto">Seleccionar foto</div>
-    <div class="upload-info" id="fileName">Ningún archivo seleccionado</div>
-    <input type="file" id="foto" accept="image/*" capture disabled>
-
-    <button class="btn-primary" id="btnEnviar" disabled>Confirmar entrega</button>
-    <div class="loader" id="loader">Registrando entrega…</div>
-  </div>
-</div>
-
-<!-- MODAL ERROR -->
-<div class="overlay" id="overlayError">
-  <div class="modal">
-    <h2 style="color:var(--danger)">QR inválido</h2>
-    <p id="errorMsg"></p>
-    <button class="btn-primary" id="btnCerrarError">OK</button>
-  </div>
-</div>
-
-<!-- MODAL ÉXITO -->
-<div class="overlay" id="overlaySuccess">
-  <div class="modal">
-    <h2 style="color:var(--success)">✔ Entrega registrada</h2>
-    <p>La entrega fue registrada correctamente.</p>
-    <button class="btn-primary" id="btnCerrarSuccess">OK</button>
-  </div>
-</div>
-
-<script>
-const ENDPOINT = "https://script.google.com/macros/s/AKfycbyV-zd8vtaWoxdjwUw5vb1GIjQvyr5c2ZauiAQsaA08uIAqM7uWsBzAYMgNzMjZQeHy/exec";
-
-const idClienteDiv = document.getElementById("idCliente");
-const empleado = document.getElementById("empleado");
-const foto = document.getElementById("foto");
-const btnEnviar = document.getElementById("btnEnviar");
-const loader = document.getElementById("loader");
-const fileName = document.getElementById("fileName");
-
-const overlayError = document.getElementById("overlayError");
-const overlaySuccess = document.getElementById("overlaySuccess");
-const errorMsg = document.getElementById("errorMsg");
-
-const soundOk = document.getElementById("soundOk");
-const soundError = document.getElementById("soundError");
-
-let qrInstance = null;
-let ID = null;
-
-/* =====================
-   QR
-===================== */
-document.getElementById("btnQR").addEventListener("click", iniciarQR);
-
-function iniciarQR(){
-  if(qrInstance){
-    qrInstance.clear();
-  }
-
-  qrInstance = new Html5Qrcode("qr-reader");
-  qrInstance.start(
-    { facingMode:"environment" },
-    { fps:10, qrbox:220 },
-    textoQR=>{
-      qrInstance.stop();
-
-      let id = textoQR.includes("id=")
-        ? new URL(textoQR).searchParams.get("id")
-        : textoQR;
-
-      validarQR(id.trim());
-    }
-  );
-}
-
-function validarQR(idCliente){
-  fetch(ENDPOINT + "?action=validarQR&id=" + encodeURIComponent(idCliente))
-    .then(r=>r.json())
-    .then(resp=>{
-      if(!resp.ok){
-        soundError.play().catch(()=>{});
-        mostrarError(resp.mensaje || "Este QR no pertenece a un cliente del sistema.");
-        bloquearFormulario();
-        return;
-      }
-
-      soundOk.play().catch(()=>{});
-      if(navigator.vibrate) navigator.vibrate(150);
-
-      ID = resp.data.id;
-      idClienteDiv.textContent = "ID Cliente: " + ID;
-      idClienteDiv.style.display = "block";
-
-      habilitarFormulario();
-    })
-    .catch(()=>{
-      soundError.play().catch(()=>{});
-      mostrarError("Error validando el QR");
-      bloquearFormulario();
-    });
-}
-
-/* =====================
-   FORM
-===================== */
-function habilitarFormulario(){
-  empleado.disabled = false;
-  foto.disabled = false;
-  btnEnviar.disabled = false;
-}
-
-function bloquearFormulario(){
-  ID = null;
-  idClienteDiv.style.display = "none";
-  empleado.disabled = true;
-  foto.disabled = true;
-  btnEnviar.disabled = true;
-}
-
-document.getElementById("btnFoto").addEventListener("click", ()=>foto.click());
-
-foto.addEventListener("change", e=>{
-  fileName.textContent = e.target.files[0]?.name || "Ningún archivo seleccionado";
-});
-
-/* =====================
-   ENTREGA
-===================== */
-btnEnviar.addEventListener("click", confirmarEntrega);
-
-function confirmarEntrega(){
-  const emp = empleado.value;
-  const file = foto.files[0];
-
-  if(!ID || !emp || !file){
-    mostrarError("Complete todos los campos antes de confirmar.");
-    return;
-  }
-
-  loader.style.display = "block";
-  if(navigator.vibrate) navigator.vibrate([120,80,120]);
-
-  const reader = new FileReader();
-  reader.onload = ()=>{
-    fetch(ENDPOINT,{
-      method:"POST",
-      headers:{ "Content-Type":"application/json" },
-      body:JSON.stringify({
-        idCliente: ID,
-        empleado: emp,
-        foto: reader.result
-      })
-    })
-    .then(r=>r.json())
-    .then(res=>{
-      loader.style.display="none";
-
-      if(!res.ok){
-        soundError.play().catch(()=>{});
-        mostrarError(res.mensaje || "Error registrando la entrega");
-        return;
-      }
-
-      soundOk.play().catch(()=>{});
-      mostrarSuccess();
-      bloquearFormulario();
-    })
-    .catch(()=>{
-      loader.style.display="none";
-      soundError.play().catch(()=>{});
-      mostrarError("No se pudo registrar la entrega");
-    });
-  };
-
-  reader.readAsDataURL(file);
-}
-
-/* =====================
-   MODALES
-===================== */
-function mostrarError(msg){
-  errorMsg.textContent = msg;
-  overlayError.style.display = "flex";
-}
-document.getElementById("btnCerrarError").onclick = ()=>overlayError.style.display="none";
-
-function mostrarSuccess(){
-  overlaySuccess.style.display = "flex";
-}
-document.getElementById("btnCerrarSuccess").onclick = ()=>overlaySuccess.style.display="none";
-</script>
+    <a href="auditoria/" class="home-card">
+      <span class="icon">📜</span>
+      <span class="title">Auditoría</span>
+      <span class="desc">Historial de acciones</span>
+    </a>
+  </main>
 
 </body>
 </html>

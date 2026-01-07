@@ -26,13 +26,7 @@ function confirmar() {
 
   estado.textContent = "Confirmando entrega...";
 
-  fetch(API_BASE, {
-    method: "POST",
-    body: JSON.stringify({
-      accion: "confirmarEntrega",
-      id: entrega.id
-    })
-  })
+  fetch(`${API_BASE}?accion=confirmarEntrega&id=${encodeURIComponent(entrega.id)}`)
     .then(r => r.json())
     .then(data => {
       if (!data.ok) {

@@ -1,3 +1,6 @@
+alert("cobros.js cargado");
+
+
 const lista = document.getElementById("lista-cobros");
 const estado = document.getElementById("estado");
 

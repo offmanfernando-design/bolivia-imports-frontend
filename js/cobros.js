@@ -25,7 +25,11 @@ function cargarCobros() {
         div.innerHTML = `
           <strong>${c.nombre}</strong>
           <p>ID: ${c.entrega_id}</p>
-          <p>Monto: Bs ${c.monto}</p>
+          const montoFormateado = Number(c.monto).toLocaleString("es-BO", {
+          minimumFractionDigits: c.monto % 1 === 0 ? 0 : 2,
+          maximumFractionDigits: 2
+         });
+
           <p>Avisos: ${c.avisos}</p>
 
           <button class="btn-avisar">Avisar</button>

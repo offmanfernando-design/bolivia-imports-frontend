@@ -19,17 +19,20 @@ function cargarCobros() {
       }
 
       data.cobros.forEach(c => {
+
+        // ✅ FORMATEO CORRECTO DEL MONTO
+        const montoFormateado = Number(c.monto).toLocaleString("es-BO", {
+          minimumFractionDigits: c.monto % 1 === 0 ? 0 : 2,
+          maximumFractionDigits: 2
+        });
+
         const div = document.createElement("div");
         div.className = "home-card";
 
         div.innerHTML = `
           <strong>${c.nombre}</strong>
           <p>ID: ${c.entrega_id}</p>
-          const montoFormateado = Number(c.monto).toLocaleString("es-BO", {
-          minimumFractionDigits: c.monto % 1 === 0 ? 0 : 2,
-          maximumFractionDigits: 2
-         });
-
+          <p>Monto: Bs ${montoFormateado}</p>
           <p>Avisos: ${c.avisos}</p>
 
           <button class="btn-avisar">Avisar</button>
@@ -61,7 +64,7 @@ function avisar(id) {
     .then(data => {
       if (data.ok) {
         alert("Aviso registrado");
-        cargarCobros(); // refresca sin recargar la página
+        cargarCobros();
       } else {
         alert("Error al avisar");
       }
@@ -86,7 +89,7 @@ function pagar(id) {
       }
 
       estado.textContent = "Cobro marcado como PAGADO";
-      cargarCobros(); // desaparece de la lista
+      cargarCobros();
     })
     .catch(() => {
       estado.textContent = "Error de conexión";

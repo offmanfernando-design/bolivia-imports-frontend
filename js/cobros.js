@@ -38,9 +38,23 @@ fetch(`${API_BASE}?accion=listarCobros`)
   });
 
 function avisar(id) {
-  estado.textContent = `Aviso enviado para ${id}`;
-  // luego lo conectamos al backend
+  estado.textContent = "Enviando aviso...";
+
+  fetch(`${API_BASE}?accion=avisarCobro&id=${id}`)
+    .then(r => r.json())
+    .then(res => {
+      if (res.ok) {
+        estado.textContent = "Aviso registrado";
+        location.reload();
+      } else {
+        estado.textContent = res.mensaje || "Error al avisar";
+      }
+    })
+    .catch(() => {
+      estado.textContent = "Error de conexión";
+    });
 }
+
 
 function pagar(id) {
   estado.textContent = `Cobro marcado como pagado: ${id}`;

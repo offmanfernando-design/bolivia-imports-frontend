@@ -1,5 +1,5 @@
 /* =========================================================
-   COBROS UI – FRONTEND
+   COBROS UI – FRONTEND (ROBUSTO V1)
    Bolivia Imports – Sistema Logístico
    ========================================================= */
 
@@ -9,22 +9,28 @@ let tabActual = 'pendiente';
 let datos = [];
 let textoBusqueda = '';
 
-/* ===== INIT ===== */
-document.addEventListener('DOMContentLoaded', () => {
-  cargarCobros();
-});
+document.addEventListener('DOMContentLoaded', cargarCobros);
 
-/* ===== NORMALIZAR ESTADO (CLAVE) ===== */
-function normalizarEstado(d) {
-  const raw = (d.estado || d.estado_cobro || '').toString().toLowerCase();
-
-  if (raw.includes('pag')) return 'pagado';
-  if (raw.includes('avi')) return 'avisado';
-
-  return 'pendiente';
+/* ===============================
+   CARGA BACKEND
+================================ */
+function cargarCobros() {
+  fetch(`${API_URL}?accion=listarCobros`)
+    .then(r => r.json())
+    .then(res => {
+      if (!res.ok) {
+        alert(res.mensaje || 'Error backend');
+        return;
+      }
+      datos = res.cobros || [];
+      render();
+    })
+    .catch(() => alert('No conecta con Apps Script'));
 }
 
-/* ===== CAMBIO DE TAB ===== */
+/* ===============================
+   CAMBIO DE TAB
+================================ */
 function cambiarTab(tab, btn) {
   tabActual = tab;
 
@@ -36,45 +42,52 @@ function cambiarTab(tab, btn) {
   render();
 }
 
-/* ===== FETCH ===== */
-function cargarCobros() {
-  fetch(`${API_URL}?accion=listarCobros`)
-    .then(r => r.json())
-    .then(res => {
-      if (!res.ok) {
-        alert(res.mensaje || 'Error al cargar cobros');
-        return;
-      }
-      datos = res.cobros || [];
-      render();
-    })
-    .catch(() => alert('Error de conexión con servidor'));
-}
-
-/* ===== BUSCADOR ===== */
+/* ===============================
+   BUSCADOR
+================================ */
 function aplicarBusqueda() {
   const input = document.getElementById('buscadorCobros');
   textoBusqueda = (input.value || '').toLowerCase();
   render();
 }
 
-/* ===== RENDER ===== */
+/* ===============================
+   DETERMINAR ESTADO REAL
+================================ */
+function estadoCobro(entrega) {
+  const cobrado = Number(entrega.monto_cobrado_bs || 0);
+  const total = Number(entrega.cobro_total_bs || 0);
+  const avisos = Number(entrega.cantidad_avisos || 0);
+
+  if (total > 0 && cobrado >= total) return 'pagado';
+  if (avisos > 0) return 'avisado';
+  return 'pendiente';
+}
+
+/* ===============================
+   RENDER
+================================ */
 function render() {
   const cont = document.getElementById('listaCobros');
   cont.innerHTML = '';
 
   const filtrados = datos.filter(d => {
-    // 1. estado
-    if (normalizarEstado(d) !== tabActual) return false;
 
-    // 2. búsqueda
+    /* Estado */
+    if (estadoCobro(d) !== tabActual) return false;
+
+    /* Búsqueda */
     if (!textoBusqueda) return true;
+
+    const tracking = (d.tracking || '').toString();
+    const ultimos4 = tracking.slice(-4);
 
     const texto = `
       ${d.nombre || ''}
       ${d.numero || ''}
+      ${tracking}
+      ${ultimos4}
       ${d.entrega_id || ''}
-      ${d.tracking || ''}
     `.toLowerCase();
 
     return texto.includes(textoBusqueda);
@@ -89,15 +102,17 @@ function render() {
     cont.innerHTML += `
       <div class="card">
         <strong>${d.nombre || 'Sin nombre'}</strong>
-        <small>Monto: ${Number(d.monto || 0).toFixed(2)} Bs</small>
-        ${renderAcciones(d)}
+        <small>Monto: ${Number(d.cobro_total_bs || 0).toFixed(2)} Bs</small>
+        ${acciones(d)}
       </div>
     `;
   });
 }
 
-/* ===== ACCIONES ===== */
-function renderAcciones(d) {
+/* ===============================
+   ACCIONES
+================================ */
+function acciones(d) {
 
   if (tabActual === 'pendiente') {
     return `
@@ -112,12 +127,8 @@ function renderAcciones(d) {
   if (tabActual === 'avisado') {
     return `
       <div class="actions">
-        <button onclick="avisar('${d.entrega_id}')">
-          Reavisar
-        </button>
-        <button class="primary" onclick="pagar('${d.entrega_id}')">
-          Registrar pago
-        </button>
+        <button onclick="avisar('${d.entrega_id}')">Reavisar</button>
+        <button class="primary" onclick="pagar('${d.entrega_id}')">Pagar</button>
       </div>
     `;
   }
@@ -125,7 +136,9 @@ function renderAcciones(d) {
   return '';
 }
 
-/* ===== AVISAR ===== */
+/* ===============================
+   AVISAR
+================================ */
 function avisar(id) {
   if (!confirm('¿Enviar aviso de cobro?')) return;
 
@@ -134,7 +147,9 @@ function avisar(id) {
     .catch(() => alert('Error al avisar'));
 }
 
-/* ===== PAGAR ===== */
+/* ===============================
+   PAGAR
+================================ */
 function pagar(id) {
   if (!confirm('¿Confirmar pago recibido?')) return;
 

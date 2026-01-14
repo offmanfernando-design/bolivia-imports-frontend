@@ -1,124 +1,144 @@
-const lista = document.getElementById("lista-cobros");
-const estado = document.getElementById("estado");
+/* =========================================================
+   COBROS UI – FRONTEND
+   Archivo: js/cobros.js
+   Bolivia Imports – Sistema Logístico
+   ========================================================= */
 
-/**
- * =========================
- * Cargar cobros pendientes
- * =========================
- */
+/* ===== URL OFICIAL DE APPS SCRIPT ===== */
+const API_URL = 'https://script.google.com/macros/s/AKfycbzbxPWwcJI6XoNlrAA5QlfxNaAg1l78SMB90v2syYOaEIyLpI8j4_ttsyFH3lqF4SfO/exec';
+
+/* ===== ESTADO ===== */
+let tabActual = 'pendiente';
+let datos = [];
+
+/* ===== INIT ===== */
+document.addEventListener('DOMContentLoaded', () => {
+  cargarCobros();
+});
+
+/* ===== TABS ===== */
+function cambiarTab(tab) {
+  tabActual = tab;
+
+  document.querySelectorAll('.tab')
+    .forEach(b => b.classList.remove('active'));
+
+  event.target.classList.add('active');
+  render();
+}
+
+/* ===== FETCH LISTA ===== */
 function cargarCobros() {
-  fetch(`${API_BASE}?accion=listarCobros`)
+  fetch(`${API_URL}?accion=listarCobros`)
     .then(res => res.json())
-    .then(data => {
-      lista.innerHTML = "";
-      estado.textContent = "";
-
-      if (!data.ok || data.cobros.length === 0) {
-        lista.innerHTML = "<p>No hay cobros pendientes</p>";
+    .then(json => {
+      if (!json.ok) {
+        alert(json.mensaje || 'Error al listar cobros');
         return;
       }
-
-      data.cobros.forEach(c => {
-
-        // ✅ FORMATEO CORRECTO DEL MONTO
-        const montoFormateado = Number(c.monto).toLocaleString("es-BO", {
-          minimumFractionDigits: c.monto % 1 === 0 ? 0 : 2,
-          maximumFractionDigits: 2
-        });
-
-        const div = document.createElement("div");
-        div.className = "home-card";
-
-        div.innerHTML = `
-          <strong>${c.nombre}</strong>
-          <p>ID: ${c.entrega_id}</p>
-          <p>Monto: Bs ${montoFormateado}</p>
-          <p>Avisos: ${c.avisos}</p>
-
-          <button class="btn-avisar">Avisar</button>
-          <button class="btn-pagar">Marcar pagado</button>
-        `;
-
-        div.querySelector(".btn-avisar")
-          .addEventListener("click", () => avisar(c.entrega_id));
-
-        div.querySelector(".btn-pagar")
-          .addEventListener("click", () => pagar(c.entrega_id));
-
-        lista.appendChild(div);
-      });
+      datos = json.cobros || [];
+      render();
     })
     .catch(() => {
-      estado.textContent = "Error de conexión";
+      alert('No se pudo conectar con el servidor');
     });
 }
 
-/**
- * =========================
- * Avisar cobro
- * =========================
- */
+/* ===== RENDER ===== */
+function render() {
+  const cont = document.getElementById('listaCobros');
+  cont.innerHTML = '';
 
-function avisar(entregaId) {
-  abrirWhatsApp(entregaId);
+  const filtrados = datos.filter(d => {
+    if (tabActual === 'pendiente') {
+      return d.estado === 'Pendiente - No avisado';
+    }
+    if (tabActual === 'avisado') {
+      return d.estado === 'Avisado - Sin pago';
+    }
+    if (tabActual === 'pagado') {
+      return d.estado === 'Pagado';
+    }
+    return false;
+  });
+
+  if (filtrados.length === 0) {
+    cont.innerHTML = `<p style="color:#6b6b6b">Sin resultados</p>`;
+    return;
+  }
+
+  filtrados.forEach(d => {
+    cont.innerHTML += `
+      <div class="card">
+        <strong>${d.nombre}</strong>
+        <small>Monto: ${Number(d.monto || 0).toFixed(2)} Bs</small>
+        ${renderAcciones(d)}
+      </div>
+    `;
+  });
 }
 
-/**
- * =========================
- * Marcar cobro pagado
- * =========================
- */
-function pagar(id) {
-  if (!confirm("¿Confirmar que el cobro fue PAGADO?")) return;
+/* ===== ACCIONES POR ESTADO ===== */
+function renderAcciones(d) {
 
-  fetch(`${API_BASE}?accion=pagarCobro&id=${id}`)
+  if (tabActual === 'pendiente') {
+    return `
+      <div class="actions">
+        <button class="primary" onclick="avisar('${d.entrega_id}')">
+          Avisar
+        </button>
+      </div>
+    `;
+  }
+
+  if (tabActual === 'avisado') {
+    return `
+      <div class="actions">
+        <button onclick="avisar('${d.entrega_id}')">
+          Reavisar
+        </button>
+        <button class="primary" onclick="pagar('${d.entrega_id}')">
+          Registrar pago
+        </button>
+      </div>
+    `;
+  }
+
+  return '';
+}
+
+/* ===== AVISAR ===== */
+function avisar(entregaId) {
+  if (!confirm('¿Enviar aviso de cobro?')) return;
+
+  fetch(`${API_URL}?accion=avisarCobro&id=${encodeURIComponent(entregaId)}`)
     .then(res => res.json())
-    .then(data => {
-      if (!data.ok) {
-        estado.textContent = "Error al marcar como pagado";
+    .then(json => {
+      if (!json.ok) {
+        alert(json.mensaje || 'Error al avisar');
         return;
       }
-
-      estado.textContent = "Cobro marcado como PAGADO";
       cargarCobros();
     })
     .catch(() => {
-      estado.textContent = "Error de conexión";
+      alert('Error de conexión al avisar');
     });
 }
 
-function abrirWhatsApp(entregaId) {
+/* ===== PAGAR ===== */
+function pagar(entregaId) {
+  if (!confirm('¿Confirmar pago recibido?')) return;
 
-  fetch(`${API_BASE}?accion=generarMensajeWhatsApp&id=${entregaId}`)
+  fetch(`${API_URL}?accion=pagarCobro&id=${encodeURIComponent(entregaId)}&metodo=EFECTIVO`)
     .then(res => res.json())
-    .then(data => {
-
-      if (!data.ok) {
-        alert("No se pudo generar el mensaje de WhatsApp");
+    .then(json => {
+      if (!json.ok) {
+        alert(json.mensaje || 'Error al registrar pago');
         return;
       }
-
-      const telefono = data.telefono;     // viene del backend
-      const mensaje = data.mensaje;       // ya armado
-
-      const texto = encodeURIComponent(mensaje);
-
-      const esMovil = /Android|iPhone|iPad/i.test(navigator.userAgent);
-
-      const url = esMovil
-        ? `whatsapp://send?phone=591${telefono}&text=${texto}`
-        : `https://wa.me/591${telefono}?text=${texto}`;
-
-      // 🔥 abre WhatsApp directo (app en móvil)
-      window.location.href = url;
-
-      // 📝 registra aviso
-      fetch(`${API_BASE}?accion=avisarCobro&id=${entregaId}&canal=WHATSAPP`)
-        .then(() => cargarCobros());
+      cargarCobros();
     })
-    .catch(() => alert("Error de conexión"));
+    .catch(() => {
+      alert('Error de conexión al pagar');
+    });
 }
-
-
-// 🚀 Inicial
-cargarCobros();

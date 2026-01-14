@@ -53,32 +53,24 @@ function aplicarBusqueda() {
 }
 
 /* ===== RENDER ===== */
-function render() {
-  const cont = document.getElementById('listaCobros');
-  cont.innerHTML = '';
+const filtrados = datos.filter(d => {
 
-  const filtrados = datos.filter(d => {
+  const estado = normalizarEstado(d.estado);
 
-    /* --- FILTRO POR TAB --- */
-    const coincideEstado =
-      (tabActual === 'pendiente' && d.estado === 'Pendiente - No avisado') ||
-      (tabActual === 'avisado' && d.estado === 'Avisado - Sin pago') ||
-      (tabActual === 'pagado' && d.estado === 'Pagado');
+  if (estado !== tabActual) return false;
 
-    if (!coincideEstado) return false;
+  if (!textoBusqueda) return true;
 
-    /* --- FILTRO POR TEXTO --- */
-    if (!textoBusqueda) return true;
+  const texto = `
+    ${d.nombre || ''}
+    ${d.numero || ''}
+    ${d.entrega_id || ''}
+    ${d.tracking || ''}
+  `.toLowerCase();
 
-    const texto = `
-      ${d.nombre || ''}
-      ${d.numero || ''}
-      ${d.entrega_id || ''}
-      ${d.tracking || ''}
-    `.toLowerCase();
+  return texto.includes(textoBusqueda);
+});
 
-    return texto.includes(textoBusqueda);
-  });
 
   if (filtrados.length === 0) {
     cont.innerHTML = `<p style="color:#6b6b6b">Sin resultados</p>`;
@@ -160,3 +152,16 @@ function pagar(entregaId) {
       alert('Error de conexión al pagar');
     });
 }
+
+
+function normalizarEstado(estado) {
+  if (!estado) return 'pendiente';
+
+  const e = estado.toString().toLowerCase();
+
+  if (e.includes('pagado') || e.includes('cobrado')) return 'pagado';
+  if (e.includes('avisado')) return 'avisado';
+
+  return 'pendiente';
+}
+

@@ -222,3 +222,24 @@ html, body {
   color: var(--bg);
 }
 
+
+/* ---------- BUSCADOR COBROS ---------- */
+.search-box {
+  padding: 0 16px 12px;
+}
+
+.search-box input {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  font-size: 14px;
+  background: #fff;
+  outline: none;
+}
+
+.search-box input:focus {
+  border-color: var(--fg);
+}
+
+

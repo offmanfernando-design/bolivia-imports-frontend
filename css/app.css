@@ -1,134 +1,155 @@
-/* ===============================
-   RESET / BASE
-================================ */
+/* =========================================================
+   Bolivia Imports – PWA
+   Estilo global · Blanco / Negro · Minimalista
+   ========================================================= */
+
+/* ---------- VARIABLES ---------- */
+:root {
+  --bg: #ffffff;
+  --fg: #000000;
+  --muted: #6b6b6b;
+  --border: #e6e6e6;
+  --surface: #f8f8f8;
+}
+
+/* ---------- RESET BÁSICO ---------- */
 * {
   box-sizing: border-box;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  -webkit-tap-highlight-color: transparent;
 }
 
-body {
+html, body {
   margin: 0;
-  background: #f4f6f8;
-  color: #111;
+  padding: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: -apple-system, BlinkMacSystemFont,
+               "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
-/* ===============================
-   HOME (NO SE TOCA)
-================================ */
-.home-header {
-  background: #111;
-  color: #fff;
-  text-align: center;
-  padding: 24px 16px;
+/* ---------- CONTENEDOR APP ---------- */
+.app {
+  max-width: 420px;
+  margin: 0 auto;
+  min-height: 100vh;
 }
 
-.logo {
-  width: 72px;
-  margin-bottom: 8px;
-}
-
-.home-header h1 {
-  margin: 0;
-  font-size: 20px;
-}
-
-.home-header p {
-  margin: 4px 0 0;
-  font-size: 14px;
-  opacity: 0.8;
-}
-
-.home-grid {
-  padding: 16px;
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 16px;
-  max-width: 900px;
-  margin: auto;
-}
-
-.home-card {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  background: #fff;
-  border-radius: 14px;
-  padding: 20px;
-  text-decoration: none;
-  color: inherit;
-  box-shadow: 0 6px 16px rgba(0,0,0,0.06);
-}
-
-.home-card.primary {
-  background: #0a84ff;
-  color: #fff;
-}
-
-.home-card .icon {
-  font-size: 28px;
-}
-
-.home-card .title {
-  font-size: 18px;
-  font-weight: 600;
-}
-
-.home-card .desc {
-  font-size: 14px;
-  opacity: 0.8;
-}
-
-/* Tablet HOME */
 @media (min-width: 768px) {
-  .home-grid {
-    grid-template-columns: repeat(2, 1fr);
-    padding: 32px;
+  .app {
+    max-width: 640px;
   }
 }
 
-/* ===============================
-   ENTREGA / CONFIRMAR (MÓVIL)
-================================ */
-.container {
-  max-width: 480px;
-  margin: 24px auto;
+/* ---------- SPLASH ---------- */
+#splash {
+  position: fixed;
+  inset: 0;
   background: #ffffff;
-  padding: 20px;
-  border-radius: 14px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  animation: splashFadeOut 0.6s ease forwards;
+  animation-delay: 1.2s;
 }
 
-.container h2 {
-  margin-top: 0;
+#splash img {
+  width: 140px;
+  opacity: 0;
+  animation: logoIn 0.8s ease forwards;
+}
+
+@keyframes logoIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes splashFadeOut {
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+/* ---------- TRANSICIÓN DE VISTAS ---------- */
+.view {
+  animation: viewIn 0.25s ease;
+}
+
+@keyframes viewIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ---------- HOME HEADER ---------- */
+.home-header {
+  text-align: center;
+  padding: 48px 16px 32px;
+}
+
+.home-header img {
+  width: 120px;
+  margin-bottom: 16px;
+}
+
+.home-header h1 {
   font-size: 22px;
-  text-align: center;
-}
-
-.container p {
-  font-size: 16px;
-  line-height: 1.4;
-  margin: 12px 0;
-}
-
-button {
-  width: 100%;
-  padding: 14px;
-  margin-top: 20px;
-  font-size: 18px;
   font-weight: 600;
-  border: none;
-  border-radius: 12px;
-  background: #0a7cff;
-  color: #fff;
+  margin: 0;
 }
 
-button:active {
-  transform: scale(0.98);
-}
-
-#estado {
-  margin-top: 14px;
-  text-align: center;
+.home-header p {
   font-size: 14px;
-  color: #555;
+  color: var(--muted);
+  margin-top: 6px;
+}
+
+/* ---------- MENU ---------- */
+.menu {
+  padding: 0 16px 32px;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 16px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  margin-bottom: 14px;
+  background: #fff;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.menu-item:active {
+  transform: scale(0.98);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+}
+
+.menu-item .icon {
+  font-size: 22px;
+}
+
+.menu-item strong {
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.menu-item small {
+  display: block;
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 2px;
 }

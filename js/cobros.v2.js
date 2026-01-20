@@ -96,26 +96,46 @@ function render() {
     const div = document.createElement('div');
     div.className = 'card';
 
+    let accionesHTML = '';
+
+    // POR COBRAR → solo avisar
+    if (tabActual === 'pendiente') {
+      accionesHTML = `
+        <div class="actions">
+          <button class="primary" onclick="avisar('${c.cliente_id}', '${c.cliente_telefono}')">
+            Avisar
+          </button>
+        </div>
+      `;
+    }
+
+    // AVISADOS → reavisar + confirmar pago
+    if (tabActual === 'avisado') {
+      accionesHTML = `
+        <div class="actions">
+          <button onclick="avisar('${c.cliente_id}', '${c.cliente_telefono}')">
+            Re-avisar
+          </button>
+          <button class="primary" onclick="pagar('${c.cliente_id}')">
+            Confirmar pago
+          </button>
+        </div>
+      `;
+    }
+
+    // PAGADOS → sin botones
+    if (tabActual === 'pagado') {
+      accionesHTML = `
+        <small style="color:#2e7d32;font-weight:600">
+          Pago confirmado
+        </small>
+      `;
+    }
+
     div.innerHTML = `
       <strong>${c.cliente_nombre}</strong>
       <small>Total: ${c.monto_total_bs} Bs</small>
-
-      <div class="actions">
-        <button
-          ${tabActual === 'pagado' ? 'disabled' : ''}
-          onclick="avisar('${c.cliente_id}')"
-        >
-          ${tabActual === 'avisado' ? 'Re-avisar' : 'Avisar'}
-        </button>
-
-        <button
-          class="primary"
-          ${tabActual !== 'avisado' ? 'disabled' : ''}
-          onclick="pagar('${c.cliente_id}')"
-        >
-          Confirmar pago
-        </button>
-      </div>
+      ${accionesHTML}
     `;
 
     cont.appendChild(div);
@@ -125,15 +145,21 @@ function render() {
 /* ===============================
    AVISAR / REAVISAR
 ================================ */
-async function avisar(clienteId) {
-  if (!confirm('¿Enviar aviso de cobro?')) return;
+async function avisar(clienteId, telefono) {
+  if (!confirm('¿Enviar aviso de cobro por WhatsApp?')) return;
 
+  // 1️⃣ abrir WhatsApp
+  if (telefono) {
+    const mensaje = encodeURIComponent(
+      'Hola, te escribimos de Bolivia Imports para recordarte que tienes un pago pendiente. Gracias.'
+    );
+    window.open(`https://wa.me/${telefono}?text=${mensaje}`, '_blank');
+  }
+
+  // 2️⃣ marcar como avisado en backend
   await fetch(`${API_BASE}/cobros/avisar`, {
     method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-      'ngrok-skip-browser-warning': 'true'
-    },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ cliente_id: clienteId })
   });
 
@@ -148,10 +174,7 @@ async function pagar(clienteId) {
 
   await fetch(`${API_BASE}/cobros/pagar`, {
     method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-      'ngrok-skip-browser-warning': 'true'
-    },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ cliente_id: clienteId })
   });
 

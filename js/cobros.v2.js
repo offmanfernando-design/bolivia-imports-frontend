@@ -46,11 +46,16 @@ async function cargarCobros() {
 
   try {
     const res = await fetch(
-      `${API_BASE}/cobros?estado_cobro=${tabActual}`
+      `${API_BASE}/cobros?estado_cobro=${tabActual}`,
+      {
+        headers: {
+          'ngrok-skip-browser-warning': 'true'
+        }
+      }
     );
+
     datos = await res.json();
 
-    // ordenar por fecha_ultima_actualizacion (más antiguo primero)
     datos.sort((a, b) =>
       (a.fecha_ultima_actualizacion || '').localeCompare(
         b.fecha_ultima_actualizacion || ''
@@ -125,7 +130,10 @@ async function avisar(clienteId) {
 
   await fetch(`${API_BASE}/cobros/avisar`, {
     method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      'ngrok-skip-browser-warning': 'true'
+    },
     body: JSON.stringify({ cliente_id: clienteId })
   });
 
@@ -140,7 +148,10 @@ async function pagar(clienteId) {
 
   await fetch(`${API_BASE}/cobros/pagar`, {
     method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      'ngrok-skip-browser-warning': 'true'
+    },
     body: JSON.stringify({ cliente_id: clienteId })
   });
 

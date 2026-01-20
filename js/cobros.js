@@ -1,189 +1,91 @@
-/* =========================================================
-   COBROS UI – FRONTEND (OPTIMIZADO V2)
-   Bolivia Imports – Sistema Logístico
-   ========================================================= */
+import { API_BASE } from './config.js';
 
-const API_URL = 'https://script.google.com/macros/s/AKfycbzbxPWwcJI6XoNlrAA5QlfxNaAg1l78SMB90v2syYOaEIyLpI8j4_ttsyFH3lqF4SfO/exec';
+const estadoSelect = document.getElementById('estadoSelect');
+const contenedor = document.getElementById('listaCobros');
 
-let tabActual = 'pendiente';
-let datos = [];            // estado en memoria
-let textoBusqueda = '';
+estadoSelect.addEventListener('change', cargarCobros);
 
-document.addEventListener('DOMContentLoaded', cargarCobros);
+async function cargarCobros() {
+  const estado = estadoSelect.value;
+  contenedor.innerHTML = 'Cargando...';
 
-/* ===============================
-   CARGA INICIAL (UNA SOLA VEZ)
-================================ */
-function cargarCobros() {
-  fetch(`${API_URL}?accion=listarCobros`)
-    .then(r => r.json())
-    .then(res => {
-      if (!res.ok) {
-        alert(res.mensaje || 'Error backend');
-        return;
-      }
-      datos = res.cobros || [];
-      render();
-    })
-    .catch(() => alert('No conecta con Apps Script'));
+  try {
+    const res = await fetch(`${API_BASE}/cobros?estado_cobro=${estado}`);
+    const data = await res.json();
+
+    // Orden por fecha_ultima_actualizacion (más antiguo primero)
+    data.sort((a, b) => {
+      const fa = a.fecha_ultima_actualizacion || '';
+      const fb = b.fecha_ultima_actualizacion || '';
+      return fa.localeCompare(fb);
+    });
+
+    renderCobros(data, estado);
+  } catch (e) {
+    contenedor.innerHTML = 'Error al cargar cobros';
+  }
 }
 
-/* ===============================
-   CAMBIO DE TAB (SIN BACKEND)
-================================ */
-function cambiarTab(tab, btn) {
-  tabActual = tab;
+function renderCobros(clientes, estado) {
+  contenedor.innerHTML = '';
 
-  document.querySelectorAll('.tab')
-    .forEach(b => b.classList.remove('active'));
-
-  if (btn) btn.classList.add('active');
-
-  render(); // solo frontend
-}
-
-/* ===============================
-   BUSCADOR (FRONTEND PURO)
-================================ */
-function aplicarBusqueda() {
-  const input = document.getElementById('buscadorCobros');
-  textoBusqueda = (input.value || '').toLowerCase();
-  render();
-}
-
-/* ===============================
-   ESTADO REAL DE COBRO
-================================ */
-function estadoCobro(entrega) {
-  const cobrado = Number(entrega.monto_cobrado_bs || 0);
-  const total = Number(entrega.cobro_total_bs || 0);
-  const avisos = Number(entrega.cantidad_avisos || 0);
-
-  if (total > 0 && cobrado >= total) return 'pagado';
-  if (avisos > 0) return 'avisado';
-  return 'pendiente';
-}
-
-/* ===============================
-   RENDER PRINCIPAL
-================================ */
-function render() {
-  const cont = document.getElementById('listaCobros');
-  cont.innerHTML = '';
-
-  const filtrados = datos.filter(d => {
-
-    // filtro por estado
-    if (estadoCobro(d) !== tabActual) return false;
-
-    // filtro por búsqueda
-    if (!textoBusqueda) return true;
-
-    const tracking = (d.tracking || '').toString();
-    const ultimos4 = tracking.slice(-4);
-
-    const texto = `
-      ${d.nombre || ''}
-      ${d.numero || ''}
-      ${tracking}
-      ${ultimos4}
-      ${d.entrega_id || ''}
-    `.toLowerCase();
-
-    return texto.includes(textoBusqueda);
-  });
-
-  if (filtrados.length === 0) {
-    cont.innerHTML = `<p style="color:#6b6b6b">Sin resultados</p>`;
+  if (!clientes.length) {
+    contenedor.innerHTML = 'No hay registros';
     return;
   }
 
-  filtrados.forEach(d => {
-    cont.innerHTML += `
-      <div class="card">
-        <strong>${d.nombre || 'Sin nombre'}</strong>
-        <small>Monto: ${Number(d.cobro_total_bs || 0).toFixed(2)} Bs</small>
-        ${acciones(d)}
-      </div>
+  clientes.forEach(c => {
+    const div = document.createElement('div');
+    div.className = 'cliente-card'; // usa tu CSS actual
+
+    div.innerHTML = `
+      <h3>${c.cliente_nombre}</h3>
+      <p><strong>Tel:</strong> ${c.cliente_telefono}</p>
+      <p><strong>Items:</strong> ${c.cantidad_items}</p>
+      <p><strong>Total Bs:</strong> ${c.monto_total_bs}</p>
+
+      <button
+        ${estado === 'pagado' ? 'disabled' : ''}
+        onclick="avisar('${c.cliente_id}', '${estado}')"
+      >
+        ${estado === 'avisado' ? 'Re-avisar' : 'Avisar'}
+      </button>
+
+      <button
+        ${estado !== 'avisado' ? 'disabled' : ''}
+        onclick="pagar('${c.cliente_id}')"
+      >
+        Confirmar pago
+      </button>
     `;
+
+    contenedor.appendChild(div);
   });
 }
 
-/* ===============================
-   ACCIONES POR ESTADO
-================================ */
-function acciones(d) {
+async function avisar(clienteId) {
+  if (!confirm('¿Enviar aviso al cliente?')) return;
 
-  if (tabActual === 'pendiente') {
-    return `
-      <div class="actions">
-        <button class="primary" onclick="avisar('${d.entrega_id}')">
-          Avisar
-        </button>
-      </div>
-    `;
-  }
+  await fetch(`${API_BASE}/cobros/avisar`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ cliente_id: clienteId })
+  });
 
-  if (tabActual === 'avisado') {
-    return `
-      <div class="actions">
-        <button onclick="avisar('${d.entrega_id}')">Reavisar</button>
-        <button class="primary" onclick="pagar('${d.entrega_id}')">
-          Confirmar pago
-        </button>
-      </div>
-    `;
-  }
-
-  return '';
+  cargarCobros();
 }
 
-/* ===============================
-   AVISAR (BACKEND + UPDATE LOCAL)
-================================ */
-function avisar(id) {
-  if (!confirm('¿Enviar aviso de cobro?')) return;
+async function pagar(clienteId) {
+  if (!confirm('¿Confirmar pago del cliente?')) return;
 
-  fetch(`${API_URL}?accion=avisarCobro&id=${encodeURIComponent(id)}`)
-    .then(r => r.json())
-    .then(res => {
-      if (!res.ok) {
-        alert(res.mensaje || 'Error al avisar');
-        return;
-      }
+  await fetch(`${API_BASE}/cobros/pagar`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ cliente_id: clienteId })
+  });
 
-      // actualizar SOLO en memoria
-      const item = datos.find(d => d.entrega_id === id);
-      if (item) {
-        item.cantidad_avisos = Number(item.cantidad_avisos || 0) + 1;
-      }
-
-      render();
-    })
-    .catch(() => alert('Error al avisar'));
+  cargarCobros();
 }
 
-/* ===============================
-   PAGAR (BACKEND + UPDATE LOCAL)
-================================ */
-function pagar(id) {
-  if (!confirm('¿Confirmar pago recibido?')) return;
-
-  fetch(`${API_URL}?accion=pagarCobro&id=${encodeURIComponent(id)}&metodo=EFECTIVO`)
-    .then(r => r.json())
-    .then(res => {
-      if (!res.ok) {
-        alert(res.mensaje || 'Error al pagar');
-        return;
-      }
-
-      // actualizar SOLO en memoria
-      const item = datos.find(d => d.entrega_id === id);
-      if (item) {
-        item.monto_cobrado_bs = Number(item.cobro_total_bs || 0);
-      }
-
-      render();
-    })
-    .catch(() => alert('Error al pagar'));
-}
+// inicial
+cargarCobros();

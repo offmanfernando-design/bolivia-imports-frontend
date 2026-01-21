@@ -1,54 +1,42 @@
 import API_BASE_URL from './config.js';
 
-fetch(`${API_BASE_URL}/entregas`)
+document.addEventListener('DOMContentLoaded', () => {
+  const form = document.getElementById('entrega-form');
 
-const entrega = JSON.parse(localStorage.getItem("entrega"));
-const info = document.getElementById("info");
-const estadoEl = document.getElementById("estado");
+  if (!form) {
+    console.error('No se encontró el formulario entrega-form');
+    return;
+  }
 
-if (!entrega) {
-  window.location.href = "./confirmar.html";
-}
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
 
-// Render info
-info.innerHTML = `
-  <p><strong>Cliente:</strong> ${entrega.cliente}</p>
-  <p><strong>ID:</strong> ${entrega.id}</p>
-  <p><strong>Descripción:</strong> ${entrega.descripcion}</p>
-`;
+    const entregaId = document.getElementById('entrega_id').value.trim();
 
-// BLOQUEO SI YA ESTÁ ENTREGADO
-if (entrega.estado === "ENTREGADO") {
-  document.querySelector("button").style.display = "none";
-  estadoEl.textContent = "⚠️ Esta entrega ya fue confirmada anteriormente.";
-  estadoEl.style.color = "green";
-}
-
-// Confirmar entrega
-async function confirmar() {
-  estadoEl.textContent = "Confirmando entrega…";
-
-  try {
-    const res = await fetch(API_BASE, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        accion: "confirmarEntrega",
-        id: entrega.id
-      })
-    });
-
-    const data = await res.json();
-
-    if (data.ok) {
-      entrega.estado = "ENTREGADO";
-      localStorage.setItem("entrega", JSON.stringify(entrega));
-      window.location.href = "./resultado.html";
-    } else {
-      estadoEl.textContent = data.mensaje || "Error al confirmar";
+    if (!entregaId) {
+      alert('Ingresa un ID de entrega');
+      return;
     }
 
-  } catch (err) {
-    estadoEl.textContent = "Error de conexión";
-  }
-}
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/etiquetas/${entregaId}`
+      );
+
+      if (!response.ok) {
+        throw new Error('Error en la API');
+      }
+
+      const html = await response.text();
+
+      const nuevaVentana = window.open('', '_blank');
+      nuevaVentana.document.write(html);
+      nuevaVentana.document.close();
+
+    } catch (err) {
+      console.error(err);
+      alert('No se pudo obtener la etiqueta');
+    }
+  });
+});
+

@@ -1,3 +1,7 @@
+import API_BASE_URL from './config.js';
+fetch(`${API_BASE_URL}/cobros`)
+
+
 let fechaFiltro = '';
 
 /* ===============================

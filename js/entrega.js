@@ -1,3 +1,7 @@
+import API_BASE_URL from './config.js';
+
+fetch(`${API_BASE_URL}/entregas`)
+
 const entrega = JSON.parse(localStorage.getItem("entrega"));
 const info = document.getElementById("info");
 const estadoEl = document.getElementById("estado");

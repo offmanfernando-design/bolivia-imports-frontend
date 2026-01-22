@@ -1,8 +1,8 @@
 import API_BASE_URL from './config.js';
 
-let fechaFiltro = '';
 let tabActual = 'pendiente';
 let textoBusqueda = '';
+let fechaFiltro = '';
 let datos = [];
 
 document.addEventListener('DOMContentLoaded', cargarCobros);
@@ -21,9 +21,6 @@ window.aplicarBusqueda = function () {
 };
 
 async function cargarCobros() {
-  const cont = document.getElementById('listaCobros');
-  cont.innerHTML = 'Cargando...';
-
   const res = await fetch(`${API_BASE_URL}/api/cobros?estado_cobro=${tabActual}`);
   datos = await res.json();
   render();
@@ -33,58 +30,56 @@ function render() {
   const cont = document.getElementById('listaCobros');
   cont.innerHTML = '';
 
-  datos.forEach(c => {
-    const div = document.createElement('div');
-    div.className = 'card';
+  datos
+    .filter(c => {
+      if (textoBusqueda && !c.cliente_nombre.toLowerCase().includes(textoBusqueda)) {
+        return false;
+      }
+      return true;
+    })
+    .forEach(c => {
+      const div = document.createElement('div');
+      div.className = 'card';
 
-    let acciones = '';
+      let acciones = '';
 
-    if (tabActual === 'pendiente') {
-      acciones = `
-        <div class="actions">
-          <button class="primary" onclick="avisar('${c.cliente_id}')">Avisar</button>
-        </div>`;
-    }
+      if (tabActual === 'pendiente') {
+        acciones = `
+          <div class="actions">
+            <button class="primary" onclick="avisar('${c.cliente_id}')">Avisar</button>
+          </div>`;
+      }
 
-    if (tabActual === 'avisado') {
-      acciones = `
-        <div class="actions">
-          <button onclick="avisar('${c.cliente_id}')">Reavisar</button>
-          <button class="primary" onclick="pagar('${c.cliente_id}')">Confirmar pago</button>
-        </div>`;
-    }
+      if (tabActual === 'avisado') {
+        acciones = `
+          <div class="actions">
+            <button onclick="avisar('${c.cliente_id}')">Reavisar</button>
+            <button class="primary" onclick="pagar('${c.cliente_id}')">Confirmar pago</button>
+          </div>`;
+      }
 
-    if (tabActual === 'pagado') {
-      acciones = `<div class="status-ok">Pago confirmado</div>`;
-    }
+      if (tabActual === 'pagado') {
+        acciones = `<div class="status-ok">Pago confirmado</div>`;
+      }
 
-    div.innerHTML = `
-      <div class="card-header">
-        <strong>${c.cliente_nombre}</strong>
-        <small>${c.monto_total_bs} Bs</small>
-      </div>
-      ${acciones}
-    `;
+      div.innerHTML = `
+        <div class="card-header">
+          <strong>${c.cliente_nombre}</strong>
+          <small>${c.monto_total_bs} Bs</small>
+        </div>
+        ${acciones}
+      `;
 
-    cont.appendChild(div);
-  });
+      cont.appendChild(div);
+    });
 }
 
-
-window.avisar = async function (clienteId, telefono) {
-  if (telefono) {
-    const msg = encodeURIComponent(
-      'Hola, te escribimos de Bolivia Imports para recordarte un pago pendiente. Gracias.'
-    );
-    window.open(`https://wa.me/${telefono}?text=${msg}`, '_blank');
-  }
-
+window.avisar = async function (clienteId) {
   await fetch(`${API_BASE_URL}/api/cobros/avisar`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ cliente_id: clienteId })
   });
-
   cargarCobros();
 };
 
@@ -94,6 +89,5 @@ window.pagar = async function (clienteId) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ cliente_id: clienteId })
   });
-
   cargarCobros();
 };

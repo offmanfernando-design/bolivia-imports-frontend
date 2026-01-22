@@ -85,7 +85,7 @@ function render() {
 
     if (tabActual === 'pendiente') {
       accionesHTML = `
-        <button onclick="avisar('${c.cliente_id}', '${c.cliente_telefono}')">
+        <button onclick="avisar('${c.cliente_id}', '${c.cliente_telefono || ''}')">
           Avisar
         </button>
       `;
@@ -116,20 +116,35 @@ function render() {
 /* ===============================
    ACCIONES
 ================================ */
-window.avisar = async function (clienteId) {
+window.avisar = async function (clienteId, telefono) {
+  if (!confirm('¿Enviar aviso de cobro por WhatsApp?')) return;
+
+  // 👉 1. Abrir WhatsApp (ESTO FALTABA)
+  if (telefono) {
+    const mensaje = encodeURIComponent(
+      'Hola, te escribimos de Bolivia Imports para informarte que tienes un pago pendiente. Gracias.'
+    );
+    window.open(`https://wa.me/${telefono}?text=${mensaje}`, '_blank');
+  }
+
+  // 👉 2. Marcar como avisado en backend
   await fetch(`${API_BASE_URL}/api/cobros/avisar`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ cliente_id: clienteId })
   });
+
   cargarCobros();
 };
 
 window.pagar = async function (clienteId) {
+  if (!confirm('¿Confirmar pago recibido?')) return;
+
   await fetch(`${API_BASE_URL}/api/cobros/pagar`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ cliente_id: clienteId })
   });
+
   cargarCobros();
 };

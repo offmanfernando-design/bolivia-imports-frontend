@@ -84,20 +84,20 @@ function render() {
     let accionesHTML = '';
 
     if (tabActual === 'pendiente') {
-      accionesHTML = `
-        <button onclick="avisar('${c.cliente_id}', '${c.cliente_telefono || ''}')">
-          Avisar
-        </button>
-      `;
-    }
+  accionesHTML = `
+    <button class="primary" onclick="avisar('${c.cliente_id}', '${c.cliente_telefono}')">
+      Avisar
+    </button>
+  `;
+}
 
-    if (tabActual === 'avisado') {
-      accionesHTML = `
-        <button onclick="pagar('${c.cliente_id}')">
-          Confirmar pago
-        </button>
-      `;
-    }
+  if (tabActual === 'pagado') {
+  accionesHTML = `
+    <span class="pago-confirmado">
+      Pago confirmado
+    </span>
+  `;
+}
 
     if (tabActual === 'pagado') {
       accionesHTML = `<small>Pago confirmado</small>`;

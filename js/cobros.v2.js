@@ -1,11 +1,8 @@
 import API_BASE_URL from './config.js';
 
-/* ===============================
-   STATE
-================================ */
+let fechaFiltro = '';
 let tabActual = 'pendiente';
 let textoBusqueda = '';
-let fechaFiltro = '';
 let datos = [];
 
 /* ===============================
@@ -36,8 +33,8 @@ window.aplicarBusqueda = function () {
   const input = document.getElementById('buscadorCobros');
   const fechaInput = document.getElementById('filtroFecha');
 
-  textoBusqueda = (input?.value || '').toLowerCase();
-  fechaFiltro = fechaInput?.value || '';
+  textoBusqueda = (input.value || '').toLowerCase();
+  fechaFiltro = fechaInput ? fechaInput.value : '';
 
   render();
 };
@@ -51,10 +48,8 @@ async function cargarCobros() {
 
   try {
     const res = await fetch(
-      `${API_BASE_URL}/cobros?estado_cobro=${tabActual}`
+      `${API_BASE_URL}/api/cobros?estado_cobro=${tabActual}`
     );
-
-    if (!res.ok) throw new Error('Error backend');
 
     datos = await res.json();
     render();
@@ -73,31 +68,14 @@ function render() {
 
   const filtrados = datos.filter(c => {
     if (textoBusqueda) {
-      const ultimosTrackings = (c.entregas || [])
-        .map(e => (e.tracking || '').slice(-4))
-        .join(' ');
-
       const texto = `
         ${c.cliente_nombre}
         ${c.cliente_telefono}
-        ${ultimosTrackings}
       `.toLowerCase();
-
       if (!texto.includes(textoBusqueda)) return false;
     }
-
-    if (fechaFiltro) {
-      const fecha = (c.fecha_ultima_actualizacion || '').slice(0, 10);
-      if (!fecha.startsWith(fechaFiltro)) return false;
-    }
-
     return true;
   });
-
-  if (!filtrados.length) {
-    cont.innerHTML = '<p>No hay registros</p>';
-    return;
-  }
 
   filtrados.forEach(c => {
     const div = document.createElement('div');
@@ -107,29 +85,27 @@ function render() {
 
     if (tabActual === 'pendiente') {
       accionesHTML = `
-        <button class="primary"
-          onclick="avisar('${c.cliente_id}', '${c.cliente_telefono}')">
+        <button onclick="avisar('${c.cliente_id}', '${c.cliente_telefono}')">
           Avisar
-        </button>`;
+        </button>
+      `;
     }
 
     if (tabActual === 'avisado') {
       accionesHTML = `
-        <button onclick="avisar('${c.cliente_id}', '${c.cliente_telefono}')">
-          Re-avisar
-        </button>
-        <button class="primary" onclick="pagar('${c.cliente_id}')">
+        <button onclick="pagar('${c.cliente_id}')">
           Confirmar pago
-        </button>`;
+        </button>
+      `;
     }
 
     if (tabActual === 'pagado') {
-      accionesHTML = `<small style="color:green">Pago confirmado</small>`;
+      accionesHTML = `<small>Pago confirmado</small>`;
     }
 
     div.innerHTML = `
-      <strong>${c.cliente_nombre}</strong><br>
-      <small>Total: ${c.monto_total_bs} Bs</small><br>
+      <strong>${c.cliente_nombre}</strong>
+      <small>Total: ${c.monto_total_bs} Bs</small>
       ${accionesHTML}
     `;
 
@@ -138,38 +114,22 @@ function render() {
 }
 
 /* ===============================
-   AVISAR
+   ACCIONES
 ================================ */
-window.avisar = async function (clienteId, telefono) {
-  if (!confirm('¿Enviar aviso de cobro?')) return;
-
-  if (telefono) {
-    const msg = encodeURIComponent(
-      'Hola, te escribimos de Bolivia Imports por un pago pendiente.'
-    );
-    window.open(`https://wa.me/${telefono}?text=${msg}`, '_blank');
-  }
-
-  await fetch(`${API_BASE_URL}/cobros/avisar`, {
+window.avisar = async function (clienteId) {
+  await fetch(`${API_BASE_URL}/api/cobros/avisar`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ cliente_id: clienteId })
   });
-
   cargarCobros();
 };
 
-/* ===============================
-   PAGAR
-================================ */
 window.pagar = async function (clienteId) {
-  if (!confirm('¿Confirmar pago?')) return;
-
-  await fetch(`${API_BASE_URL}/cobros/pagar`, {
+  await fetch(`${API_BASE_URL}/api/cobros/pagar`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ cliente_id: clienteId })
   });
-
   cargarCobros();
 };

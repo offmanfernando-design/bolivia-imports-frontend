@@ -42,20 +42,20 @@
   </div>
 
   <!-- BUSCADOR -->
-<div class="search-box">
+<div class="search-box search-combo">
   <input
     type="search"
     id="buscadorCobros"
-    placeholder="Buscar por nombre, número o tracking"
+    placeholder="Buscar nombre, número o tracking"
     autocomplete="off"
     oninput="aplicarBusqueda()"
   />
 
-  <!-- FILTRO POR FECHA -->
   <input
     type="date"
     id="filtroFecha"
     onchange="aplicarBusqueda()"
+    title="Filtrar por fecha"
   />
 </div>
 

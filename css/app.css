@@ -12,7 +12,7 @@
   --surface: #f8f8f8;
 }
 
-/* ---------- RESET BÁSICO ---------- */
+/* ---------- RESET ---------- */
 * {
   box-sizing: border-box;
   -webkit-tap-highlight-color: transparent;
@@ -60,21 +60,12 @@ html, body {
 }
 
 @keyframes logoIn {
-  from {
-    opacity: 0;
-    transform: scale(0.96);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
+  from { opacity: 0; transform: scale(0.96); }
+  to   { opacity: 1; transform: scale(1); }
 }
 
 @keyframes splashFadeOut {
-  to {
-    opacity: 0;
-    visibility: hidden;
-  }
+  to { opacity: 0; visibility: hidden; }
 }
 
 /* ---------- TRANSICIÓN DE VISTAS ---------- */
@@ -83,14 +74,8 @@ html, body {
 }
 
 @keyframes viewIn {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 /* ---------- HOME HEADER ---------- */
@@ -154,7 +139,6 @@ html, body {
   margin-top: 2px;
 }
 
-
 /* ---------- TABS COBROS ---------- */
 .tabs {
   display: flex;
@@ -177,17 +161,52 @@ html, body {
   color: var(--bg);
 }
 
+/* ---------- BUSCADOR + FECHA (UNIFICADO) ---------- */
+.search-box {
+  padding: 0 16px 12px;
+}
+
+.search-combo {
+  display: flex;
+  gap: 10px;
+}
+
+.search-combo input {
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  font-size: 14px;
+  background: #fff;
+  outline: none;
+}
+
+.search-combo input[type="search"] {
+  flex: 1;
+  padding: 12px 14px;
+}
+
+.search-combo input[type="date"] {
+  width: 46px;
+  padding: 0;
+  text-align: center;
+}
+
+.search-combo input:focus {
+  border-color: var(--fg);
+}
+
 /* ---------- LISTA ---------- */
 .list {
   padding: 8px 16px 32px;
 }
 
+/* ---------- CARD COBROS ---------- */
 .card {
+  background: #fff;
   border: 1px solid var(--border);
   border-radius: 14px;
-  padding: 14px;
+  padding: 14px 16px;
   margin-bottom: 12px;
-  background: #fff;
+  box-shadow: 0 4px 12px rgba(0,0,0,.05);
   animation: viewIn .2s ease;
 }
 
@@ -208,38 +227,32 @@ html, body {
   margin-top: 12px;
 }
 
-.actions button {
-  flex: 1;
-  padding: 10px;
+.card button {
+  border: none;
   border-radius: 10px;
-  border: 1px solid var(--border);
-  background: transparent;
+  padding: 10px 14px;
   font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
 }
 
-.actions button.primary {
+.card button.primary {
   background: var(--fg);
   color: var(--bg);
 }
 
-
-/* ---------- BUSCADOR COBROS ---------- */
-.search-box {
-  padding: 0 16px 12px;
+.card button.secondary {
+  background: #f1f1f1;
+  color: var(--fg);
 }
 
-.search-box input {
-  width: 100%;
-  padding: 12px 14px;
-  border-radius: 14px;
-  border: 1px solid var(--border);
-  font-size: 14px;
-  background: #fff;
-  outline: none;
+/* ---------- ESTADO PAGADO ---------- */
+.pago-confirmado {
+  color: #1b5e20;
+  font-weight: 600;
+  background: #e8f5e9;
+  padding: 6px 10px;
+  border-radius: 8px;
+  display: inline-block;
+  margin-top: 6px;
 }
-
-.search-box input:focus {
-  border-color: var(--fg);
-}
-
-

@@ -39,7 +39,9 @@ html, body {
   animation: splashOut .5s ease forwards;
   animation-delay: 1s;
 }
-#splash img { width: 140px; }
+#splash img {
+  width: 160px; /* NUEVO: logo splash un poco más grande */
+}
 @keyframes splashOut {
   to { opacity: 0; visibility: hidden; }
 }
@@ -47,10 +49,10 @@ html, body {
 /* HEADER */
 .home-header {
   text-align: center;
-  padding: 36px 16px 20px;
+  padding: 52px 16px 28px; /* NUEVO: más aire arriba */
 }
 .home-header img {
-  width: 110px;
+  width: 170px;           /* NUEVO: LOGO PROTAGONISTA */
 }
 .home-header h1 {
   font-size: 20px;
@@ -59,7 +61,8 @@ html, body {
 .home-header p {
   font-size: 13px;
   color: var(--muted);
-  margin: 0;
+  margin: 6px 0 0;
+  letter-spacing: 0.3px; /* NUEVO: más fino */
 }
 
 /* MENU */
@@ -74,9 +77,18 @@ html, body {
   border-radius: 14px;
   margin-bottom: 12px;
   background: #fff;
+  transition: transform .15s ease, box-shadow .15s ease; /* NUEVO */
 }
-.menu-item .icon { font-size: 22px; }
-.menu-item strong { font-size: 15px; }
+.menu-item:active {
+  transform: scale(0.98); /* NUEVO: feedback táctil */
+  box-shadow: 0 8px 20px rgba(0,0,0,.06);
+}
+.menu-item .icon {
+  font-size: 22px;
+}
+.menu-item strong {
+  font-size: 15px;
+}
 .menu-item small {
   display: block;
   font-size: 13px;
@@ -120,6 +132,7 @@ html, body {
   color: var(--muted);
 }
 
+/* ICONO FECHA */
 .date-wrapper {
   position: relative;
   width: 40px;
@@ -139,7 +152,7 @@ html, body {
   height: 40px;
   border: 1px solid var(--border);
   border-radius: 50%;
-  font-size: 16px;
+  font-size: 15px;
   color: var(--muted);
   background: #fff;
 }
@@ -199,8 +212,9 @@ html, body {
 
 /* FOOTER */
 .footer {
+  margin-top: auto;      /* NUEVO: lo empuja al fondo */
   text-align: center;
-  padding: 12px 8px 18px;
+  padding: 16px 8px 22px;
   font-size: 11px;
   color: var(--muted);
 }

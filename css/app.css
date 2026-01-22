@@ -256,3 +256,39 @@ html, body {
   display: inline-block;
   margin-top: 6px;
 }
+
+.subtitle {
+  font-size: 14px;
+  color: var(--muted);
+  margin-top: 6px;
+}
+
+.search-box.combined {
+  display: flex;
+  gap: 8px;
+}
+
+.date-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 0 12px;
+  font-size: 18px;
+  background: #fff;
+}
+
+.date-icon input {
+  display: none;
+}
+
+.actions.right {
+  justify-content: flex-end;
+}
+
+.paid {
+  font-weight: 600;
+  color: #2e7d32;
+}
+

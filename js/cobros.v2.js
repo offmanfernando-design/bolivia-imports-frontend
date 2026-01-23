@@ -39,35 +39,52 @@ function render() {
     })
     .forEach(c => {
       const div = document.createElement('div');
-      div.className = 'card';
+      div.className = `cobro-card ${tabActual}`;
 
-      let acciones = '';
+      let bottom = '';
 
       if (tabActual === 'pendiente') {
-        acciones = `
-          <div class="actions">
-            <button class="primary" onclick="avisar('${c.cliente_id}')">Avisar</button>
-          </div>`;
+        bottom = `
+          <span class="cobro-estado pendiente">Por cobrar</span>
+          <button class="cobro-action" onclick="avisar('${c.cliente_id}')">
+            Avisar
+          </button>`;
       }
 
       if (tabActual === 'avisado') {
-        acciones = `
-          <div class="actions">
-            <button onclick="avisar('${c.cliente_id}')">Reavisar</button>
-            <button class="primary" onclick="pagar('${c.cliente_id}')">Confirmar pago</button>
+        bottom = `
+          <span class="cobro-estado avisado">Avisado</span>
+          <div>
+            <button class="cobro-action" onclick="avisar('${c.cliente_id}')">
+              Reavisar
+            </button>
+            <button class="cobro-action" onclick="pagar('${c.cliente_id}')">
+              Confirmar
+            </button>
           </div>`;
       }
 
       if (tabActual === 'pagado') {
-        acciones = `<div class="status-ok">Pago confirmado</div>`;
+        bottom = `
+          <span class="cobro-estado pagado">Pagado</span>
+        `;
       }
 
       div.innerHTML = `
-        <div class="card-header">
-          <strong>${c.cliente_nombre}</strong>
-          <small>${c.monto_total_bs} Bs</small>
+        <div class="cobro-top">
+          <div class="cobro-cliente">
+            <strong>${c.cliente_nombre}</strong>
+            <span class="cobro-codigo">${c.cliente_id}</span>
+          </div>
+
+          <div class="cobro-monto">
+            ${c.monto_total_bs} Bs
+          </div>
         </div>
-        ${acciones}
+
+        <div class="cobro-bottom">
+          ${bottom}
+        </div>
       `;
 
       cont.appendChild(div);

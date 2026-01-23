@@ -11,7 +11,6 @@
   -webkit-tap-highlight-color: transparent;
 }
 
-/* 🔥 CLAVE PARA PWA */
 html {
   height: 100%;
 }
@@ -23,41 +22,15 @@ body {
   color: var(--fg);
   font-family: -apple-system, BlinkMacSystemFont, "Inter",
                "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-
   display: flex;
   justify-content: center;
 }
 
-/* 🔥 CONTENEDOR GLOBAL CORRECTO */
 .app {
   width: 100%;
   max-width: 420px;
   display: flex;
   flex-direction: column;
-}
-
-/* SPLASH */
-#splash {
-  position: fixed;
-  inset: 0;
-  background: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-  animation: splashOut .6s ease forwards;
-  animation-delay: 1.1s;
-}
-
-#splash img {
-  width: 220px;
-}
-
-@keyframes splashOut {
-  to {
-    opacity: 0;
-    visibility: hidden;
-  }
 }
 
 /* HEADER */
@@ -66,67 +39,7 @@ body {
   padding: 64px 16px 40px;
 }
 
-.home-logo {
-  width: 240px;
-  max-width: 90%;
-}
-
-.subtitle {
-  margin-top: 14px;
-  font-size: 15px;
-  color: var(--muted);
-  letter-spacing: 0.4px;
-}
-
-/* MENU */
-.menu {
-  padding: 0 16px;
-}
-
-.menu-item {
-  display: flex;
-  align-items: center;
-  gap: 18px;
-  padding: 18px;
-  border: 1px solid var(--border);
-  border-radius: 18px;
-  margin-bottom: 14px;
-  background: #fff;
-  transition: transform .15s ease, box-shadow .15s ease;
-}
-
-.menu-item:active {
-  transform: scale(0.97);
-  box-shadow: 0 10px 24px rgba(0,0,0,.08);
-}
-
-/* ICONOS MINIMAL */
-.menu-icon {
-  width: 42px;
-  height: 42px;
-  border-radius: 12px;
-  border: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 18px;
-  font-weight: 600;
-  color: var(--fg);
-  background: #fff;
-}
-
-.menu-item strong {
-  font-size: 16px;
-}
-
-.menu-item small {
-  display: block;
-  font-size: 13px;
-  color: var(--muted);
-  margin-top: 2px;
-}
-
-/* FOOTER GLOBAL (TODAS LAS PANTALLAS) */
+/* FOOTER */
 .footer {
   margin-top: auto;
   padding: 20px 12px 24px;
@@ -135,74 +48,64 @@ body {
   color: var(--muted);
 }
 
-/* ============================= */
-/* COBROS – TARJETAS (SOLO COBROS) */
-/* ============================= */
+/* ===================== */
+/* COBROS (ESTADO BUENO) */
+/* ===================== */
 
 .list {
   padding: 0 16px 12px;
 }
 
-.cobro-card {
+.card {
   background: #fff;
   border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 12px 14px;
-  margin-bottom: 10px;
+  border-radius: 18px;
+  padding: 16px;
+  margin-bottom: 12px;
 }
 
-/* Fila superior */
-.cobro-top {
+.card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
-.cobro-cliente strong {
-  font-size: 15px;
-  display: block;
-}
-
-.cobro-codigo {
-  font-size: 12px;
-  color: var(--muted);
-}
-
-.cobro-monto {
+.card-header strong {
   font-size: 16px;
-  font-weight: 600;
-  white-space: nowrap;
 }
 
-/* Fila inferior */
-.cobro-bottom {
+.card-header small {
+  font-size: 14px;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+/* Acciones */
+.actions {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 8px;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 14px;
 }
 
-/* Estado */
-.cobro-estado {
-  font-size: 11px;
-  padding: 4px 10px;
+.actions button {
   border-radius: 999px;
-  background: #f2f2f2;
-  color: #444;
+  padding: 8px 16px;
+  font-size: 14px;
+  border: 1px solid var(--border);
+  background: #f5f5f5;
 }
 
-/* Acción */
-.cobro-action {
+.actions .primary {
   background: var(--fg);
   color: #fff;
   border: none;
-  border-radius: 10px;
-  padding: 6px 14px;
-  font-size: 13px;
-  cursor: pointer;
 }
 
-.cobro-action:active {
-  opacity: 0.85;
+/* Pagado */
+.status-ok {
+  margin-top: 14px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--success);
 }
-

@@ -177,3 +177,25 @@
   transform: scale(0.96);
   opacity: 0.85;
 }
+
+.cobro-top {
+  align-items: flex-start;
+}
+
+.cobro-cliente strong {
+  display: block;
+  line-height: 1.2;
+  word-break: break-word;
+  max-width: 70%;
+}
+
+.cobro-card.leaving {
+  opacity: 0;
+  transform: translateY(-6px);
+  height: 0;
+  margin: 0 16px;
+  padding: 0 16px;
+  overflow: hidden;
+  transition: all 0.16s ease;
+}
+

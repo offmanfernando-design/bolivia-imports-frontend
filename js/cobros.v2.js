@@ -54,21 +54,15 @@ function render() {
       // AVISADO
       if (tabActual === 'avisado') {
         bottom = `
-          <span class="cobro-estado avisado">Avisado</span>
-          <div class="cobro-actions">
-            <button class="cobro-action" onclick="avisar('${c.cliente_id}')">
-              Reavisar
-            </button>
-            <button class="cobro-action primary" onclick="pagar('${c.cliente_id}')">
-              Confirmar pago
-            </button>
-          </div>`;
+          <button class="cobro-action primary" onclick="pagar('${c.cliente_id}')">
+            Confirmar pago
+          </button>`;
       }
 
       // PAGADO
       if (tabActual === 'pagado') {
         bottom = `
-          <span class="cobro-estado pagado">Pagado</span>
+          <span class="cobro-estado pagado">Pago confirmado</span>
         `;
       }
 

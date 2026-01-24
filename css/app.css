@@ -208,3 +208,26 @@ body {
   border-color: var(--border);
 }
 
+/* THEME TOGGLE */
+.theme-toggle {
+  position: absolute;
+  top: 18px;
+  right: 16px;
+
+  background: none;
+  border: none;
+  color: var(--fg);
+  cursor: pointer;
+
+  padding: 6px;
+  border-radius: 50%;
+}
+
+.theme-toggle span {
+  font-size: 22px;
+}
+
+.theme-toggle:active {
+  transform: scale(0.92);
+}
+

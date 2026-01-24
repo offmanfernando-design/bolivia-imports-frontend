@@ -178,3 +178,35 @@
   justify-content: flex-end;
 }
 
+/* ========================= */
+/* COBROS – MICROFEEDBACK    */
+/* ========================= */
+
+.cobro-action {
+  transition: transform 0.12s ease, opacity 0.12s ease;
+}
+
+.cobro-action:active {
+  transform: scale(0.96);
+  opacity: 0.85;
+}
+
+/* ========================= */
+/* COBROS – CAMBIO DE TAB    */
+/* ========================= */
+
+.list {
+  animation: tab-enter 0.18s ease-out;
+}
+
+@keyframes tab-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+

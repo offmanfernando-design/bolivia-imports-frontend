@@ -234,8 +234,8 @@
 /* ========================= */
 
 .cobro-card {
-  background: #ff0000;
-  box-shadow: 0 1px 0 rgba(0,0,0,0.06);
+  background: rgba(0,0,0,0.05);
+  box-shadow: 0 1px 0 rgba(0,0,0,0.05);
 }
 
 /* Estado Pagado – cierre visual */

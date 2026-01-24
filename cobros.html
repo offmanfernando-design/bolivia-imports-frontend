@@ -4,10 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Cobros</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" rel="stylesheet">
   <link rel="stylesheet" href="css/app.css" />
   <link rel="stylesheet" href="css/cobros.css" />
-</head>
+
   <meta name="theme-color" content="#ffffff">
+</head>
 <body>
 
 <div class="app view">
@@ -30,7 +33,9 @@
       placeholder="Buscar nombre, número o tracking"
       oninput="aplicarBusqueda()"
     />
+
     <div class="date-wrapper">
+      <span class="material-symbols-rounded">calendar_month</span>
       <input type="date" id="filtroFecha" onchange="aplicarBusqueda()" />
     </div>
   </div>
@@ -45,6 +50,5 @@
 
 <script type="module" src="js/cobros.v2.js"></script>
 <script src="js/theme.js"></script>
-  
 </body>
 </html>

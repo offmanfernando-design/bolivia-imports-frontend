@@ -39,22 +39,25 @@ function render() {
     })
     .forEach(c => {
       const div = document.createElement('div');
-      div.className = `cobro-card ${tabActual}`;
+      div.className = `cobro-card`;
+      div.dataset.id = c.cliente_id;
 
       let bottom = '';
 
       // PENDIENTE
       if (tabActual === 'pendiente') {
         bottom = `
-          <button class="cobro-action primary" onclick="avisar('${c.cliente_id}')">
+          <button class="cobro-action primary" onclick="avisar('${c.cliente_id}', this)">
             Avisar
           </button>`;
       }
 
       // AVISADO
       if (tabActual === 'avisado') {
+        const veces = c.veces_avisado || 1;
         bottom = `
-          <button class="cobro-action primary" onclick="pagar('${c.cliente_id}')">
+          <span class="cobro-estado">Avisado · ${veces}</span>
+          <button class="cobro-action primary" onclick="pagar('${c.cliente_id}', this)">
             Confirmar pago
           </button>`;
       }
@@ -72,10 +75,7 @@ function render() {
             <strong>${c.cliente_nombre}</strong>
             <span class="cobro-codigo">${c.cliente_id}</span>
           </div>
-
-          <div class="cobro-monto">
-            ${c.monto_total_bs} Bs
-          </div>
+          <div class="cobro-monto">${c.monto_total_bs} Bs</div>
         </div>
 
         <div class="cobro-bottom">
@@ -87,20 +87,30 @@ function render() {
     });
 }
 
-window.avisar = async function (clienteId) {
+/* ====== ACCIONES CON MICRO-SALIDA ====== */
+
+window.avisar = async function (clienteId, btn) {
+  const card = btn.closest('.cobro-card');
+  card.classList.add('leaving');
+
   await fetch(`${API_BASE_URL}/api/cobros/avisar`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ cliente_id: clienteId })
   });
-  cargarCobros();
+
+  setTimeout(cargarCobros, 160);
 };
 
-window.pagar = async function (clienteId) {
+window.pagar = async function (clienteId, btn) {
+  const card = btn.closest('.cobro-card');
+  card.classList.add('leaving');
+
   await fetch(`${API_BASE_URL}/api/cobros/pagar`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ cliente_id: clienteId })
   });
-  cargarCobros();
+
+  setTimeout(cargarCobros, 160);
 };

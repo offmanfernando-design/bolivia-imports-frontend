@@ -1,5 +1,5 @@
 /* ========================= */
-/* MODULO: COBROS            */
+/* HEADER                    */
 /* ========================= */
 
 .home-header {
@@ -42,7 +42,7 @@
 }
 
 /* ========================= */
-/* BUSCADOR                  */
+/* BUSCADOR + FECHA          */
 /* ========================= */
 
 .search-box {
@@ -52,8 +52,7 @@
   margin-bottom: 16px;
 }
 
-.search-box input,
-.date-wrapper input {
+.search-box input {
   flex: 1;
   padding: 10px 12px;
   font-size: 14px;
@@ -61,6 +60,29 @@
   border: 1px solid var(--border);
   background: var(--input-bg);
   color: var(--fg);
+}
+
+.date-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 10px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--input-bg);
+}
+
+.date-wrapper span {
+  font-size: 18px;
+  color: var(--muted);
+}
+
+.date-wrapper input {
+  border: none;
+  background: transparent;
+  color: var(--fg);
+  font-size: 13px;
+  width: 120px;
 }
 
 /* ========================= */
@@ -73,18 +95,20 @@
   border-radius: 16px;
   padding: 14px 16px;
   margin: 0 16px 12px;
-  animation: cobro-enter 0.16s ease-out;
+  animation: enter 0.16s ease-out;
 }
 
-@keyframes cobro-enter {
-  from {
-    opacity: 0;
-    transform: translateY(6px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.cobro-card.leaving {
+  animation: leave 0.14s ease-in forwards;
+}
+
+@keyframes enter {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes leave {
+  to { opacity: 0; transform: translateY(-6px); }
 }
 
 .cobro-top {
@@ -101,44 +125,35 @@
 .cobro-codigo {
   font-size: 12px;
   color: var(--muted);
-  margin-top: 2px;
 }
 
 .cobro-monto {
   font-size: 18px;
   font-weight: 700;
-  animation: monto-enter 0.14s ease-out;
 }
 
-@keyframes monto-enter {
-  from {
-    opacity: 0;
-    transform: scale(1.04);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
+/* ========================= */
+/* FOOTER CARD               */
+/* ========================= */
 
 .cobro-bottom {
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  margin-top: 12px;
   gap: 8px;
+  margin-top: 12px;
 }
 
 .cobro-estado {
   font-size: 12px;
   padding: 4px 10px;
   border-radius: 999px;
-  background: rgba(0,0,0,0.05);
+  background: rgba(255,255,255,0.06);
   color: var(--muted);
 }
 
 .cobro-estado.pagado {
-  background: rgba(46,125,50,0.12);
+  background: rgba(46,125,50,0.18);
   color: var(--success);
   font-weight: 600;
 }
@@ -151,7 +166,6 @@
   background: var(--card);
   color: var(--fg);
   cursor: pointer;
-  transition: transform .12s ease, opacity .12s ease;
 }
 
 .cobro-action.primary {

@@ -1,10 +1,23 @@
+/* ========================= */
+/* VARIABLES GLOBALES        */
+/* ========================= */
+
 :root {
   --bg: #ffffff;
   --fg: #111111;
-  --muted: #8a8a8a;
+
+  --card: #ffffff;
   --border: #e6e6e6;
+
+  --muted: #8a8a8a;
+  --input-bg: #ffffff;
+
   --success: #2e7d32;
 }
+
+/* ========================= */
+/* MODO OSCURO               */
+/* ========================= */
 
 html[data-theme="dark"] {
   --bg: #0f0f10;
@@ -19,12 +32,15 @@ html[data-theme="dark"] {
   --success: #6fdc8c;
 }
 
+/* ========================= */
+/* RESET / BASE              */
+/* ========================= */
+
 * {
   box-sizing: border-box;
   -webkit-tap-highlight-color: transparent;
 }
 
-/* 🔥 CLAVE PARA PWA */
 html {
   height: 100%;
 }
@@ -41,7 +57,10 @@ body {
   justify-content: center;
 }
 
-/* 🔥 CONTENEDOR GLOBAL CORRECTO */
+/* ========================= */
+/* CONTENEDOR APP            */
+/* ========================= */
+
 .app {
   width: 100%;
   max-width: 420px;
@@ -49,11 +68,14 @@ body {
   flex-direction: column;
 }
 
-/* SPLASH */
+/* ========================= */
+/* SPLASH                    */
+/* ========================= */
+
 #splash {
   position: fixed;
   inset: 0;
-  background: #fff;
+  background: var(--bg);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -73,7 +95,10 @@ body {
   }
 }
 
-/* HEADER */
+/* ========================= */
+/* HEADER                    */
+/* ========================= */
+
 .home-header {
   text-align: center;
   padding: 64px 16px 40px;
@@ -91,7 +116,10 @@ body {
   letter-spacing: 0.4px;
 }
 
-/* MENU */
+/* ========================= */
+/* MENU                      */
+/* ========================= */
+
 .menu {
   padding: 0 16px;
 }
@@ -104,7 +132,7 @@ body {
   border: 1px solid var(--border);
   border-radius: 18px;
   margin-bottom: 14px;
-  background: #fff;
+  background: var(--card);
   transition: transform .15s ease, box-shadow .15s ease;
 }
 
@@ -113,7 +141,6 @@ body {
   box-shadow: 0 10px 24px rgba(0,0,0,.08);
 }
 
-/* ICONOS MINIMAL */
 .menu-icon {
   width: 42px;
   height: 42px;
@@ -125,7 +152,7 @@ body {
   font-size: 18px;
   font-weight: 600;
   color: var(--fg);
-  background: #fff;
+  background: var(--card);
 }
 
 .menu-item strong {
@@ -139,11 +166,40 @@ body {
   margin-top: 2px;
 }
 
-/* FOOTER GLOBAL (TODAS LAS PANTALLAS) */
+/* ========================= */
+/* FOOTER                    */
+/* ========================= */
+
 .footer {
   margin-top: auto;
   padding: 20px 12px 24px;
   text-align: center;
   font-size: 12px;
   color: var(--muted);
+}
+
+/* ========================= */
+/* TOGGLE TEMA               */
+/* ========================= */
+
+.theme-toggle {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+
+  opacity: 0.6;
+  transition: opacity 0.2s ease, transform 0.1s ease;
+}
+
+.theme-toggle:hover {
+  opacity: 1;
+}
+
+.theme-toggle:active {
+  transform: scale(0.9);
 }

@@ -1,10 +1,5 @@
 /* ========================= */
 /* MODULO: COBROS            */
-/* Estilos SOLO de cobros    */
-/* ========================= */
-
-/* ========================= */
-/* COBROS – HEADER           */
 /* ========================= */
 
 .home-header {
@@ -21,15 +16,14 @@
 }
 
 /* ========================= */
-/* COBROS – TABS             */
+/* TABS                      */
 /* ========================= */
 
 .tabs {
   display: flex;
   gap: 8px;
   padding: 0 16px;
-  margin-top: 4px;
-  margin-bottom: 12px;
+  margin: 4px 0 12px;
 }
 
 .tab {
@@ -38,18 +32,17 @@
   font-size: 14px;
   border-radius: 999px;
   border: 1px solid var(--border);
-  background: #f7f7f7;
+  background: var(--card);
   color: var(--fg);
 }
 
 .tab.active {
   background: var(--fg);
-  color: #fff;
-  border-color: var(--fg);
+  color: var(--bg);
 }
 
 /* ========================= */
-/* COBROS – BUSCADOR         */
+/* BUSCADOR                  */
 /* ========================= */
 
 .search-box {
@@ -59,106 +52,27 @@
   margin-bottom: 16px;
 }
 
-.search-box input[type="search"] {
+.search-box input,
+.date-wrapper input {
   flex: 1;
   padding: 10px 12px;
   font-size: 14px;
   border-radius: 12px;
   border: 1px solid var(--border);
-}
-
-.date-wrapper input {
-  padding: 10px;
-  border-radius: 12px;
-  border: 1px solid var(--border);
+  background: var(--input-bg);
+  color: var(--fg);
 }
 
 /* ========================= */
-/* COBROS – TARJETAS         */
+/* TARJETAS                  */
 /* ========================= */
 
 .cobro-card {
-  background: #fff;
+  background: var(--card);
   border: 1px solid var(--border);
   border-radius: 16px;
   padding: 14px 16px;
   margin: 0 16px 12px;
-}
-
-/* Fila superior */
-.cobro-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 12px;
-}
-
-.cobro-cliente strong {
-  display: block;
-  font-size: 15px;
-  font-weight: 600;
-}
-
-.cobro-codigo {
-  font-size: 12px;
-  color: var(--muted);
-  margin-top: 2px;
-}
-
-.cobro-monto {
-  font-size: 18px;
-  font-weight: 700;
-  white-space: nowrap;
-}
-
-/* Fila inferior */
-.cobro-bottom {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 12px;
-}
-
-/* Estados */
-.cobro-estado {
-  font-size: 12px;
-  padding: 4px 10px;
-  border-radius: 999px;
-  background: #f2f2f2;
-  color: #444;
-}
-
-.cobro-estado.pagado {
-  background: #e6f4ea;
-  color: var(--success);
-}
-
-/* Acciones */
-.cobro-actions {
-  display: flex;
-  gap: 8px;
-}
-
-.cobro-action {
-  border-radius: 999px;
-  padding: 6px 14px;
-  font-size: 13px;
-  border: 1px solid var(--border);
-  background: #f5f5f5;
-  cursor: pointer;
-}
-
-.cobro-action.primary {
-  background: var(--fg);
-  color: #fff;
-  border-color: var(--fg);
-}
-
-/* ========================= */
-/* COBROS – MICROANIMACIONES */
-/* ========================= */
-
-.cobro-card {
   animation: cobro-enter 0.16s ease-out;
 }
 
@@ -173,48 +87,26 @@
   }
 }
 
-/* Acción principal siempre a la derecha */
-.cobro-bottom {
-  justify-content: flex-end;
+.cobro-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
 }
 
-/* ========================= */
-/* COBROS – MICROFEEDBACK    */
-/* ========================= */
-
-.cobro-action {
-  transition: transform 0.12s ease, opacity 0.12s ease;
+.cobro-cliente strong {
+  font-size: 15px;
+  font-weight: 600;
 }
 
-.cobro-action:active {
-  transform: scale(0.96);
-  opacity: 0.85;
+.cobro-codigo {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 2px;
 }
-
-/* ========================= */
-/* COBROS – CAMBIO DE TAB    */
-/* ========================= */
-
-.list {
-  animation: tab-enter 0.18s ease-out;
-}
-
-@keyframes tab-enter {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* ========================= */
-/* COBROS – ENFASIS MONTO    */
-/* ========================= */
 
 .cobro-monto {
+  font-size: 18px;
+  font-weight: 700;
   animation: monto-enter 0.14s ease-out;
 }
 
@@ -229,20 +121,45 @@
   }
 }
 
-/* ========================= */
-/* COBROS – TARJETA NEUTRA   */
-/* ========================= */
-
-.cobro-card {
-  background: rgba(0,0,0,0.02);
-  box-shadow: 0 1px 0 rgba(0,0,0,0.05);
+.cobro-bottom {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-top: 12px;
+  gap: 8px;
 }
 
-/* Estado Pagado – cierre visual */
+.cobro-estado {
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(0,0,0,0.05);
+  color: var(--muted);
+}
+
 .cobro-estado.pagado {
-  background: rgba(46, 125, 50, 0.08);
+  background: rgba(46,125,50,0.12);
   color: var(--success);
   font-weight: 600;
 }
 
+.cobro-action {
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-size: 13px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--fg);
+  cursor: pointer;
+  transition: transform .12s ease, opacity .12s ease;
+}
 
+.cobro-action.primary {
+  background: var(--fg);
+  color: var(--bg);
+}
+
+.cobro-action:active {
+  transform: scale(0.96);
+  opacity: 0.85;
+}

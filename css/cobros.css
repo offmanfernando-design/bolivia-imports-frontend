@@ -230,22 +230,12 @@
 }
 
 /* ========================= */
-/* COBROS – ESTADOS VISUALES */
+/* COBROS – TARJETA NEUTRA   */
 /* ========================= */
 
-/* Pendiente */
-.cobro-card.pendiente {
+.cobro-card {
   background: #ffffff;
-}
-
-/* Avisado */
-.cobro-card.avisado {
-  background: #fffaf3; /* ámbar muy suave */
-}
-
-/* Pagado */
-.cobro-card.pagado {
-  background: #f7fbf8; /* verde casi blanco */
+  box-shadow: 0 1px 0 rgba(0,0,0,0.04);
 }
 
 /* Estado Pagado – cierre visual */

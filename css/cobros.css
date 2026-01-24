@@ -153,3 +153,28 @@
   color: #fff;
   border-color: var(--fg);
 }
+
+/* ========================= */
+/* COBROS – MICROANIMACIONES */
+/* ========================= */
+
+.cobro-card {
+  animation: cobro-enter 0.16s ease-out;
+}
+
+@keyframes cobro-enter {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Acción principal siempre a la derecha */
+.cobro-bottom {
+  justify-content: flex-end;
+}
+

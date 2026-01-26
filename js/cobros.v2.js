@@ -205,11 +205,17 @@ window.avisar = async function (clienteId, telefono) {
       window.open(`https://wa.me/${telefono}?text=${mensaje}`, '_blank');
     }
 
-    await fetch(`${API_BASE_URL}/api/cobros/avisar`, {
+    const res = await fetch(`${API_BASE_URL}/api/cobros/avisar`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ cliente_id: clienteId })
     });
+
+    if (!res.ok) {
+      const data = await res.json();
+      alert(data.error || 'No se pudo avisar');
+      return;
+    }
 
     actualizarIndicador(true);
   } catch (e) {

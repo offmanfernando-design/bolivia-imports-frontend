@@ -71,7 +71,7 @@ async function cargarCobros() {
     datos = await res.json();
     render();
     actualizarIndicador(true);
-  } catch (e) {
+  } catch {
     actualizarIndicador(false);
   }
 }
@@ -152,12 +152,10 @@ function render() {
       </div>
 
       <div class="cobro-bottom">${bottom}</div>
-
       <div class="cobro-historial" style="display:none"></div>
     `;
 
     div.onclick = () => toggleHistorial(div, c.cliente_id);
-
     cont.appendChild(div);
   });
 }
@@ -188,15 +186,22 @@ async function toggleHistorial(card, clienteId) {
     const res = await fetch(`${API_BASE_URL}/api/cobros/detalle/${clienteId}`);
     const rows = await res.json();
 
-    const html = rows.map(r => `
-      <div class="hist-item">
-        <small>
-          ${r.ultima_accion || '—'} · ${r.ultima_accion_fecha || ''}
-          · ${r.descripcion_producto || ''}
-          · ${r.monto_total_bs || 0} Bs
-        </small>
-      </div>
-    `).join('');
+    const html = rows.map(r => {
+      let cls = '';
+      if (r.ultima_accion === 'AVISO') cls = 'aviso';
+      if (r.ultima_accion === 'REAVISO') cls = 'reaviso';
+      if (r.ultima_accion === 'PAGO') cls = 'pago';
+
+      return `
+        <div class="hist-item ${cls}">
+          <small>
+            ${r.ultima_accion || '—'} · ${r.ultima_accion_fecha || ''}
+            · ${r.descripcion_producto || ''}
+            · ${r.monto_total_bs || 0} Bs
+          </small>
+        </div>
+      `;
+    }).join('');
 
     detalleCache[clienteId] = html || '<small>Sin historial</small>';
     box.innerHTML = detalleCache[clienteId];

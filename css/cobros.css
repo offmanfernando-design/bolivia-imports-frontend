@@ -96,24 +96,11 @@
   padding: 14px 16px;
   margin: 0 16px 12px;
   animation: enter 0.16s ease-out;
-  transition:
-    height 0.16s ease,
-    margin 0.16s ease,
-    padding 0.16s ease;
-}
-
-.cobro-card.leaving {
-  opacity: 0;
-  transform: translateY(-6px);
-  height: 0;
-  margin: 0 16px;
-  padding: 0 16px;
-  overflow: hidden;
 }
 
 @keyframes enter {
   from { opacity: 0; transform: translateY(6px); }
-  to { opacity: 1; transform: translateY(0); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 /* ========================= */
@@ -127,23 +114,15 @@
   align-items: start;
 }
 
-.cobro-cliente strong {
-  display: block;
+.cobro-top strong {
   font-size: 15px;
   font-weight: 600;
   line-height: 1.25;
-  word-break: break-word;
 }
 
-.cobro-codigo {
+.cobro-top small {
   font-size: 12px;
   color: var(--muted);
-}
-
-.cobro-monto {
-  font-size: 18px;
-  font-weight: 700;
-  white-space: nowrap;
 }
 
 /* ========================= */
@@ -157,18 +136,6 @@
   gap: 8px;
   margin-top: 12px;
   flex-wrap: wrap;
-}
-
-/* >>> NUEVO: INFO ÚLTIMA ACCIÓN <<< */
-.cobro-accion {
-  width: 100%;
-  margin-bottom: 6px;
-}
-
-.cobro-accion small {
-  font-size: 11px;
-  color: var(--muted);
-  opacity: 0.85;
 }
 
 .cobro-estado {
@@ -200,13 +167,13 @@
   color: var(--bg);
 }
 
-.cobro-action:active {
-  transform: scale(0.96);
-  opacity: 0.85;
+.cobro-action:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 /* ========================= */
-/* INDICADOR DE SALUD        */
+/* INDICADOR DE CONEXIÓN     */
 /* ========================= */
 
 .sync-status {
@@ -230,13 +197,21 @@
   background: #b0b0b0;
 }
 
-.sync-status.offline {
-  opacity: 0.7;
+/* Texto fijo, solo animan los puntos */
+.sync-status .text::after {
+  content: '...';
+  display: inline-block;
+  width: 16px;          /* evita que se mueva el layout */
+  text-align: left;
+  animation: dots 1.4s infinite;
 }
 
 .sync-status.loading .text::after {
-  content: '...';
-  animation: dots 1.4s infinite steps(3);
+  animation-play-state: running;
+}
+
+.sync-status:not(.loading) .text::after {
+  animation-play-state: paused;
 }
 
 @keyframes dots {
@@ -245,41 +220,3 @@
   66%  { content: '..'; }
   100% { content: '...'; }
 }
-
-/* ========================= */
-/* ÚLTIMA ACCIÓN (COMPAT)    */
-/* ========================= */
-
-.cobro-accion.aviso small {
-  color: #1976d2;
-  font-weight: 600;
-}
-
-.cobro-accion.reaviso small {
-  color: #ef6c00;
-  font-weight: 600;
-}
-
-.cobro-accion.pago small {
-  color: var(--success);
-  font-weight: 700;
-}
-
-/* ========================= */
-/* HISTORIAL DE COBROS SAFE  */
-/* ========================= */
-
-.hist-item.aviso small {
-  color: #1976d2;
-}
-
-.hist-item.reaviso small {
-  color: #ef6c00;
-}
-
-.hist-item.pago small {
-  color: var(--success);
-  font-weight: 600;
-}
-
-

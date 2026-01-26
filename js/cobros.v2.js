@@ -96,8 +96,15 @@ function render() {
     const div = document.createElement('div');
     let bottom = '';
 
+    const accionInfo = c.ultima_accion
+      ? `<div class="cobro-accion">
+           <small>${c.ultima_accion} · ${c.ultima_accion_fecha || ''}</small>
+         </div>`
+      : '';
+
     if (tabActual === 'pendiente') {
       bottom = `
+        ${accionInfo}
         <button class="cobro-action primary"
           onclick="avisar('${c.cliente_id}','${c.cliente_telefono}')">
           Avisar
@@ -106,6 +113,7 @@ function render() {
 
     if (tabActual === 'avisado') {
       bottom = `
+        ${accionInfo}
         <span class="cobro-estado">Avisado · ${c.avisos_count}</span>
 
         <button class="cobro-action"
@@ -120,7 +128,9 @@ function render() {
     }
 
     if (tabActual === 'pagado') {
-      bottom = `<span class="cobro-estado pagado">Pago confirmado</span>`;
+      bottom = `
+        ${accionInfo}
+        <span class="cobro-estado pagado">Pago confirmado</span>`;
     }
 
     div.className = 'cobro-card';

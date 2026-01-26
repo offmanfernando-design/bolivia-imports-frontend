@@ -2,10 +2,8 @@ import API_BASE_URL from './config.js';
 
 let tabActual = 'pendiente';
 let datos = [];
-let lastSync = null;
 let avisando = false;
 let pagando = false;
-const detalleCache = {};
 
 /* =========================
    INDICADOR DE CONEXIÓN
@@ -15,23 +13,10 @@ function actualizarIndicador(ok = true) {
   const el = document.getElementById('syncStatus');
   if (!el) return;
 
-  const text = el.querySelector('.text');
-  const time = el.querySelector('.time');
-
-  if (!ok) {
-    el.classList.add('offline');
-    el.classList.remove('loading');
-    text.textContent = 'Sin conexión';
-    time.textContent = '';
-    return;
-  }
-
-  el.classList.remove('offline');
+  el.classList.toggle('offline', !ok);
   el.classList.remove('loading');
-  text.textContent = 'Conectado';
 
-  lastSync = new Date();
-  time.textContent = `· Última sync: hace ${tiempoHumano(lastSync)}`;
+  el.querySelector('.text').textContent = ok ? 'Conectado' : 'Sin conexión';
 }
 
 function setConectando() {
@@ -41,14 +26,22 @@ function setConectando() {
   el.classList.add('loading');
   el.classList.remove('offline');
   el.querySelector('.text').textContent = 'Conectando';
-  el.querySelector('.time').textContent = '';
 }
 
-function tiempoHumano(date) {
-  const diff = Math.floor((Date.now() - date.getTime()) / 1000);
-  if (diff < 60) return `${diff}s`;
-  if (diff < 3600) return `${Math.floor(diff / 60)} min`;
-  return `${Math.floor(diff / 3600)} h`;
+/* =========================
+   UTIL: TIEMPO HUMANO
+   ========================= */
+
+function tiempoHumanoDesde(fechaISO) {
+  if (!fechaISO) return '';
+  const fecha = new Date(fechaISO);
+  const diffMs = Date.now() - fecha.getTime();
+  const diffMin = Math.floor(diffMs / 60000);
+
+  if (diffMin < 60) return `hoy ${fecha.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+  if (diffMin < 1440) return 'ayer';
+  const dias = Math.floor(diffMin / 1440);
+  return `hace ${dias} día${dias > 1 ? 's' : ''}`;
 }
 
 /* =========================
@@ -65,9 +58,7 @@ async function cargarCobros() {
   setConectando();
 
   try {
-    const res = await fetch(
-      `${API_BASE_URL}/api/cobros?estado_cobro=${tabActual}`
-    );
+    const res = await fetch(`${API_BASE_URL}/api/cobros?estado_cobro=${tabActual}`);
     datos = await res.json();
     render();
     actualizarIndicador(true);
@@ -97,48 +88,21 @@ function render() {
 
   datos.forEach(c => {
     const div = document.createElement('div');
-    let bottom = '';
 
-    let accionClass = '';
-    if (c.ultima_accion === 'AVISO') accionClass = 'aviso';
-    if (c.ultima_accion === 'REAVISO') accionClass = 'reaviso';
-    if (c.ultima_accion === 'PAGO') accionClass = 'pago';
-
-    const accionInfo = c.ultima_accion
-      ? `<div class="cobro-accion ${accionClass}">
-           <small>${c.ultima_accion} · ${c.ultima_accion_fecha || ''}</small>
-         </div>`
-      : '';
+    let infoExtra = '';
 
     if (tabActual === 'pendiente') {
-      bottom = `
-        ${accionInfo}
-        <button class="cobro-action primary" ${avisando ? 'disabled' : ''}
-          onclick="event.stopPropagation(); avisar('${c.cliente_id}','${c.cliente_telefono}')">
-          Avisar
-        </button>`;
+      infoExtra = `
+        <small>${c.descripcion_producto || ''}</small>
+      `;
     }
 
     if (tabActual === 'avisado') {
-      bottom = `
-        ${accionInfo}
-        <span class="cobro-estado">Avisado · ${c.avisos_count}</span>
-
-        <button class="cobro-action" ${avisando ? 'disabled' : ''}
-          onclick="event.stopPropagation(); avisar('${c.cliente_id}','${c.cliente_telefono}')">
-          Reavisar
-        </button>
-
-        <button class="cobro-action primary" ${pagando ? 'disabled' : ''}
-          onclick="event.stopPropagation(); pagar('${c.cliente_id}')">
-          Confirmar pago
-        </button>`;
-    }
-
-    if (tabActual === 'pagado') {
-      bottom = `
-        ${accionInfo}
-        <span class="cobro-estado pagado">Pago confirmado</span>`;
+      infoExtra = `
+        <small>
+          Aviso ${c.avisos_count || 1} · último aviso ${tiempoHumanoDesde(c.ultima_accion_fecha)}
+        </small>
+      `;
     }
 
     div.className = 'cobro-card';
@@ -146,113 +110,45 @@ function render() {
       <div class="cobro-top">
         <div>
           <strong>${c.cliente_nombre}</strong><br>
-          <small>${c.cliente_id}</small>
+          <small>${c.cliente_id}</small><br>
+          ${infoExtra}
         </div>
         <div><strong>${c.monto_total_bs} Bs</strong></div>
       </div>
 
-      <div class="cobro-bottom">${bottom}</div>
-      <div class="cobro-historial" style="display:none"></div>
+      <div class="cobro-bottom">
+        ${renderBotones(c)}
+      </div>
     `;
 
-    div.onclick = () => toggleHistorial(div, c.cliente_id);
     cont.appendChild(div);
   });
 }
 
-/* =========================
-   HISTORIAL
-   ========================= */
-
-async function toggleHistorial(card, clienteId) {
-  const box = card.querySelector('.cobro-historial');
-  if (!box) return;
-
-  if (box.style.display === 'block') {
-    box.style.display = 'none';
-    return;
+function renderBotones(c) {
+  if (tabActual === 'pendiente') {
+    return `
+      <button class="cobro-action primary" ${avisando ? 'disabled' : ''}
+        onclick="avisar('${c.cliente_id}','${c.cliente_telefono}')">
+        Avisar
+      </button>
+    `;
   }
 
-  box.style.display = 'block';
-
-  if (detalleCache[clienteId]) {
-    box.innerHTML = detalleCache[clienteId];
-    return;
+  if (tabActual === 'avisado') {
+    return `
+      <button class="cobro-action" ${avisando ? 'disabled' : ''}
+        onclick="avisar('${c.cliente_id}','${c.cliente_telefono}')">
+        Reavisar
+      </button>
+      <button class="cobro-action primary" ${pagando ? 'disabled' : ''}
+        onclick="pagar('${c.cliente_id}')">
+        Confirmar pago
+      </button>
+    `;
   }
 
-  box.innerHTML = '<small>Cargando historial…</small>';
-
-  try {
-    const res = await fetch(`${API_BASE_URL}/api/cobros/detalle/${clienteId}`);
-    const rows = await res.json();
-
-    const html = rows.map(r => {
-      let cls = '';
-      if (r.ultima_accion === 'AVISO') cls = 'aviso';
-      if (r.ultima_accion === 'REAVISO') cls = 'reaviso';
-      if (r.ultima_accion === 'PAGO') cls = 'pago';
-
-      return `
-        <div class="hist-item ${cls}">
-          <small>
-            ${r.ultima_accion || '—'} · ${r.ultima_accion_fecha || ''}
-            · ${r.descripcion_producto || ''}
-            · ${r.monto_total_bs || 0} Bs
-          </small>
-        </div>
-      `;
-    }).join('');
-
-    detalleCache[clienteId] = html || '<small>Sin historial</small>';
-    box.innerHTML = detalleCache[clienteId];
-  } catch {
-    box.innerHTML = '<small>Error cargando historial</small>';
-  }
-}
-
-/* =========================
-   MENSAJE FINAL (AGRUPADO)
-   ========================= */
-
-async function generarMensaje(clienteId) {
-  const res = await fetch(
-    `${API_BASE_URL}/api/cobros/detalle/${clienteId}`
-  );
-  const productos = await res.json();
-
-  if (!productos.length) return '';
-
-  const c0 = productos[0];
-  const esSantaCruz =
-    (c0.departamento_destino || '').toLowerCase().includes('santa cruz');
-
-  let msg = `Hola ${c0.cliente_nombre}\n\n`;
-
-  msg += esSantaCruz
-    ? 'Tu pedido llegó a nuestra oficina.\n\n'
-    : 'Tu pedido ya se encuentra disponible para envío.\n\n';
-
-  let total = 0;
-
-  productos.forEach((p, i) => {
-    total += Number(p.monto_total_bs || 0);
-    msg += `${i + 1}) Producto: ${p.descripcion_producto}\n`;
-    msg += `Costo: ${p.peso_cobrado} kg × ${p.tipo_de_cobro} × ${p.dolar_cliente} = ${p.monto_total_bs} Bs\n\n`;
-  });
-
-  if (productos.length > 1) {
-    msg += `Total a pagar: ${total} Bs\n\n`;
-  }
-
-  msg += 'Pago: QR o efectivo (solo Bs)\n\n';
-
-  msg += esSantaCruz
-    ? 'Horario: 09:30–12:00 / 14:30–18:00\nUbicación: https://maps.app.goo.gl/fP472SmY3XjTmJBL8\n\n'
-    : 'Para envío confirma:\nNombre completo:\nDepartamento:\nCelular:\n\n';
-
-  msg += '— Bolivia Imports';
-
-  return encodeURIComponent(msg);
+  return `<span class="cobro-estado pagado">Pago confirmado</span>`;
 }
 
 /* =========================
@@ -265,11 +161,7 @@ window.avisar = async function (clienteId, telefono) {
   render();
 
   try {
-    const mensaje = await generarMensaje(clienteId);
-    if (telefono) {
-      window.open(`https://wa.me/${telefono}?text=${mensaje}`, '_blank');
-    }
-
+    // 1️⃣ Primero backend
     const res = await fetch(`${API_BASE_URL}/api/cobros/avisar`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
@@ -279,9 +171,18 @@ window.avisar = async function (clienteId, telefono) {
     if (!res.ok) {
       const data = await res.json();
       alert(data.error || 'No se pudo avisar');
-    } else {
-      actualizarIndicador(true);
+      avisando = false;
+      render();
+      return;
     }
+
+    // 2️⃣ Recién abrir WhatsApp
+    const msg = await generarMensaje(clienteId);
+    if (telefono) {
+      window.open(`https://wa.me/${telefono}?text=${msg}`, '_blank');
+    }
+
+    actualizarIndicador(true);
   } catch {
     actualizarIndicador(false);
   }
@@ -310,3 +211,24 @@ window.pagar = async function (clienteId) {
   pagando = false;
   cargarCobros();
 };
+
+/* =========================
+   MENSAJE WHATSAPP
+   ========================= */
+
+async function generarMensaje(clienteId) {
+  const res = await fetch(`${API_BASE_URL}/api/cobros/detalle/${clienteId}`);
+  const productos = await res.json();
+  if (!productos.length) return '';
+
+  let msg = `Hola ${productos[0].cliente_nombre}\n\n`;
+  let total = 0;
+
+  productos.forEach((p, i) => {
+    total += Number(p.monto_total_bs || 0);
+    msg += `${i + 1}) ${p.descripcion_producto} - ${p.monto_total_bs} Bs\n`;
+  });
+
+  msg += `\nTotal a pagar: ${total} Bs\n\n— Bolivia Imports`;
+  return encodeURIComponent(msg);
+}

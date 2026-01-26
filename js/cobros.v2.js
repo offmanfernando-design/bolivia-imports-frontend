@@ -2,14 +2,80 @@ import API_BASE_URL from './config.js';
 
 let tabActual = 'pendiente';
 let datos = [];
+let lastSync = null;
+
+/* =========================
+   INDICADOR DE CONEXIÓN
+   ========================= */
+
+function actualizarIndicador(ok = true) {
+  const el = document.getElementById('syncStatus');
+  if (!el) return;
+
+  const text = el.querySelector('.text');
+  const time = el.querySelector('.time');
+
+  if (!ok) {
+    el.classList.add('offline');
+    el.classList.remove('loading');
+    text.textContent = 'Sin conexión';
+    time.textContent = '';
+    return;
+  }
+
+  el.classList.remove('offline');
+  el.classList.remove('loading');
+  text.textContent = 'Conectado';
+
+  lastSync = new Date();
+  time.textContent = `· Última sync: hace ${tiempoHumano(lastSync)}`;
+}
+
+function setConectando() {
+  const el = document.getElementById('syncStatus');
+  if (!el) return;
+
+  el.classList.add('loading');
+  el.classList.remove('offline');
+  el.querySelector('.text').textContent = 'Conectando';
+  el.querySelector('.time').textContent = '';
+}
+
+function tiempoHumano(date) {
+  const diff = Math.floor((Date.now() - date.getTime()) / 1000);
+  if (diff < 60) return `${diff}s`;
+  if (diff < 3600) return `${Math.floor(diff / 60)} min`;
+  return `${Math.floor(diff / 3600)} h`;
+}
+
+/* =========================
+   INIT
+   ========================= */
 
 document.addEventListener('DOMContentLoaded', cargarCobros);
 
+/* =========================
+   DATA LOAD
+   ========================= */
+
 async function cargarCobros() {
-  const res = await fetch(`${API_BASE_URL}/api/cobros?estado_cobro=${tabActual}`);
-  datos = await res.json();
-  render();
+  setConectando();
+
+  try {
+    const res = await fetch(
+      `${API_BASE_URL}/api/cobros?estado_cobro=${tabActual}`
+    );
+    datos = await res.json();
+    render();
+    actualizarIndicador(true);
+  } catch (e) {
+    actualizarIndicador(false);
+  }
 }
+
+/* =========================
+   TABS
+   ========================= */
 
 window.cambiarTab = function (tab, btn) {
   tabActual = tab;
@@ -17,6 +83,10 @@ window.cambiarTab = function (tab, btn) {
   btn.classList.add('active');
   cargarCobros();
 };
+
+/* =========================
+   RENDER
+   ========================= */
 
 function render() {
   const cont = document.getElementById('listaCobros');
@@ -27,17 +97,26 @@ function render() {
     let bottom = '';
 
     if (tabActual === 'pendiente') {
-      bottom = `<button class="cobro-action primary"
-        onclick="avisar('${c.cliente_id}','${c.cliente_telefono}')">Avisar</button>`;
+      bottom = `
+        <button class="cobro-action primary"
+          onclick="avisar('${c.cliente_id}','${c.cliente_telefono}')">
+          Avisar
+        </button>`;
     }
 
     if (tabActual === 'avisado') {
       bottom = `
         <span class="cobro-estado">Avisado · ${c.avisos_count}</span>
+
         <button class="cobro-action"
-          onclick="avisar('${c.cliente_id}','${c.cliente_telefono}')">Reavisar</button>
+          onclick="avisar('${c.cliente_id}','${c.cliente_telefono}')">
+          Reavisar
+        </button>
+
         <button class="cobro-action primary"
-          onclick="pagar('${c.cliente_id}')">Confirmar pago</button>`;
+          onclick="pagar('${c.cliente_id}')">
+          Confirmar pago
+        </button>`;
     }
 
     if (tabActual === 'pagado') {
@@ -55,6 +134,7 @@ function render() {
       </div>
       <div class="cobro-bottom">${bottom}</div>
     `;
+
     cont.appendChild(div);
   });
 }
@@ -62,15 +142,21 @@ function render() {
 /* =========================
    MENSAJE FINAL (AGRUPADO)
    ========================= */
+
 async function generarMensaje(clienteId) {
-  const res = await fetch(`${API_BASE_URL}/api/cobros/detalle/${clienteId}`);
+  const res = await fetch(
+    `${API_BASE_URL}/api/cobros/detalle/${clienteId}`
+  );
   const productos = await res.json();
+
+  if (!productos.length) return '';
 
   const c0 = productos[0];
   const esSantaCruz =
     (c0.departamento_destino || '').toLowerCase().includes('santa cruz');
 
   let msg = `Hola ${c0.cliente_nombre}\n\n`;
+
   msg += esSantaCruz
     ? 'Tu pedido llegó a nuestra oficina.\n\n'
     : 'Tu pedido ya se encuentra disponible para envío.\n\n';
@@ -94,27 +180,47 @@ async function generarMensaje(clienteId) {
     : 'Para envío confirma:\nNombre completo:\nDepartamento:\nCelular:\n\n';
 
   msg += '— Bolivia Imports';
+
   return encodeURIComponent(msg);
 }
 
-window.avisar = async function (clienteId, telefono) {
-  const mensaje = await generarMensaje(clienteId);
-  window.open(`https://wa.me/${telefono}?text=${mensaje}`, '_blank');
+/* =========================
+   ACCIONES
+   ========================= */
 
-  await fetch(`${API_BASE_URL}/api/cobros/avisar`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ cliente_id: clienteId })
-  });
+window.avisar = async function (clienteId, telefono) {
+  try {
+    const mensaje = await generarMensaje(clienteId);
+    if (telefono) {
+      window.open(`https://wa.me/${telefono}?text=${mensaje}`, '_blank');
+    }
+
+    await fetch(`${API_BASE_URL}/api/cobros/avisar`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ cliente_id: clienteId })
+    });
+
+    actualizarIndicador(true);
+  } catch (e) {
+    actualizarIndicador(false);
+  }
 
   cargarCobros();
 };
 
 window.pagar = async function (clienteId) {
-  await fetch(`${API_BASE_URL}/api/cobros/pagar`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ cliente_id: clienteId })
-  });
+  try {
+    await fetch(`${API_BASE_URL}/api/cobros/pagar`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ cliente_id: clienteId })
+    });
+
+    actualizarIndicador(true);
+  } catch (e) {
+    actualizarIndicador(false);
+  }
+
   cargarCobros();
 };

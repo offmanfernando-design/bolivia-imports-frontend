@@ -27,7 +27,7 @@
 }
 
 .tab {
-  flex: 1;
+  flex: 0 0 auto;
   padding: 8px 0;
   font-size: 14px;
   border-radius: 999px;

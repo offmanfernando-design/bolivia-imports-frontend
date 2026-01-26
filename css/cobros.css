@@ -191,3 +191,33 @@
   transform: scale(0.96);
   opacity: 0.85;
 }
+
+/* ========================= */
+/* INDICADOR DE SALUD        */
+/* ========================= */
+
+.sync-status {
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.sync-status .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--success);
+}
+
+.sync-status.offline .dot {
+  background: #b0b0b0;
+}
+
+.sync-status.offline {
+  opacity: 0.7;
+}
+

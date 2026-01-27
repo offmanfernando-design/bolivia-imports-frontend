@@ -1,56 +1,86 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#ffffff">
   <title>Cotizador – Bolivia Imports</title>
-  <link rel="stylesheet" href="../../styles/main.css">
+
+  <!-- CSS base del PWA -->
+  <link rel="stylesheet" href="css/app.css">
+
+  <!-- CSS específico del cotizador -->
+  <link rel="stylesheet" href="css/cotizador.css">
+
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" rel="stylesheet">
 </head>
 <body>
 
-<h2>Cotizador (interno)</h2>
+<div class="app">
 
-<section>
-  <h3>Datos del cliente</h3>
-  <input id="cliente" placeholder="Nombre / ID cliente">
-  <input id="codigo" placeholder="Código cotización (ej: IS060126)">
-</section>
+  <!-- HEADER igual al PWA -->
+  <header class="home-header">
+    <img
+      src="LOGO_EDITABLE_oficial.png"
+      alt="Bolivia Imports"
+      class="home-logo"
+    >
+    <p class="subtitle">Cotizador interno</p>
+  </header>
 
-<section>
-  <h3>Datos del producto</h3>
-  <input id="fob" type="number" placeholder="Valor FOB">
-  <input id="flete" type="number" placeholder="Flete">
-  <input id="seguro" type="number" placeholder="Seguro">
+  <!-- CONTENIDO -->
+  <main class="menu">
 
-  <select id="categoria">
-    <option value="">-- Categoría --</option>
-    <option value="repuesto de vehiculo">Repuesto de vehículo</option>
-    <option value="ropa">Ropa</option>
-    <option value="calzados">Calzados</option>
-    <option value="electronico">Electrónico</option>
-    <option value="Mercaderia general">Mercadería general</option>
-  </select>
-</section>
+    <div class="cotizador-card">
 
-<section>
-  <h3>Peso / dimensiones</h3>
-  <input id="peso" type="number" step="0.01" placeholder="Peso bruto (kg)">
-  <input id="alto" type="number" placeholder="Alto">
-  <input id="ancho" type="number" placeholder="Ancho">
-  <input id="profundo" type="number" placeholder="Profundo">
-</section>
+      <h3>Datos del cliente</h3>
+      <input id="cliente" placeholder="Nombre / ID cliente">
+      <input id="codigo" placeholder="Código cotización (ej: IS060126)">
 
-<button onclick="calcular()">Calcular cotización</button>
-<button onclick="verCliente()">Ver cotización cliente</button>
+      <h3>Datos del producto</h3>
+      <input id="fob" type="number" placeholder="Valor FOB">
+      <input id="flete" type="number" placeholder="Flete">
+      <input id="seguro" type="number" placeholder="Seguro">
 
-<hr>
+      <select id="categoria">
+        <option value="">Categoría</option>
+        <option value="repuesto de vehiculo">Repuesto de vehículo</option>
+        <option value="ropa">Ropa</option>
+        <option value="calzados">Calzados</option>
+        <option value="electronico">Electrónico</option>
+        <option value="Mercaderia general">Mercadería general</option>
+      </select>
 
-<section>
-  <h3>Resultado (interno)</h3>
-  <p>Total: <b id="total">—</b></p>
-  <p>1er pago: <b id="pago1">—</b></p>
-  <p>2do pago: <b id="pago2">—</b></p>
-</section>
+      <h3>Peso / dimensiones</h3>
+      <input id="peso" type="number" step="0.01" placeholder="Peso bruto (kg)">
+      <input id="alto" type="number" placeholder="Alto">
+      <input id="ancho" type="number" placeholder="Ancho">
+      <input id="profundo" type="number" placeholder="Profundo">
 
-<script src="cotizador.js"></script>
+      <button class="btn-primary" onclick="calcular()">
+        Calcular cotización
+      </button>
+
+      <button class="btn-secondary" onclick="verCliente()">
+        Ver cotización cliente
+      </button>
+
+      <div class="cotizador-result">
+        <p>Total <strong id="total">—</strong></p>
+        <p>1er pago <strong id="pago1">—</strong></p>
+        <p>2do pago <strong id="pago2">—</strong></p>
+      </div>
+
+    </div>
+
+  </main>
+
+  <footer class="footer">
+    © Bolivia Imports
+  </footer>
+
+</div>
+
+<script type="module" src="cotizador.js"></script>
 </body>
 </html>

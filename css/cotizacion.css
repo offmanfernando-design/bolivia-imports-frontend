@@ -1,60 +1,148 @@
-body {
-  font-family: Arial, Helvetica, sans-serif;
-  background: #fff;
-  color: #000;
-  padding: 30px;
+/* ======================================================
+   COTIZADOR – UI NEUTRA / NATIVA (iOS + Android)
+   ====================================================== */
+
+/* -------- Variables base -------- */
+$radius-xs: 10px;
+$radius-sm: 12px;
+$radius-md: 16px;
+
+$font-sm: 13px;
+$font-md: 14px;
+$font-lg: 15px;
+
+$border-light: rgba(0, 0, 0, 0.08);
+$border-lighter: rgba(0, 0, 0, 0.06);
+$text-muted: rgba(0, 0, 0, 0.6);
+
+$accent: var(--accent, #4f46e5);
+$bg-input: #f9f9f9;
+$bg-card: #ffffff;
+
+/* -------- Contenedor principal -------- */
+.cotizador-card {
+  max-width: 420px;
+  margin: 16px auto 28px;
+  padding: 18px 16px 20px;
+
+  background: $bg-card;
+  border-radius: $radius-md;
+
+  border: 1px solid $border-lighter;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
 }
 
-h2 {
-  text-align: center;
-  margin-bottom: 30px;
+/* -------- Títulos de sección -------- */
+.cotizador-card h3 {
+  font-size: $font-sm;
+  font-weight: 600;
+  margin: 18px 0 10px;
+
+  color: $text-muted;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
-table {
+/* -------- Inputs & selects -------- */
+.cotizador-card input,
+.cotizador-card select {
   width: 100%;
-  border-collapse: collapse;
-  font-size: 14px;
+  height: 40px;
+  margin-bottom: 10px;
+  padding: 0 14px;
+
+  font-size: $font-md;
+  font-family: inherit;
+
+  border-radius: $radius-sm;
+  border: 1px solid $border-light;
+
+  background: $bg-input;
+  color: inherit;
+
+  transition: background 0.15s ease, border-color 0.15s ease;
 }
 
-td {
-  padding: 8px 10px;
-  border-bottom: 1px solid #ddd;
+.cotizador-card input::placeholder {
+  color: rgba(0, 0, 0, 0.4);
 }
 
-td:first-child {
-  font-weight: bold;
-  width: 45%;
+.cotizador-card input:focus,
+.cotizador-card select:focus {
+  outline: none;
+  background: #ffffff;
+  border-color: $accent;
 }
 
-.total {
-  background: #e6f4e6;
-  font-weight: bold;
+/* -------- Botones -------- */
+.cotizador-card button {
+  width: 100%;
+  height: 44px;
+
+  border-radius: $radius-md;
+  border: none;
+
+  font-size: $font-md;
+  font-weight: 600;
+  cursor: pointer;
+
+  transition: background 0.15s ease, color 0.15s ease;
 }
 
-.pago1 {
-  background: #ffe0b2;
-  font-weight: bold;
+/* Acción principal */
+.cotizador-card .btn-primary {
+  margin-top: 14px;
+  background: $accent;
+  color: #ffffff;
 }
 
-.pago2 {
-  background: #c7dbff;
-  font-weight: bold;
+/* Acción secundaria */
+.cotizador-card .btn-secondary {
+  margin-top: 8px;
+  background: transparent;
+  color: $accent;
+  border: 1px solid $accent;
 }
 
-.footer {
-  margin-top: 20px;
-  font-size: 12px;
-  text-align: center;
-  font-style: italic;
+/* -------- Resultados -------- */
+.cotizador-result {
+  margin-top: 22px;
+  padding-top: 14px;
+
+  border-top: 1px dashed rgba(0, 0, 0, 0.12);
 }
 
-/* ---- SOLO IMPRESIÓN ---- */
-@media print {
-  body {
-    padding: 0;
+.cotizador-result p {
+  display: flex;
+  justify-content: space-between;
+
+  font-size: $font-lg;
+  margin: 8px 0;
+}
+
+.cotizador-result strong {
+  font-weight: 600;
+}
+
+/* -------- Dark mode (si tu PWA lo usa) -------- */
+body.dark {
+  .cotizador-card {
+    background: #1f2933;
+    border-color: rgba(255, 255, 255, 0.08);
   }
 
-  h2 {
-    margin-top: 0;
+  .cotizador-card input,
+  .cotizador-card select {
+    background: #111827;
+    border-color: rgba(255, 255, 255, 0.12);
+    color: #ffffff;
+  }
+
+  .cotizador-card input::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+  }
+
+  .cotizador-result {
+    border-top-color: rgba(255, 255, 255, 0.15);
   }
 }

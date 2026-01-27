@@ -1,35 +1,53 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Cotización – Bolivia Imports</title>
-  <link rel="stylesheet" href="cotizacion.css">
+
+  <!-- CSS base del PWA -->
+  <link rel="stylesheet" href="css/app.css">
+
+  <!-- CSS específico de impresión -->
+  <link rel="stylesheet" href="css/cotizacion.css">
 </head>
 <body>
 
-<h2>BOLIVIA IMPORTS</h2>
+<div class="app">
 
-<table>
-  <tr><td>Nombre del cliente</td><td id="cliente"></td></tr>
-  <tr><td>Fecha</td><td id="fecha"></td></tr>
-  <tr><td>Cotización</td><td id="codigo"></td></tr>
-  <tr><td>Tipo de mercadería</td><td id="mercaderia"></td></tr>
-  <tr><td>Valor del producto</td><td id="valor"></td></tr>
-  <tr><td>Impuestos y aranceles (Bs)</td><td id="impuestos"></td></tr>
-  <tr><td>Aproximado kg</td><td id="kg"></td></tr>
-  <tr><td>Transporte en Bs aprox</td><td id="transporte"></td></tr>
-  <tr class="total"><td>Total en sus manos</td><td id="total"></td></tr>
-  <tr class="pago1"><td>1er pago para realizar la orden</td><td id="pago1"></td></tr>
-  <tr class="pago2"><td>2do pago al recibir tu carga</td><td id="pago2"></td></tr>
-</table>
+  <main class="menu">
 
-<div class="footer">
-  Esta cotización tiene una validez de 24 horas.<br>
-  Pasado este tiempo, se deberá recalcular.
+    <div class="cotizador-card">
+
+      <h2 style="text-align:center">BOLIVIA IMPORTS</h2>
+
+      <table>
+        <tr><td>Nombre del cliente</td><td id="cliente"></td></tr>
+        <tr><td>Fecha</td><td id="fecha"></td></tr>
+        <tr><td>Cotización</td><td id="codigo"></td></tr>
+        <tr><td>Tipo de mercadería</td><td id="mercaderia"></td></tr>
+        <tr><td>Valor del producto</td><td id="valor"></td></tr>
+        <tr><td>Impuestos y aranceles (Bs)</td><td id="impuestos"></td></tr>
+        <tr><td>Aproximado kg</td><td id="kg"></td></tr>
+        <tr><td>Transporte en Bs aprox</td><td id="transporte"></td></tr>
+        <tr class="total"><td>Total en sus manos</td><td id="total"></td></tr>
+        <tr class="pago1"><td>1er pago para realizar la orden</td><td id="pago1"></td></tr>
+        <tr class="pago2"><td>2do pago al recibir tu carga</td><td id="pago2"></td></tr>
+      </table>
+
+      <div class="footer">
+        Esta cotización tiene una validez de 24 horas.<br>
+        Pasado este tiempo, se deberá recalcular.
+      </div>
+
+    </div>
+
+  </main>
+
 </div>
 
 <script type="module">
-import API_BASE_URL from '../../config.js';
+import API_BASE_URL from './config.js';
 
 fetch(`${API_BASE_URL}/api/cotizador/vista-cliente`)
   .then(r => r.json())

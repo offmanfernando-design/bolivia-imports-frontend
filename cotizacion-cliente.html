@@ -63,8 +63,12 @@ fetch(`${API_BASE_URL}/api/cotizador/vista-cliente`)
     total.textContent = d.total;
     pago1.textContent = d.pago1;
     pago2.textContent = d.pago2;
+  })
+  .catch(() => {
+    alert('No se pudo cargar la cotización');
   });
 </script>
+
 
 </body>
 </html>

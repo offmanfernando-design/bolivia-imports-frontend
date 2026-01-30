@@ -226,10 +226,10 @@ function renderBotones(c) {
 }
 
 /* =========================
-   DESGLOSE EXPANDIBLE
+   DESGLOSE EXPANDIBLE (FIX TOTAL)
    ========================= */
 
-async function toggleDetalle(clienteId, card) {
+async function toggleDetalle(clienteId) {
   const cont = document.getElementById(`detalle-${clienteId}`);
   if (!cont) return;
 
@@ -244,21 +244,30 @@ async function toggleDetalle(clienteId, card) {
   tarjetasAbiertas[clienteId] = true;
   cont.classList.remove('hidden');
 
-  if (cont.dataset.loaded) return;
+  let productos = [];
 
   try {
-    const res = await fetch(`${API_BASE_URL}/api/cobros/detalle/${clienteId}`);
-    const productos = await res.json();
+    // 🔹 Solo evitamos el fetch duplicado
+    if (!cont.dataset.loaded) {
+      const res = await fetch(`${API_BASE_URL}/api/cobros/detalle/${clienteId}`);
+      productos = await res.json();
+      cont.dataset.productos = JSON.stringify(productos);
+      cont.dataset.loaded = '1';
+    } else {
+      productos = JSON.parse(cont.dataset.productos || '[]');
+    }
 
     let html = '<div class="detalle-lista">';
     let total = 0;
 
     productos.forEach((p, i) => {
-      total += Number(p.monto_total_bs || 0);
+      const monto = Number(p.monto_total_bs || 0);
+      total += monto;
+
       html += `
         <div class="detalle-item">
           <strong>${i + 1}) ${p.descripcion_producto}</strong><br>
-          <small>Monto: ${p.monto_total_bs} Bs</small>
+          <small>Monto: ${monto} Bs</small>
         </div>
       `;
     });
@@ -270,11 +279,19 @@ async function toggleDetalle(clienteId, card) {
     </div>`;
 
     cont.innerHTML = html;
-    cont.dataset.loaded = '1';
-  } catch {
+
+    // 🔥 SIEMPRE actualizar el total de arriba
+    const totalEl = document.getElementById(`total-${clienteId}`);
+    if (totalEl) {
+      totalEl.textContent = `${total} Bs`;
+    }
+
+  } catch (err) {
+    console.error(err);
     cont.innerHTML = '<small>Error al cargar detalle</small>';
   }
 }
+
 
 
 /* =========================

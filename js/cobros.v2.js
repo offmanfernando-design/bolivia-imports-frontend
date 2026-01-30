@@ -168,32 +168,36 @@ function render() {
       `;
     }
 
-div.className = 'cobro-card';
-div.onclick = () => toggleDetalle(c.cliente_id);
+    div.className = 'cobro-card';
+    div.onclick = () => toggleDetalle(c.cliente_id);
 
-div.innerHTML = `
-  <div class="cobro-top">
-    <div>
-      <strong>${c.cliente_nombre}</strong><br>
-      <small>${c.cliente_id}</small><br>
-      ${infoExtra}
-    </div>
-    <div><strong>${c.monto_total_bs} Bs</strong></div>
-  </div>
+    div.innerHTML = `
+      <div class="cobro-top">
+        <div>
+          <strong>${c.cliente_nombre}</strong><br>
+          <small>${c.cliente_id}</small><br>
+          ${infoExtra}
+        </div>
+        <div>
+          <strong id="total-${c.cliente_id}">
+            ${c.monto_total_bs} Bs
+          </strong>
+        </div>
+      </div>
 
-  <div class="cobro-bottom">
-    ${renderBotones(c)}
-  </div>
+      <div class="cobro-bottom">
+        ${renderBotones(c)}
+      </div>
 
-  <div class="cobro-detalle hidden" id="detalle-${c.cliente_id}">
-    <small>Cargando detalle...</small>
-  </div>
-`;
-
+      <div class="cobro-detalle hidden" id="detalle-${c.cliente_id}">
+        <small>Cargando detalle...</small>
+      </div>
+    `;
 
     cont.appendChild(div);
   });
 }
+
 
 function renderBotones(c) {
   if (tabActual === 'pendiente') {

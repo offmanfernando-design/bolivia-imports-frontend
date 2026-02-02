@@ -46,7 +46,7 @@ function cambiarEstado(estado) {
    ========================= */
 async function cargarEntregas() {
   const search = searchInput.value.trim();
-  let url = `${API_BASE_URL}/gestor-entregas?estado=${estadoActual}`;
+  let url = `${API_BASE_URL}/gestor-entregas?estado=${encodeURIComponent(estadoActual)}`;
   if (search) url += `&search=${encodeURIComponent(search)}`;
 
   try {

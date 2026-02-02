@@ -78,31 +78,39 @@ searchInput.addEventListener('input', cargarEntregas);
    ========================= */
 function renderFila(entrega) {
   const div = document.createElement('div');
-  div.className = 'card';
+  div.className = 'cobro-card';
 
   div.innerHTML = `
-    <div class="card-header">
-      <div class="card-title">${entrega.cliente_nombre}</div>
-      <div class="card-amount">Bs ${entrega.monto_total_bs}</div>
+    <div class="cobro-header">
+      <div class="cobro-cliente">
+        ${entrega.cliente_nombre}
+      </div>
+      <div class="cobro-monto">
+        Bs ${entrega.monto_total_bs}
+      </div>
     </div>
 
-    <div class="card-meta">
-      <span class="meta-item">📍 ${entrega.ubicacion_fisica}</span>
+    <div class="cobro-detalle">
+      <span class="material-symbols-rounded">location_on</span>
+      ${entrega.ubicacion_fisica || 'Sin ubicación'}
     </div>
 
-    <div class="card-actions">
-      <button class="action primary">Confirmar</button>
+    <div class="cobro-actions">
+      <button class="cobro-action primary">
+        Confirmar
+      </button>
     </div>
   `;
 
-  div.querySelector('button').addEventListener('click', (e) => {
-    e.stopPropagation();
-    abrirDetalle(entrega.entrega_id);
-  });
+  div
+    .querySelector('.cobro-action')
+    .addEventListener('click', (e) => {
+      e.stopPropagation();
+      abrirDetalle(entrega.entrega_id);
+    });
 
   lista.appendChild(div);
 }
-
 
 /* =========================
    DETALLE / CONFIRMAR

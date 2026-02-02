@@ -1,23 +1,22 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Confirmar entrega</title>
-  <link rel="stylesheet" href="css/app.css">
-</head>
-<body>
+<h2>Gestor de Entregas</h2>
 
-<h2>Confirmar entrega</h2>
+<div class="tabs">
+  <button id="tab-almacen" class="active">📦 En almacén</button>
+  <button id="tab-historial">🕓 Historial</button>
+</div>
 
-<input type="text" id="codigo" placeholder="Código o QR" autofocus>
-<button onclick="buscar()">Buscar</button>
+<input
+  type="text"
+  id="searchInput"
+  placeholder="Buscar por nombre, teléfono o ID..."
+/>
 
-<p id="estado"></p>
+<div id="listaEntregas"></div>
 
-<script src="js/config.js"></script>
-<script src="js/confirmar.js"></script>
-<script src="js/theme.js"></script>
-  
-</body>
-</html>
+<!-- Modal detalle -->
+<div id="modal" class="hidden">
+  <div id="modal-content"></div>
+  <button onclick="cerrarModal()">Cerrar</button>
+</div>
+
+<script type="module" src="./entregas.js"></script>

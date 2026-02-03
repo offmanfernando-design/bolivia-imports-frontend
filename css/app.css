@@ -41,127 +41,69 @@ html[data-theme="dark"] {
   -webkit-tap-highlight-color: transparent;
 }
 
-html {
+html,
+body {
+  margin: 0;
+  padding: 0;
   height: 100%;
 }
 
 body {
-  margin: 0;
-  min-height: 100%;
   background: var(--bg);
   color: var(--fg);
   font-family: -apple-system, BlinkMacSystemFont, "Inter",
-               "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+
   display: flex;
   justify-content: center;
 }
 
 /* ========================= */
-/* CONTENEDOR APP            */
+/* CONTENEDOR APP (BASE)     */
 /* ========================= */
 
 .app {
   width: 100%;
   max-width: 420px;
+
+  min-height: 100vh;
+
   display: flex;
   flex-direction: column;
-}
-.app {
-  overflow-y: auto;
-  height: 100dvh;
-}
 
-/* ========================= */
-/* SPLASH                    */
-/* ========================= */
-
-#splash {
-  position: fixed;
-  inset: 0;
   background: var(--bg);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-  animation: splashOut .6s ease forwards;
-  animation-delay: 1.1s;
-}
-
-#splash img {
-  width: 220px;
-}
-
-@keyframes splashOut {
-  to {
-    opacity: 0;
-    visibility: hidden;
-  }
 }
 
 /* ========================= */
-/* HEADER                    */
+/* HEADER BASE               */
 /* ========================= */
 
 .home-header {
-  position: relative;
   text-align: center;
-  padding: 64px 16px 40px;
+  padding: 56px 16px 28px;
 }
 
-.home-logo {
-  width: 240px;
-  max-width: 90%;
+.home-header h1 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 700;
 }
 
 .subtitle {
-  margin-top: 14px;
-  font-size: 15px;
+  margin-top: 8px;
+  font-size: 14px;
   color: var(--muted);
 }
 
 /* ========================= */
-/* MENU                      */
+/* CONTENIDO SCROLLEABLE     */
 /* ========================= */
 
-.menu {
-  padding: 0 16px;
-}
-
-.menu-item {
-  display: flex;
-  align-items: center;
-  gap: 18px;
-  padding: 18px;
-  border: 1px solid var(--border);
-  border-radius: 18px;
-  margin-bottom: 14px;
-  background: var(--card);
-  transition: transform .15s ease, box-shadow .15s ease;
-}
-
-.menu-item:active {
-  transform: scale(0.97);
-}
-
-.menu-icon {
-  width: 42px;
-  height: 42px;
-  border-radius: 12px;
-  border: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--fg);
-  background: var(--card);
-}
-
-.menu-item strong {
-  font-size: 16px;
-}
-
-.menu-item small {
-  font-size: 13px;
-  color: var(--muted);
+main {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 16px;
 }
 
 /* ========================= */
@@ -169,37 +111,10 @@ body {
 /* ========================= */
 
 .footer {
-  margin-top: auto;
   padding: 20px 12px 24px;
   text-align: center;
   font-size: 12px;
   color: var(--muted);
-}
-
-/* ========================= */
-/* TOGGLE TEMA               */
-/* ========================= */
-
-.theme-toggle {
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  background: var(--card);
-  border: 1px solid var(--border);
-  color: var(--fg);
-  border-radius: 999px;
-  padding: 6px 10px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-}
-
-.theme-toggle span {
-  font-size: 20px;
-}
-
-.theme-toggle:active {
-  transform: scale(0.94);
 }
 
 /* ========================= */
@@ -211,8 +126,43 @@ select {
   background: var(--input-bg);
   color: var(--fg);
   border: 1px solid var(--border);
+  border-radius: 14px;
 }
 
 input::placeholder {
   color: var(--muted);
+}
+
+/* ========================= */
+/* TABS (BASE GLOBAL)        */
+/* ========================= */
+
+.tabs {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin: 12px 16px 16px;
+}
+
+.tabs button {
+  padding: 8px 18px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.tabs button.active {
+  background: #000;
+  color: #fff;
+  border-color: #000;
+}
+
+/* ========================= */
+/* UTIL                      */
+/* ========================= */
+
+.hidden {
+  display: none;
 }

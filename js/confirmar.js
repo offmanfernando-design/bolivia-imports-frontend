@@ -110,15 +110,23 @@ function renderEntrega(entrega) {
 
   card.innerHTML = `
     <div class="swipe-bg">✔ Entregado</div>
+
     <div class="swipe-content">
       <div class="entrega-row">
-        <div class="entrega-info">
-          <div class="entrega-monto">Bs ${entrega.monto_total_bs}</div>
-          <div class="entrega-ubicacion">
-            <span class="material-symbols-rounded">location_on</span>
-            ${entrega.ubicacion_fisica || 'Sin ubicación'}
-          </div>
+
+        <div class="entrega-monto">
+          Bs ${entrega.monto_total_bs}
         </div>
+
+        <div class="entrega-producto">
+          ${entrega.descripcion_producto || 'Producto sin descripción'}
+        </div>
+
+        <div class="entrega-ubicacion">
+          <span class="material-symbols-rounded">location_on</span>
+          ${entrega.ubicacion_fisica || 'Sin ubicación'}
+        </div>
+
       </div>
     </div>
   `;
@@ -142,7 +150,7 @@ function renderEntrega(entrega) {
     }
   });
 
-  card.addEventListener('touchend', async () => {
+  card.addEventListener('touchend', () => {
     dragging = false;
     content.style.transition = 'transform .25s ease';
 

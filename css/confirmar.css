@@ -1,100 +1,64 @@
 /* =========================
-   GESTOR DE ENTREGAS – UI
+   LISTA
    ========================= */
-
-#listaEntregas {
+.card-list {
+  padding: 0 16px 40px;
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  padding: 0 16px 24px;
+  gap: 16px;
 }
 
 /* =========================
-   CARD
+   CLIENTE
    ========================= */
-
-.cobro-card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 18px;
-  padding: 14px 16px;
-  box-shadow: 0 6px 18px rgba(0,0,0,.06);
-}
-
-/* =========================
-   HEADER
-   ========================= */
-
-.cobro-header {
+.cliente-group {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
+  gap: 10px;
 }
 
-.cobro-cliente {
-  font-size: 15px;
-  font-weight: 600;
-}
-
-.cobro-monto {
+.cliente-header {
   font-size: 14px;
-  font-weight: 700;
-  white-space: nowrap;
+  font-weight: 600;
+  color: var(--muted);
+  padding-left: 6px;
 }
 
 /* =========================
-   DETALLE
+   ENTREGA
    ========================= */
+.entrega {
+  border-radius: 20px;
+  background: var(--card);
+  box-shadow: 0 6px 18px rgba(0,0,0,.08);
+  overflow: hidden;
+}
 
-.cobro-detalle {
+/* =========================
+   CONTENIDO
+   ========================= */
+.entrega-row {
+  padding: 14px 16px;
+}
+
+.entrega-monto {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.entrega-ubicacion {
   display: flex;
   align-items: center;
   gap: 6px;
-  margin-top: 6px;
   font-size: 13px;
   color: var(--muted);
 }
 
-.cobro-detalle span {
-  font-size: 18px;
-}
-
 /* =========================
-   ACTIONS
+   SWIPE
    ========================= */
-
-.cobro-actions {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 10px;
-}
-
-.cobro-action {
-  padding: 8px 14px;
-  border-radius: 999px;
-  border: 1px solid var(--border);
-  background: var(--card);
-  font-size: 13px;
-  cursor: pointer;
-}
-
-.cobro-action.primary {
-  background: #000;
-  color: #fff;
-  border-color: #000;
-}
-
-.cobro-action:active {
-  transform: scale(0.96);
-}
-
-/* =========================
-   SWIPE CONFIRMAR
-   ========================= */
-
 .swipe-card {
   position: relative;
-  overflow: hidden;
 }
 
 .swipe-bg {
@@ -102,17 +66,23 @@
   inset: 0;
   background: #000;
   color: #fff;
-  font-weight: 700;
   display: flex;
   align-items: center;
   padding-left: 24px;
-  font-size: 14px;
+  font-weight: 700;
 }
 
 .swipe-content {
   background: var(--card);
-  border-radius: 20px;
   position: relative;
-  z-index: 1;
+  z-index: 2;
 }
 
+/* =========================
+   EMPTY
+   ========================= */
+.empty {
+  text-align: center;
+  color: var(--muted);
+  margin-top: 40px;
+}

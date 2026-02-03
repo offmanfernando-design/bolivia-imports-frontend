@@ -1,5 +1,5 @@
 /* =========================
-   CONEXIÓN (MISMO LINAJE COBROS)
+   CONEXIÓN (IGUAL A COBROS)
    ========================= */
 .sync-status {
   display: flex;
@@ -8,7 +8,7 @@
   gap: 6px;
   font-size: 13px;
   color: var(--muted);
-  margin-top: 6px;
+  margin-top: 8px;
 }
 
 .sync-status .dot {
@@ -34,25 +34,46 @@
 }
 
 /* =========================
-   TABS (SCOPED A CONFIRMAR)
+   TABS (PULIDO VISUAL)
    ========================= */
 .confirmar-tabs {
-  margin-top: -10px;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin: 18px 16px 14px;
+}
+
+.confirmar-tabs button {
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--fg);
+  cursor: pointer;
+}
+
+.confirmar-tabs button.active {
+  background: #000;
+  color: #fff;
+  border-color: #000;
 }
 
 /* =========================
-   SEARCH BOX (MISMO LINAJE)
+   SEARCH BOX (RESPIRA MÁS)
    ========================= */
 .confirmar-search {
-  padding: 0 16px 16px;
+  padding: 0 16px 20px;
 }
 
 .confirmar-search input {
   width: 100%;
-  padding: 12px 14px;
-  border-radius: 14px;
+  padding: 14px 16px;
+  border-radius: 16px;
   border: 1px solid var(--border);
   font-size: 14px;
+  background: var(--input-bg);
 }
 
 /* =========================
@@ -62,11 +83,11 @@
   font-size: 13px;
   font-weight: 600;
   color: var(--muted);
-  margin: 18px 2px 6px;
+  margin: 20px 2px 6px;
 }
 
 /* =========================
-   ENTREGA (MISMO LENGUAJE COBROS)
+   CARD ENTREGA (IGUAL COBROS)
    ========================= */
 .entrega {
   background: var(--card);
@@ -98,7 +119,7 @@
 }
 
 /* =========================
-   SWIPE (DERECHA → IZQUIERDA)
+   SWIPE (NO TOCAR LÓGICA)
    ========================= */
 .swipe-card {
   position: relative;

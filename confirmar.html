@@ -2,56 +2,57 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+  />
 
   <title>Gestor de Entregas</title>
 
   <!-- ICONOS -->
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded"
+    rel="stylesheet"
+  />
 
-  <!-- CSS -->
+  <!-- CSS GLOBAL + MÓDULO -->
   <link rel="stylesheet" href="css/app.css" />
   <link rel="stylesheet" href="css/confirmar.css" />
 </head>
 
 <body>
+  <!-- CONTENEDOR APP (CLAVE PARA LOOK NATIVO) -->
+  <div class="app">
 
-  <!-- ========================= -->
-  <!-- CONTENIDO PRINCIPAL      -->
-  <!-- ========================= -->
-  <main>
+    <main>
+      <h2>Gestor de Entregas</h2>
 
-    <h2>Gestor de Entregas</h2>
+      <!-- TABS -->
+      <div class="tabs">
+        <button id="tab-almacen" class="active">📦 En almacén</button>
+        <button id="tab-historial">🕓 Historial</button>
+      </div>
 
-    <!-- TABS -->
-    <div class="tabs">
-      <button id="tab-almacen" class="active">📦 En almacén</button>
-      <button id="tab-historial">🕓 Historial</button>
-    </div>
+      <!-- BUSCADOR -->
+      <input
+        type="text"
+        id="searchInput"
+        placeholder="Buscar por nombre, teléfono o ID"
+        autocomplete="off"
+      />
 
-    <!-- BUSCADOR -->
-    <input
-      type="text"
-      id="searchInput"
-      placeholder="Buscar por nombre, teléfono o ID"
-      autocomplete="off"
-    />
+      <!-- LISTA -->
+      <div id="listaEntregas" class="card-list"></div>
+    </main>
 
-    <!-- LISTA -->
-    <div id="listaEntregas" class="card-list"></div>
+    <!-- FOOTER -->
+    <footer class="footer">
+      © Bolivia Imports · v1.1 · by Felipe Antelo
+    </footer>
 
-  </main>
+  </div>
 
-  <!-- ========================= -->
-  <!-- FOOTER GLOBAL            -->
-  <!-- ========================= -->
-  <footer class="footer">
-    © Bolivia Imports · v1.1 · by Felipe Antelo
-  </footer>
-
-  <!-- ========================= -->
-  <!-- MODAL PWA (GLOBAL)       -->
-  <!-- ========================= -->
+  <!-- MODAL PWA -->
   <div id="appModal" class="app-modal hidden">
     <div class="app-modal-backdrop"></div>
 
@@ -68,10 +69,7 @@
     </div>
   </div>
 
-  <!-- ========================= -->
-  <!-- JS                       -->
-  <!-- ========================= -->
+  <!-- JS -->
   <script type="module" src="js/confirmar.js"></script>
-
 </body>
 </html>

@@ -59,13 +59,12 @@ body {
 }
 
 /* ========================= */
-/* CONTENEDOR APP (BASE)     */
+/* CONTENEDOR APP            */
 /* ========================= */
 
 .app {
   width: 100%;
   max-width: 420px;
-
   min-height: 100vh;
 
   display: flex;
@@ -74,13 +73,19 @@ body {
   background: var(--bg);
 }
 
+/* ⚠️ SOLO MÓDULOS SCROLLEAN */
+.app.view {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
 /* ========================= */
-/* HEADER BASE               */
+/* HEADER                    */
 /* ========================= */
 
 .home-header {
   text-align: center;
-  padding: 56px 16px 28px;
+  padding: 64px 16px 40px;
 }
 
 .home-header h1 {
@@ -90,19 +95,18 @@ body {
 }
 
 .subtitle {
-  margin-top: 8px;
+  margin-top: 12px;
   font-size: 14px;
   color: var(--muted);
 }
 
 /* ========================= */
-/* CONTENIDO SCROLLEABLE     */
+/* MAIN (SOLO MÓDULOS)       */
 /* ========================= */
 
-main {
+.app.view main {
   flex: 1;
   overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
   padding-bottom: 16px;
 }
 
@@ -111,6 +115,7 @@ main {
 /* ========================= */
 
 .footer {
+  margin-top: auto;
   padding: 20px 12px 24px;
   text-align: center;
   font-size: 12px;
@@ -134,7 +139,7 @@ input::placeholder {
 }
 
 /* ========================= */
-/* TABS (BASE GLOBAL)        */
+/* TABS (GLOBAL)             */
 /* ========================= */
 
 .tabs {

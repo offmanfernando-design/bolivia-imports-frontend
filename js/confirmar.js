@@ -10,21 +10,6 @@ const searchInput = document.getElementById('searchInput');
 const tabAlmacen = document.getElementById('tab-almacen');
 const tabHistorial = document.getElementById('tab-historial');
 
-/* =========================
-   MODAL
-   ========================= */
-const appModal = document.getElementById('appModal');
-const appModalMessage = document.getElementById('appModalMessage');
-const appModalClose = document.getElementById('appModalClose');
-
-function showModal(msg) {
-  appModalMessage.textContent = msg;
-  appModal.classList.remove('hidden');
-}
-
-appModalClose.onclick = () => {
-  appModal.classList.add('hidden');
-};
 
 /* =========================
    TABS
@@ -168,22 +153,20 @@ function renderEntrega(entrega) {
 /* =========================
    CONFIRMAR ENTREGA
    ========================= */
-async function confirmarEntrega(id, entrega) {
-  showModal(`Confirmar entrega:\n${entrega.cliente_nombre}`);
+async function confirmarEntrega(entrega_id) {
+  try {
+    await fetch(
+      `${API_BASE_URL}/gestor-entregas/${entrega_id}/entregar`,
+      { method: 'PATCH' }
+    );
 
-  appModalClose.onclick = async () => {
-    appModal.classList.add('hidden');
-
-    try {
-      await fetch(`${API_BASE_URL}/gestor-entregas/${id}/entregar`, {
-        method: 'PATCH'
-      });
-      cargarEntregas();
-    } catch {
-      showModal('Error al confirmar');
-    }
-  };
+    cargarEntregas(); // refresca lista
+  } catch (err) {
+    console.error(err);
+    alert('Error al confirmar la entrega');
+  }
 }
+
 
 /* INIT */
 cargarEntregas();

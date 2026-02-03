@@ -171,3 +171,23 @@ input::placeholder {
 .hidden {
   display: none;
 }
+
+/* ========================= */
+/* HOME (LANDING)            */
+/* ========================= */
+
+.app.home {
+  justify-content: flex-start;
+}
+
+.home-logo {
+  max-width: 260px;
+  width: 80%;
+  margin: 0 auto;
+  display: block;
+}
+
+.menu {
+  padding: 0 16px 24px;
+}
+

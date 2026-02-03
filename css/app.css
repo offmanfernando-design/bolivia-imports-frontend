@@ -1,193 +1,117 @@
-/* ========================= */
-/* VARIABLES GLOBALES        */
-/* ========================= */
-
 :root {
   --bg: #ffffff;
   --fg: #111111;
-
   --card: #ffffff;
   --border: #e6e6e6;
-
   --muted: #8a8a8a;
-  --input-bg: #ffffff;
-
   --success: #2e7d32;
 }
 
-/* ========================= */
-/* MODO OSCURO (OLED)        */
-/* ========================= */
-
-html[data-theme="dark"] {
-  --bg: #000000;
-  --fg: #f5f5f5;
-
-  --card: #0f0f10;
-  --border: #1f1f1f;
-
-  --muted: #9a9a9a;
-  --input-bg: #121212;
-
-  --success: #6fdc8c;
+html {
+  height: 100%;
 }
 
-/* ========================= */
-/* RESET / BASE              */
-/* ========================= */
+body {
+  margin: 0;
+  min-height: 100%;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: -apple-system, BlinkMacSystemFont, "Inter",
+    "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  display: flex;
+  justify-content: center;
+}
 
 * {
   box-sizing: border-box;
   -webkit-tap-highlight-color: transparent;
 }
 
-html,
-body {
-  margin: 0;
-  padding: 0;
-  height: 100%;
-}
-
-body {
-  background: var(--bg);
-  color: var(--fg);
-  font-family: -apple-system, BlinkMacSystemFont, "Inter",
-    "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-
-  display: flex;
-  justify-content: center;
-}
-
-/* ========================= */
-/* CONTENEDOR APP            */
-/* ========================= */
-
 .app {
   width: 100%;
   max-width: 420px;
-  min-height: 100vh;
-
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
-
-  background: var(--bg);
+  padding: env(safe-area-inset-top) 16px env(safe-area-inset-bottom);
 }
 
-/* ⚠️ SOLO MÓDULOS SCROLLEAN */
-.app.view {
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-}
-
-/* ========================= */
-/* HEADER                    */
-/* ========================= */
-
+/* HEADER HOME */
 .home-header {
   text-align: center;
-  padding: 64px 16px 40px;
+  padding: 56px 16px 32px;
+  position: relative;
 }
 
-.home-header h1 {
-  margin: 0;
-  font-size: 28px;
-  font-weight: 700;
+.home-logo {
+  width: 240px;
+  max-width: 90%;
 }
 
 .subtitle {
-  margin-top: 12px;
-  font-size: 14px;
+  margin-top: 14px;
+  font-size: 15px;
   color: var(--muted);
 }
 
-/* ========================= */
-/* MAIN (SOLO MÓDULOS)       */
-/* ========================= */
-
-.app.view main {
-  flex: 1;
-  overflow-y: auto;
-  padding-bottom: 16px;
+/* THEME TOGGLE */
+.theme-toggle {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 6px 10px;
 }
 
-/* ========================= */
-/* FOOTER                    */
-/* ========================= */
+/* MENU */
+.menu {
+  padding: 0 8px;
+}
 
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 18px;
+  margin-bottom: 14px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  box-shadow: 0 10px 26px rgba(0,0,0,.08);
+  transition: transform .15s ease;
+}
+
+.menu-item:active {
+  transform: scale(.97);
+}
+
+.menu-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.menu-item strong {
+  font-size: 16px;
+}
+
+.menu-item small {
+  display: block;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+/* FOOTER */
 .footer {
   margin-top: auto;
-  padding: 20px 12px 24px;
+  padding: 20px 0 28px;
   text-align: center;
   font-size: 12px;
   color: var(--muted);
 }
-
-/* ========================= */
-/* INPUTS GLOBALES           */
-/* ========================= */
-
-input,
-select {
-  background: var(--input-bg);
-  color: var(--fg);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-}
-
-input::placeholder {
-  color: var(--muted);
-}
-
-/* ========================= */
-/* TABS (GLOBAL)             */
-/* ========================= */
-
-.tabs {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  margin: 12px 16px 16px;
-}
-
-.tabs button {
-  padding: 8px 18px;
-  border-radius: 999px;
-  border: 1px solid var(--border);
-  background: var(--card);
-  font-size: 13px;
-  cursor: pointer;
-}
-
-.tabs button.active {
-  background: #000;
-  color: #fff;
-  border-color: #000;
-}
-
-/* ========================= */
-/* UTIL                      */
-/* ========================= */
-
-.hidden {
-  display: none;
-}
-
-/* ========================= */
-/* HOME (LANDING)            */
-/* ========================= */
-
-.app.home {
-  justify-content: flex-start;
-}
-
-.home-logo {
-  max-width: 260px;
-  width: 80%;
-  margin: 0 auto;
-  display: block;
-}
-
-.menu {
-  padding: 0 16px 24px;
-}
-

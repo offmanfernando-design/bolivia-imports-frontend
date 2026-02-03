@@ -13,22 +13,27 @@
 <body>
   <div class="app">
 
-    <!-- HEADER -->
-    <header class="module-header">
+    <!-- HEADER IGUAL A COBROS -->
+    <header class="home-header">
       <h1>Gestor de Entregas</h1>
+      <p class="subtitle">Gestión de entregas</p>
+    </header>
 
-      <div class="tabs">
-        <button id="tab-almacen" class="active">📦 En almacén</button>
-        <button id="tab-historial">🕓 Historial</button>
-      </div>
+    <!-- TABS IGUAL A COBROS -->
+    <div class="tabs">
+      <button id="tab-almacen" class="active">En almacén</button>
+      <button id="tab-historial">Historial</button>
+    </div>
 
+    <!-- BUSCADOR IGUAL A COBROS -->
+    <div class="filters">
       <input
         id="searchInput"
         type="text"
         placeholder="Buscar cliente, producto o ubicación"
         autocomplete="off"
       />
-    </header>
+    </div>
 
     <!-- LISTA -->
     <main id="listaEntregas" class="card-list"></main>

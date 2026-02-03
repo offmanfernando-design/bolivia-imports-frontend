@@ -11,34 +11,43 @@ const tabAlmacen = document.getElementById('tab-almacen');
 const tabHistorial = document.getElementById('tab-historial');
 
 /* =========================
-   MODAL PWA
+   MODAL
    ========================= */
 const appModal = document.getElementById('appModal');
 const appModalMessage = document.getElementById('appModalMessage');
 const appModalClose = document.getElementById('appModalClose');
 
-function showModal(message) {
-  appModalMessage.textContent = message;
+function showModal(msg) {
+  appModalMessage.textContent = msg;
   appModal.classList.remove('hidden');
 }
 
-appModalClose.addEventListener('click', () => {
+appModalClose.onclick = () => {
   appModal.classList.add('hidden');
-});
+};
 
 /* =========================
    TABS
    ========================= */
-tabAlmacen.addEventListener('click', () => cambiarEstado('en_almacen'));
-tabHistorial.addEventListener('click', () => cambiarEstado('entregado'));
+tabAlmacen.onclick = () => cambiarEstado('en_almacen');
+tabHistorial.onclick = () => cambiarEstado('entregado');
 
 function cambiarEstado(estado) {
   estadoActual = estado;
-
   tabAlmacen.classList.toggle('active', estado === 'en_almacen');
   tabHistorial.classList.toggle('active', estado === 'entregado');
-
   cargarEntregas();
+}
+
+/* =========================
+   AGRUPAR POR CLIENTE
+   ========================= */
+function agruparPorCliente(entregas) {
+  return entregas.reduce((acc, e) => {
+    if (!acc[e.cliente_nombre]) acc[e.cliente_nombre] = [];
+    acc[e.cliente_nombre].push(e);
+    return acc;
+  }, {});
 }
 
 /* =========================
@@ -46,7 +55,7 @@ function cambiarEstado(estado) {
    ========================= */
 async function cargarEntregas() {
   const search = searchInput.value.trim();
-  let url = `${API_BASE_URL}/gestor-entregas?estado=${encodeURIComponent(estadoActual)}`;
+  let url = `${API_BASE_URL}/gestor-entregas?estado=${estadoActual}`;
   if (search) url += `&search=${encodeURIComponent(search)}`;
 
   try {
@@ -56,46 +65,60 @@ async function cargarEntregas() {
     lista.innerHTML = '';
 
     if (!json.data || json.data.length === 0) {
-      lista.innerHTML = `
-        <p style="text-align:center;color:#777;">
-          No hay entregas para mostrar
-        </p>
-      `;
+      lista.innerHTML = `<p class="empty">No hay entregas</p>`;
       return;
     }
 
-    json.data.forEach(renderFila);
-  } catch (err) {
-    console.error(err);
-    showModal('Error al cargar las entregas. Verifica la conexión.');
+    const grupos = agruparPorCliente(json.data);
+
+    Object.entries(grupos).forEach(([cliente, entregas]) => {
+      renderGrupo(cliente, entregas);
+    });
+
+  } catch (e) {
+    console.error(e);
+    showModal('Error al cargar entregas');
   }
 }
 
-searchInput.addEventListener('input', cargarEntregas);
+searchInput.oninput = cargarEntregas;
 
 /* =========================
-   RENDER FILA
+   RENDER GRUPO CLIENTE
    ========================= */
-function renderFila(entrega) {
-  const div = document.createElement('div');
-  div.className = 'cobro-card swipe-card';
+function renderGrupo(cliente, entregas) {
+  const grupo = document.createElement('div');
+  grupo.className = 'cliente-group';
 
-  div.innerHTML = `
-    <div class="swipe-bg">✔ Confirmar</div>
+  grupo.innerHTML = `
+    <div class="cliente-header">${cliente}</div>
+  `;
 
+  entregas.forEach(e => {
+    grupo.appendChild(renderEntrega(e));
+  });
+
+  lista.appendChild(grupo);
+}
+
+/* =========================
+   RENDER ENTREGA (SWIPE)
+   ========================= */
+function renderEntrega(entrega) {
+  const card = document.createElement('div');
+  card.className = 'entrega swipe-card';
+
+  card.innerHTML = `
+    <div class="swipe-bg">✔ Entregado</div>
     <div class="swipe-content">
-      <div class="cobro-header">
-        <div class="cobro-cliente">
-          ${entrega.cliente_nombre}
+      <div class="entrega-row">
+        <div class="entrega-info">
+          <div class="entrega-monto">Bs ${entrega.monto_total_bs}</div>
+          <div class="entrega-ubicacion">
+            <span class="material-symbols-rounded">location_on</span>
+            ${entrega.ubicacion_fisica || 'Sin ubicación'}
+          </div>
         </div>
-        <div class="cobro-monto">
-          Bs ${entrega.monto_total_bs}
-        </div>
-      </div>
-
-      <div class="cobro-detalle">
-        <span class="material-symbols-rounded">location_on</span>
-        ${entrega.ubicacion_fisica || 'Sin ubicación'}
       </div>
     </div>
   `;
@@ -103,16 +126,15 @@ function renderFila(entrega) {
   let startX = 0;
   let currentX = 0;
   let dragging = false;
+  const content = card.querySelector('.swipe-content');
 
-  const content = div.querySelector('.swipe-content');
-
-  div.addEventListener('touchstart', e => {
+  card.addEventListener('touchstart', e => {
     startX = e.touches[0].clientX;
     dragging = true;
     content.style.transition = 'none';
   });
 
-  div.addEventListener('touchmove', e => {
+  card.addEventListener('touchmove', e => {
     if (!dragging) return;
     currentX = e.touches[0].clientX - startX;
     if (currentX > 0) {
@@ -120,11 +142,11 @@ function renderFila(entrega) {
     }
   });
 
-  div.addEventListener('touchend', () => {
+  card.addEventListener('touchend', async () => {
     dragging = false;
-    content.style.transition = 'transform 0.25s ease';
+    content.style.transition = 'transform .25s ease';
 
-    if (currentX > 80) {
+    if (currentX > 90) {
       confirmarEntrega(entrega.entrega_id, entrega);
     }
 
@@ -132,55 +154,28 @@ function renderFila(entrega) {
     currentX = 0;
   });
 
-  lista.appendChild(div);
+  return card;
 }
 
 /* =========================
-   DETALLE / CONFIRMAR
+   CONFIRMAR ENTREGA
    ========================= */
-async function abrirDetalle(entrega_id) {
-  try {
-    const res = await fetch(`${API_BASE_URL}/gestor-entregas/${entrega_id}`);
-    const json = await res.json();
-    const e = json.data;
+async function confirmarEntrega(id, entrega) {
+  showModal(`Confirmar entrega:\n${entrega.cliente_nombre}`);
 
-    if (e.estado_operativo !== 'en_almacen') {
-      showModal('Esta entrega ya fue registrada como entregada.');
-      return;
-    }
-
-    confirmarEntrega(entrega_id, e);
-  } catch (err) {
-    console.error(err);
-    showModal('No se pudo cargar el detalle de la entrega.');
-  }
-}
-
-async function confirmarEntrega(entrega_id, entrega) {
-  showModal(
-    `¿Confirmar entrega para:\n\n${entrega.cliente_nombre}\nUbicación: ${entrega.ubicacion_fisica}`
-  );
-
-  // Reasignamos acción del botón
   appModalClose.onclick = async () => {
     appModal.classList.add('hidden');
 
     try {
-      await fetch(
-        `${API_BASE_URL}/gestor-entregas/${entrega_id}/entregar`,
-        { method: 'PATCH' }
-      );
-
-      showModal('Entrega confirmada correctamente.');
+      await fetch(`${API_BASE_URL}/gestor-entregas/${id}/entregar`, {
+        method: 'PATCH'
+      });
       cargarEntregas();
-    } catch (err) {
-      console.error(err);
-      showModal('Error al confirmar la entrega.');
+    } catch {
+      showModal('Error al confirmar');
     }
   };
 }
 
-/* =========================
-   INIT
-   ========================= */
+/* INIT */
 cargarEntregas();

@@ -1,5 +1,5 @@
 /* =========================
-   CONEXIÓN (IGUAL A COBROS)
+   CONEXIÓN
    ========================= */
 .sync-status {
   display: flex;
@@ -19,12 +19,7 @@
 }
 
 .sync-status.loading .dot {
-  background: var(--muted);
   animation: pulse 1.2s infinite ease-in-out;
-}
-
-.sync-status.offline .dot {
-  background: #999;
 }
 
 @keyframes pulse {
@@ -34,66 +29,24 @@
 }
 
 /* =========================
-   TABS (PULIDO VISUAL)
-   ========================= */
-.confirmar-tabs {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  margin: 18px 16px 14px;
-}
-
-.confirmar-tabs button {
-  padding: 8px 16px;
-  border-radius: 999px;
-  border: 1px solid var(--border);
-  background: var(--card);
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--fg);
-  cursor: pointer;
-}
-
-.confirmar-tabs button.active {
-  background: #000;
-  color: #fff;
-  border-color: #000;
-}
-
-/* =========================
-   SEARCH BOX (RESPIRA MÁS)
-   ========================= */
-.confirmar-search {
-  padding: 0 16px 20px;
-}
-
-.confirmar-search input {
-  width: 100%;
-  padding: 14px 16px;
-  border-radius: 16px;
-  border: 1px solid var(--border);
-  font-size: 14px;
-  background: var(--input-bg);
-}
-
-/* =========================
-   GRUPO CLIENTE
+   CLIENTE
    ========================= */
 .cliente-header {
   font-size: 13px;
   font-weight: 600;
   color: var(--muted);
-  margin: 20px 2px 6px;
+  margin: 22px 2px 8px;
 }
 
 /* =========================
-   CARD ENTREGA (IGUAL COBROS)
+   ENTREGA
    ========================= */
 .entrega {
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: 18px;
   overflow: hidden;
+  margin-bottom: 10px;
 }
 
 .entrega-row {
@@ -119,7 +72,7 @@
 }
 
 /* =========================
-   SWIPE (NO TOCAR LÓGICA)
+   SWIPE
    ========================= */
 .swipe-card {
   position: relative;
@@ -128,7 +81,7 @@
 .swipe-bg {
   position: absolute;
   inset: 0;
-  background: #000;
+  background: #2e7d32;
   color: #fff;
   display: flex;
   align-items: center;
@@ -136,10 +89,23 @@
   padding-right: 18px;
   font-size: 13px;
   font-weight: 600;
+  opacity: 0;
+  transition: opacity .2s ease;
+}
+
+.swipe-card.swiping .swipe-bg {
+  opacity: 1;
 }
 
 .swipe-content {
   background: var(--card);
   position: relative;
   z-index: 2;
+  transition: transform .25s ease, opacity .2s ease;
+}
+
+/* FEEDBACK CONFIRMADO */
+.entrega.confirmed .swipe-content {
+  background: rgba(46, 125, 50, 0.08);
+  opacity: 0;
 }

@@ -203,9 +203,12 @@
   const radios = document.querySelectorAll('input[name="recoge"]');
   const bloque = document.getElementById('datosReceptor');
 
-  radios.forEach(r => {
-    r.addEventListener('change', () => {
-      bloque.classList.toggle('hidden', r.value !== 'tercero');
+  radios.forEach(radio => {
+    radio.addEventListener('change', () => {
+      bloque.classList.toggle(
+        'hidden',
+        radio.value !== 'tercero'
+      );
     });
   });
 
@@ -216,43 +219,64 @@
   const pedido = params.get('pedido');
   const cliente = params.get('cliente');
 
-  if (pedido) document.getElementById('pedidoId').textContent = pedido;
-  if (cliente) document.getElementById('clienteNombre').textContent = decodeURIComponent(cliente);
+  if (pedido) {
+    document.getElementById('pedidoId').textContent = pedido;
+  }
+
+  if (cliente) {
+    document.getElementById('clienteNombre').textContent =
+      decodeURIComponent(cliente);
+  }
 
   /* =========================
      ENVIAR FORMULARIO
      ========================= */
-  document.getElementById('btnEnviar').addEventListener('click', async () => {
-    const recoge = document.querySelector('input[name="recoge"]:checked').value;
+  const btn = document.getElementById('btnEnviar');
+
+  btn.addEventListener('click', async () => {
+    const recoge = document.querySelector(
+      'input[name="recoge"]:checked'
+    ).value;
 
     const payload = {
       pedido_id: pedido,
       cliente_nombre: cliente,
       recoge_quien: recoge,
-      nombre_receptor: recoge === 'tercero' ? document.getElementById('nombreReceptor').value : cliente,
-      telefono_receptor: recoge === 'tercero' ? document.getElementById('telefonoReceptor').value : '',
+      nombre_receptor:
+        recoge === 'tercero'
+          ? document.getElementById('nombreReceptor').value
+          : cliente,
+      telefono_receptor:
+        recoge === 'tercero'
+          ? document.getElementById('telefonoReceptor').value
+          : '',
       referencia: document.getElementById('referenciaReceptor').value,
       destino: document.getElementById('destino').value,
       transportadora: document.getElementById('transportadora').value,
-      observaciones: document.getElementById('observaciones').value,
+      observaciones: document.getElementById('observaciones').value
     };
 
     try {
-  const res = await fetch('https://bolivia-imports-backend.fly.dev/api/receptores', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload)
+      const res = await fetch(
+        'https://bolivia-imports-backend.fly.dev/api/receptores',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        }
+      );
+
+      if (!res.ok) throw new Error();
+
+      alert('Datos enviados correctamente. Gracias 🙌');
+
+    } catch (err) {
+      console.error(err);
+      alert('Error al enviar los datos. Intenta nuevamente.');
+    }
   });
-
-  if (!res.ok) throw new Error();
-
-  alert('Datos enviados correctamente. Gracias 🙌');
-
-} catch {
-  alert('Error al enviar los datos. Intenta nuevamente.');
-}
-
 </script>
+
 
 </body>
 </html>

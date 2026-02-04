@@ -55,21 +55,39 @@ async function cargarEntregas() {
 
   // 🟡 TERMINAL (placeholder por ahora)
   if (estadoActual === 'terminal') {
-    lista.innerHTML = `
-      <div style="
-        padding: 24px;
-        text-align: center;
-        color: var(--muted);
-        font-size: 14px;
-      ">
-        <strong>Entregas a terminal</strong><br><br>
-        Aquí se mostrarán los envíos a otros departamentos.<br>
-        (datos desde formulario de receptores)
-      </div>
-    `;
+  try {
+    const res = await fetch(`${API_BASE_URL}/receptores`);
+    const json = await res.json();
+
+    const data = json.data || [];
+
+    if (!data.length) {
+      lista.innerHTML = `
+        <div style="
+          padding: 24px;
+          text-align: center;
+          color: var(--muted);
+          font-size: 14px;
+        ">
+          No hay entregas a terminal registradas.
+        </div>
+      `;
+      setConectado();
+      return;
+    }
+
+    data.forEach(r => {
+      lista.appendChild(renderTerminal(r));
+    });
+
     setConectado();
     return;
+
+  } catch {
+    setOffline();
+    return;
   }
+}
 
   // 🔵 ALMACÉN / HISTORIAL (flujo actual intacto)
   const search = searchInput.value.trim();
@@ -170,6 +188,44 @@ function renderEntrega(entrega) {
     content.style.transform = 'translateX(0)';
     currentX = 0;
   });
+
+  return card;
+}
+
+function renderTerminal(r) {
+  const card = document.createElement('div');
+  card.className = 'entrega';
+
+  card.innerHTML = `
+    <div class="entrega-row">
+      <div class="entrega-monto">
+        Pedido ${r.pedido_id || '—'}
+      </div>
+
+      <div class="entrega-producto">
+        Destino: <strong>${r.destino}</strong>
+      </div>
+
+      <div class="entrega-ubicacion">
+        <span class="material-symbols-rounded">person</span>
+        Receptor: ${r.nombre_receptor || r.cliente_nombre}
+      </div>
+
+      ${r.transportadora ? `
+        <div class="entrega-ubicacion">
+          <span class="material-symbols-rounded">local_shipping</span>
+          ${r.transportadora}
+        </div>
+      ` : ''}
+
+      ${r.observaciones ? `
+        <div class="entrega-ubicacion">
+          <span class="material-symbols-rounded">notes</span>
+          ${r.observaciones}
+        </div>
+      ` : ''}
+    </div>
+  `;
 
   return card;
 }

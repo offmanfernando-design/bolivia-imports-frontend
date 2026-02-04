@@ -13,12 +13,16 @@
       background: var(--bg);
       color: var(--fg);
       font-family: system-ui, -apple-system, BlinkMacSystemFont;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
     }
 
     .form-container {
       max-width: 420px;
       margin: 0 auto;
       padding: 20px 16px 32px;
+      flex: 1;
     }
 
     h1 {
@@ -110,6 +114,13 @@
       text-align: center;
       margin-top: 12px;
     }
+
+    footer.footer {
+      text-align: center;
+      font-size: 12px;
+      color: var(--muted);
+      padding: 14px 0 18px;
+    }
   </style>
 </head>
 <body>
@@ -180,6 +191,11 @@
 
 </div>
 
+<!-- FOOTER -->
+<footer class="footer">
+  © Bolivia Imports · v2 · by Felipe Antelo
+</footer>
+
 <script>
   const radios = document.querySelectorAll('input[name="recoge"]');
   const bloque = document.getElementById('datosReceptor');
@@ -190,11 +206,6 @@
     });
   });
 </script>
-<!-- FOOTER -->
-    <footer class="footer">
-      © Bolivia Imports · v2 · by Felipe Antelo
-    </footer>
-</body>
 
-  
+</body>
 </html>

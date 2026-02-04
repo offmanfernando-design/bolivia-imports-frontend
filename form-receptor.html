@@ -205,10 +205,7 @@
 
   radios.forEach(radio => {
     radio.addEventListener('change', () => {
-      bloque.classList.toggle(
-        'hidden',
-        radio.value !== 'tercero'
-      );
+      bloque.classList.toggle('hidden', radio.value !== 'tercero');
     });
   });
 
@@ -238,45 +235,42 @@
       'input[name="recoge"]:checked'
     ).value;
 
-    // Validaciones mínimas ANTES de enviar
-if (!pedido || !cliente) {
-  alert('Faltan datos del pedido o cliente.');
-  return;
-}
+    if (!pedido || !cliente) {
+      alert('Faltan datos del pedido o cliente.');
+      return;
+    }
 
-if (!document.getElementById('destino').value.trim()) {
-  alert('Debes ingresar el destino.');
-  return;
-}
+    if (!document.getElementById('destino').value.trim()) {
+      alert('Debes ingresar el destino.');
+      return;
+    }
 
-const payload = {
-  pedido_id: pedido,
-  cliente_nombre: cliente,
-  recoge_quien: recoge,
+    const payload = {
+      pedido_id: pedido,
+      cliente_nombre: cliente,
+      recoge_quien: recoge,
 
-  nombre_receptor:
-    recoge === 'tercero'
-      ? document.getElementById('nombreReceptor').value.trim()
-      : cliente,
+      nombre_receptor:
+        recoge === 'tercero'
+          ? document.getElementById('nombreReceptor').value.trim()
+          : cliente,
 
-  telefono_receptor:
-    recoge === 'tercero'
-      ? document.getElementById('telefonoReceptor').value.trim()
-      : '',
+      telefono_receptor:
+        recoge === 'tercero'
+          ? document.getElementById('telefonoReceptor').value.trim()
+          : '',
 
-  referencia:
-    document.getElementById('referenciaReceptor').value.trim() || '',
+      referencia:
+        document.getElementById('referenciaReceptor').value.trim() || '',
 
-  destino:
-    document.getElementById('destino').value.trim(),
+      destino:
+        document.getElementById('destino').value.trim(),
 
-  transportadora:
-    document.getElementById('transportadora').value.trim() || '',
+      transportadora:
+        document.getElementById('transportadora').value.trim() || '',
 
-  observaciones:
-    document.getElementById('observaciones').value.trim() || ''
-};
-
+      observaciones:
+        document.getElementById('observaciones').value.trim() || ''
     };
 
     try {
@@ -299,6 +293,7 @@ const payload = {
     }
   });
 </script>
+
 
 
 </body>

@@ -156,3 +156,11 @@
   background: rgba(46, 125, 50, 0.08);
   opacity: 0;
 }
+
+/* =========================
+   FIX iOS ZOOM EN INPUT
+   ========================= */
+.confirmar-search input {
+  font-size: 16px; /* evita zoom automático en iOS */
+}
+

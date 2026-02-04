@@ -9,25 +9,20 @@ const tabHistorial = document.getElementById('tab-historial');
 const syncStatus = document.getElementById('syncStatus');
 
 /* =========================
-   ESTADO DE CONEXIÓN
+   CONEXIÓN
    ========================= */
 function setConectando() {
-  if (!syncStatus) return;
   syncStatus.classList.add('loading');
-  syncStatus.classList.remove('offline');
   syncStatus.querySelector('.text').textContent = 'Conectando';
 }
 
 function setConectado() {
-  if (!syncStatus) return;
-  syncStatus.classList.remove('loading', 'offline');
+  syncStatus.classList.remove('loading');
   syncStatus.querySelector('.text').textContent = 'Conectado';
 }
 
 function setOffline() {
-  if (!syncStatus) return;
   syncStatus.classList.remove('loading');
-  syncStatus.classList.add('offline');
   syncStatus.querySelector('.text').textContent = 'Sin conexión';
 }
 
@@ -45,18 +40,18 @@ function cambiarEstado(estado) {
 }
 
 /* =========================
-   AGRUPAR POR CLIENTE
+   AGRUPAR
    ========================= */
 function agruparPorCliente(entregas) {
   return entregas.reduce((acc, e) => {
-    if (!acc[e.cliente_nombre]) acc[e.cliente_nombre] = [];
+    acc[e.cliente_nombre] ??= [];
     acc[e.cliente_nombre].push(e);
     return acc;
   }, {});
 }
 
 /* =========================
-   CARGAR ENTREGAS
+   CARGAR
    ========================= */
 async function cargarEntregas() {
   setConectando();
@@ -71,28 +66,19 @@ async function cargarEntregas() {
 
     lista.innerHTML = '';
 
-    if (!json.data || json.data.length === 0) {
-      lista.innerHTML = `<p class="empty">No hay entregas</p>`;
-      setConectado();
-      return;
-    }
-
-    const grupos = agruparPorCliente(json.data);
+    const grupos = agruparPorCliente(json.data || []);
 
     Object.entries(grupos).forEach(([cliente, entregas]) => {
-      const header = document.createElement('div');
-      header.className = 'cliente-header';
-      header.textContent = cliente;
-      lista.appendChild(header);
+      const h = document.createElement('div');
+      h.className = 'cliente-header';
+      h.textContent = cliente;
+      lista.appendChild(h);
 
-      entregas.forEach(e => {
-        lista.appendChild(renderEntrega(e));
-      });
+      entregas.forEach(e => lista.appendChild(renderEntrega(e)));
     });
 
     setConectado();
-  } catch (err) {
-    console.error(err);
+  } catch {
     setOffline();
   }
 }
@@ -100,7 +86,7 @@ async function cargarEntregas() {
 searchInput.oninput = cargarEntregas;
 
 /* =========================
-   RENDER ENTREGA (SWIPE)
+   RENDER ENTREGA
    ========================= */
 function renderEntrega(entrega) {
   const card = document.createElement('div');
@@ -111,9 +97,7 @@ function renderEntrega(entrega) {
     <div class="swipe-content">
       <div class="entrega-row">
         <div class="entrega-monto">Bs ${entrega.monto_total_bs}</div>
-        <div class="entrega-producto">
-          ${entrega.descripcion_producto || 'Producto sin descripción'}
-        </div>
+        <div class="entrega-producto">${entrega.descripcion_producto || ''}</div>
         <div class="entrega-ubicacion">
           <span class="material-symbols-rounded">location_on</span>
           ${entrega.ubicacion_fisica || 'Sin ubicación'}
@@ -122,31 +106,26 @@ function renderEntrega(entrega) {
     </div>
   `;
 
+  if (estadoActual !== 'en_almacen') return card;
+
   let startX = 0;
   let startY = 0;
   let currentX = 0;
-  let dragging = false;
 
   const content = card.querySelector('.swipe-content');
 
   card.addEventListener('touchstart', e => {
     startX = e.touches[0].clientX;
     startY = e.touches[0].clientY;
-    dragging = true;
+    card.classList.add('swiping');
     content.style.transition = 'none';
   });
 
   card.addEventListener('touchmove', e => {
-    if (!dragging) return;
-
     const dx = e.touches[0].clientX - startX;
     const dy = e.touches[0].clientY - startY;
 
-    if (Math.abs(dy) > Math.abs(dx)) {
-      dragging = false;
-      content.style.transform = 'translateX(0)';
-      return;
-    }
+    if (Math.abs(dy) > Math.abs(dx)) return;
 
     if (dx < 0) {
       currentX = dx;
@@ -155,13 +134,14 @@ function renderEntrega(entrega) {
   });
 
   card.addEventListener('touchend', async () => {
-    dragging = false;
     content.style.transition = 'transform .25s ease';
 
     if (currentX < -120) {
+      card.classList.add('confirmed');
       await confirmarEntrega(entrega.entrega_id);
     }
 
+    card.classList.remove('swiping');
     content.style.transform = 'translateX(0)';
     currentX = 0;
   });
@@ -170,17 +150,13 @@ function renderEntrega(entrega) {
 }
 
 /* =========================
-   CONFIRMAR ENTREGA
+   CONFIRMAR
    ========================= */
 async function confirmarEntrega(id) {
-  try {
-    await fetch(`${API_BASE_URL}/gestor-entregas/${id}/entregar`, {
-      method: 'PATCH'
-    });
-    cargarEntregas();
-  } catch {
-    setOffline();
-  }
+  await fetch(`${API_BASE_URL}/gestor-entregas/${id}/entregar`, {
+    method: 'PATCH'
+  });
+  setTimeout(cargarEntregas, 200);
 }
 
 /* INIT */

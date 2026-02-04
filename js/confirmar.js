@@ -4,8 +4,11 @@ let estadoActual = 'en_almacen';
 
 const lista = document.getElementById('listaEntregas');
 const searchInput = document.getElementById('searchInput');
+
 const tabAlmacen = document.getElementById('tab-almacen');
+const tabTerminal = document.getElementById('tab-terminal');
 const tabHistorial = document.getElementById('tab-historial');
+
 const syncStatus = document.getElementById('syncStatus');
 
 /* =========================
@@ -30,32 +33,45 @@ function setOffline() {
    TABS
    ========================= */
 tabAlmacen.onclick = () => cambiarEstado('en_almacen');
+tabTerminal.onclick = () => cambiarEstado('terminal');
 tabHistorial.onclick = () => cambiarEstado('entregado');
 
 function cambiarEstado(estado) {
   estadoActual = estado;
-  tabAlmacen.classList.toggle('active', estado === 'en_almacen');
-  tabHistorial.classList.toggle('active', estado === 'entregado');
-  cargarEntregas();
-}
 
-/* =========================
-   AGRUPAR
-   ========================= */
-function agruparPorCliente(entregas) {
-  return entregas.reduce((acc, e) => {
-    acc[e.cliente_nombre] ??= [];
-    acc[e.cliente_nombre].push(e);
-    return acc;
-  }, {});
+  tabAlmacen.classList.toggle('active', estado === 'en_almacen');
+  tabTerminal.classList.toggle('active', estado === 'terminal');
+  tabHistorial.classList.toggle('active', estado === 'entregado');
+
+  cargarEntregas();
 }
 
 /* =========================
    CARGAR
    ========================= */
 async function cargarEntregas() {
+  lista.innerHTML = '';
   setConectando();
 
+  // 🟡 TERMINAL (placeholder por ahora)
+  if (estadoActual === 'terminal') {
+    lista.innerHTML = `
+      <div style="
+        padding: 24px;
+        text-align: center;
+        color: var(--muted);
+        font-size: 14px;
+      ">
+        <strong>Entregas a terminal</strong><br><br>
+        Aquí se mostrarán los envíos a otros departamentos.<br>
+        (datos desde formulario de receptores)
+      </div>
+    `;
+    setConectado();
+    return;
+  }
+
+  // 🔵 ALMACÉN / HISTORIAL (flujo actual intacto)
   const search = searchInput.value.trim();
   let url = `${API_BASE_URL}/gestor-entregas?estado=${estadoActual}`;
   if (search) url += `&search=${encodeURIComponent(search)}`;
@@ -63,8 +79,6 @@ async function cargarEntregas() {
   try {
     const res = await fetch(url);
     const json = await res.json();
-
-    lista.innerHTML = '';
 
     const grupos = agruparPorCliente(json.data || []);
 
@@ -86,7 +100,18 @@ async function cargarEntregas() {
 searchInput.oninput = cargarEntregas;
 
 /* =========================
-   RENDER ENTREGA
+   AGRUPAR
+   ========================= */
+function agruparPorCliente(entregas) {
+  return entregas.reduce((acc, e) => {
+    acc[e.cliente_nombre] ??= [];
+    acc[e.cliente_nombre].push(e);
+    return acc;
+  }, {});
+}
+
+/* =========================
+   RENDER ENTREGA (ALMACÉN)
    ========================= */
 function renderEntrega(entrega) {
   const card = document.createElement('div');
@@ -150,7 +175,7 @@ function renderEntrega(entrega) {
 }
 
 /* =========================
-   CONFIRMAR
+   CONFIRMAR ENTREGA
    ========================= */
 async function confirmarEntrega(id) {
   await fetch(`${API_BASE_URL}/gestor-entregas/${id}/entregar`, {

@@ -98,13 +98,7 @@ async function cargarEntregas() {
     const res = await fetch(url);
     const json = await res.json();
 
-    const entregasFiltradas = (json.data || []).filter(e => {
-  const destino = (e.destino || e.ubicacion_fisica || '').toLowerCase();
-  return destino.includes('santa cruz');
-});
-
-const grupos = agruparPorCliente(entregasFiltradas);
-
+    const grupos = agruparPorCliente(json.data || []);
 
     Object.entries(grupos).forEach(([cliente, entregas]) => {
       const h = document.createElement('div');

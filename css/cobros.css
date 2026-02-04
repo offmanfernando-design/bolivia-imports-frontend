@@ -9,27 +9,52 @@ body {
   overflow: hidden;
 }
 
-h2 {
-  position: sticky;
-  top: 0;
-  background: var(--bg);
-  z-index: 10;
-  margin: 0;
-  padding: 16px 0 10px;
+/* =========================
+   HEADER
+   ========================= */
+
+.home-header {
+  padding: 12px 16px 8px;
   text-align: center;
+}
+
+.home-header h1 {
+  margin: 0;
   font-size: 22px;
   font-weight: 700;
 }
 
+.home-header p {
+  margin: 2px 0 6px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
 /* =========================
-   MAIN SCROLL
+   SYNC STATUS (IGUAL A CONFIRMAR)
    ========================= */
 
-main {
-  flex: 1;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-  padding-bottom: 16px;
+.sync-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.sync-status .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #22c55e; /* verde */
+}
+
+.sync-status.offline .dot {
+  background: #ef4444; /* rojo */
+}
+
+.sync-status.loading .dot {
+  background: #f59e0b; /* amarillo */
 }
 
 /* =========================
@@ -39,16 +64,16 @@ main {
 .tabs {
   display: flex;
   justify-content: center;
-  gap: 10px;
-  margin: 12px 16px 16px;
+  gap: 8px;
+  margin: 6px 12px 8px;
 }
 
 .tabs button {
-  padding: 8px 18px;
+  padding: 6px 14px;
   border-radius: 999px;
   border: 1px solid var(--border);
   background: var(--card);
-  font-size: 13px;
+  font-size: 12px;
   cursor: pointer;
 }
 
@@ -56,93 +81,132 @@ main {
   background: #000;
   color: #fff;
   border-color: #000;
+  font-weight: 600;
 }
 
 /* =========================
    BUSCADOR
    ========================= */
 
-#searchInput {
-  width: calc(100% - 32px);
-  margin: 0 16px 18px;
-  padding: 12px 14px;
-  border-radius: 14px;
+.search-box {
+  display: flex;
+  gap: 8px;
+  padding: 0 12px 10px;
+}
+
+.search-box input[type="search"] {
+  flex: 1;
+  padding: 10px 12px;
+  border-radius: 12px;
   border: 1px solid var(--border);
-  font-size: 14px;
+  font-size: 13px;
+  background: var(--card);
+}
+
+.date-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 10px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--card);
+}
+
+.date-wrapper span {
+  font-size: 18px;
+  color: var(--muted);
+}
+
+.date-wrapper input {
+  border: none;
+  background: transparent;
+  font-size: 13px;
+  outline: none;
 }
 
 /* =========================
    LISTA
    ========================= */
 
-.card-list {
+.list {
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  padding: 0 16px;
+  gap: 12px;
+  padding: 0 12px;
 }
 
 /* =========================
-   CARD ENTREGA (NATIVA)
+   COBRO CARD
    ========================= */
 
 .cobro-card {
   background: var(--card);
   border: 1px solid var(--border);
-  border-radius: 20px;
-  padding: 14px 16px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  border-radius: 16px;
+  padding: 12px 14px;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.06);
+  cursor: pointer;
 }
 
-/* HEADER */
-.cobro-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
+.cobro-card strong {
+  font-size: 14px;
+  font-weight: 600;
 }
 
-.cobro-cliente {
-  font-size: 15px;
-  font-weight: 700;
-  line-height: 1.25;
-}
-
-.cobro-monto {
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--success);
-}
-
-/* UBICACIÓN */
-.cobro-detalle {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-top: 6px;
-  font-size: 13px;
+.cobro-card small {
+  font-size: 12px;
   color: var(--muted);
 }
 
-.cobro-detalle span {
-  font-size: 18px;
+/* =========================
+   CARD CONTENIDO
+   ========================= */
+
+.cobro-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
 }
 
-/* ACCIONES */
-.cobro-actions {
+.cobro-bottom {
   display: flex;
   justify-content: flex-end;
-  margin-top: 12px;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+/* =========================
+   DETALLE EXPANDIBLE
+   ========================= */
+
+.cobro-detalle {
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px dashed var(--border);
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* =========================
+   BOTONES
+   ========================= */
+
+.cobro-action {
+  padding: 8px 14px;
+  font-size: 12px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  cursor: pointer;
 }
 
 .cobro-action.primary {
   background: #000;
   color: #fff;
-  border: none;
-  padding: 10px 16px;
-  font-size: 13px;
+  border-color: #000;
   font-weight: 600;
-  border-radius: 999px;
-  cursor: pointer;
 }
 
 /* =========================
@@ -167,20 +231,25 @@ main {
   background: var(--card);
   width: calc(100% - 32px);
   max-width: 420px;
-  border-radius: 22px;
-  padding: 20px;
+  border-radius: 20px;
+  padding: 18px;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
 }
 
 .app-modal-content p {
-  font-size: 15px;
+  font-size: 14px;
   line-height: 1.4;
   text-align: center;
 }
 
 .app-modal-actions {
-  margin-top: 18px;
+  margin-top: 16px;
+  text-align: center;
 }
+
+/* =========================
+   UTILS
+   ========================= */
 
 .hidden {
   display: none;

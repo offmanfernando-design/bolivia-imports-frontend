@@ -108,21 +108,6 @@
       cursor: pointer;
     }
 
-    .footer-text {
-      font-size: 12px;
-      color: var(--muted);
-      text-align: center;
-      margin-top: 12px;
-    }
-
-    footer.footer {
-      text-align: center;
-      font-size: 12px;
-      color: var(--muted);
-      padding: 14px 0 18px;
-    }
-
-    /* ===== TOAST PWA ===== */
     .toast {
       position: fixed;
       left: 50%;
@@ -133,61 +118,23 @@
       padding: 12px 18px;
       border-radius: 14px;
       font-size: 14px;
-      font-weight: 500;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+      box-shadow: 0 8px 24px rgba(0,0,0,.25);
       opacity: 0;
-      transition: opacity 0.3s ease, transform 0.3s ease;
+      transition: .3s;
       z-index: 9999;
-      pointer-events: none;
     }
 
     .toast.show {
       opacity: 1;
       transform: translateX(-50%) translateY(-8px);
     }
-/* === FIX iOS ZOOM EN INPUTS (PWA) === */
-input,
-textarea,
-select {
-  font-size: 16px !important;
-}
 
-    /* =========================
-   CONEXIÓN
-   ========================= */
-.sync-status {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 12px;
-  color: var(--muted);
-}
-
-.sync-status .dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #22c55e; /* verde */
-}
-
-.sync-status.offline .dot {
-  background: #ef4444; /* rojo */
-}
-
-.sync-status.loading .dot {
-  background: #f59e0b; /* amarillo */
-}
-
-@keyframes pulse {
-  0% { opacity: .3; }
-  50% { opacity: 1; }
-  100% { opacity: .3; }
-}
-
-
-    
+    input, textarea {
+      font-size: 16px !important; /* fix zoom iOS */
+    }
   </style>
 </head>
+
 <body>
 
 <div class="form-container">
@@ -216,81 +163,71 @@ select {
 
   <div class="card hidden" id="datosReceptor">
     <label class="label">Nombre completo del receptor *</label>
-    <input type="text" id="nombreReceptor" />
+    <input id="nombreReceptor">
 
-    <label class="label" style="margin-top:10px;">Teléfono del receptor *</label>
-    <input type="tel" id="telefonoReceptor" />
+    <label class="label">Teléfono *</label>
+    <input id="telefonoReceptor">
 
-    <label class="label" style="margin-top:10px;">CI / referencia (opcional)</label>
-    <input type="text" id="referenciaReceptor" />
+    <label class="label">CI / referencia</label>
+    <input id="referenciaReceptor">
   </div>
 
   <div class="card">
     <label class="label">Departamento / ciudad *</label>
-    <input type="text" id="destino" />
+    <input id="destino">
 
-    <label class="label" style="margin-top:10px;">Transportadora preferida (opcional)</label>
-    <input type="text" id="transportadora" />
+    <label class="label">Transportadora (opcional)</label>
+    <input id="transportadora">
   </div>
 
   <div class="card">
-    <label class="label">Observaciones (opcional)</label>
+    <label class="label">Observaciones</label>
     <textarea id="observaciones"></textarea>
   </div>
 
   <button id="btnEnviar">Confirmar datos de envío</button>
 
-  <div class="footer-text">
-    Estos datos serán usados para coordinar el envío de tu pedido.
-  </div>
-
 </div>
 
-<footer class="footer">
-  © Bolivia Imports · v2 · by Felipe Antelo
-</footer>
-
-<!-- TOAST -->
 <div id="toast" class="toast"></div>
 
 <script>
-  const radios = document.querySelectorAll('input[name="recoge"]');
-  const bloque = document.getElementById('datosReceptor');
-
-  radios.forEach(radio => {
-    radio.addEventListener('change', () => {
-      bloque.classList.toggle('hidden', radio.value !== 'tercero');
-    });
-  });
-
   const params = new URLSearchParams(window.location.search);
+
   const pedido = params.get('pedido');
   const cliente = params.get('cliente');
+  const entrega_id = params.get('entrega_id');
 
-  if (pedido) document.getElementById('pedidoId').textContent = pedido;
-  if (cliente) document.getElementById('clienteNombre').textContent = decodeURIComponent(cliente);
+  pedidoId.textContent = pedido || '—';
+  clienteNombre.textContent = cliente || '—';
 
-  function showToast(msg) {
-    const toast = document.getElementById('toast');
-    toast.textContent = msg;
-    toast.classList.add('show');
-    setTimeout(() => toast.classList.remove('show'), 2500);
+  document.querySelectorAll('input[name="recoge"]').forEach(r =>
+    r.onchange = () =>
+      datosReceptor.classList.toggle('hidden', r.value !== 'tercero')
+  );
+
+  function toast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
   }
 
-  document.getElementById('btnEnviar').addEventListener('click', async () => {
-    if (!pedido || !cliente) {
-      showToast('Faltan datos del pedido o cliente');
+  btnEnviar.onclick = async () => {
+    if (!pedido || !cliente || !entrega_id) {
+      toast('Faltan datos del pedido');
       return;
     }
 
     if (!destino.value.trim()) {
-      showToast('Debes ingresar el destino');
+      toast('Debes ingresar el destino');
       return;
     }
 
     const recoge = document.querySelector('input[name="recoge"]:checked').value;
 
     const payload = {
+      entrega_id,
       pedido_id: pedido,
       cliente_nombre: cliente,
       recoge_quien: recoge,
@@ -310,12 +247,11 @@ select {
       });
 
       if (!res.ok) throw new Error();
-      showToast('Datos enviados correctamente 🙌');
-
+      toast('Datos enviados correctamente 🙌');
     } catch {
-      showToast('Error al enviar los datos');
+      toast('Error al enviar datos');
     }
-  });
+  };
 </script>
 
 </body>

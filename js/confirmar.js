@@ -198,19 +198,33 @@ function renderTerminal(r) {
 
   card.innerHTML = `
     <div class="entrega-row">
+
+      <!-- ENTREGA -->
       <div class="entrega-monto">
-        Pedido ${r.pedido_id || '—'}
+        Entrega ${r.entrega_id || '—'}
       </div>
 
+      <!-- DESTINO -->
       <div class="entrega-producto">
-        Destino: <strong>${r.destino}</strong>
+        <span class="material-symbols-rounded">location_on</span>
+        ${r.destino || 'Sin destino'}
       </div>
 
+      <!-- RECEPTOR -->
       <div class="entrega-ubicacion">
         <span class="material-symbols-rounded">person</span>
-        Receptor: ${r.nombre_receptor || r.cliente_nombre}
+        ${r.nombre_receptor || r.cliente_nombre}
       </div>
 
+      <!-- TELÉFONO -->
+      ${r.telefono_receptor ? `
+        <div class="entrega-ubicacion">
+          <span class="material-symbols-rounded">call</span>
+          ${r.telefono_receptor}
+        </div>
+      ` : ''}
+
+      <!-- TRANSPORTADORA -->
       ${r.transportadora ? `
         <div class="entrega-ubicacion">
           <span class="material-symbols-rounded">local_shipping</span>
@@ -218,12 +232,22 @@ function renderTerminal(r) {
         </div>
       ` : ''}
 
+      <!-- UBICACIÓN FÍSICA -->
+      ${r.ubicacion_fisica ? `
+        <div class="entrega-ubicacion">
+          <span class="material-symbols-rounded">inventory_2</span>
+          ${r.ubicacion_fisica}
+        </div>
+      ` : ''}
+
+      <!-- OBSERVACIONES -->
       ${r.observaciones ? `
         <div class="entrega-ubicacion">
           <span class="material-symbols-rounded">notes</span>
           ${r.observaciones}
         </div>
       ` : ''}
+
     </div>
   `;
 

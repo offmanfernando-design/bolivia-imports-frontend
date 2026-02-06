@@ -96,10 +96,12 @@ if (estadoActual === 'terminal') {
     return;
 
   } catch {
+  if (currentToken === renderToken) {
     setOffline();
-    return;
   }
+  return;
 }
+
 
 
   // 🔵 ALMACÉN / HISTORIAL
@@ -127,9 +129,12 @@ if (estadoActual === 'terminal') {
 
     setConectado();
   } catch {
+  if (currentToken === renderToken) {
     setOffline();
   }
+  return;
 }
+
 
 /* 🔹 BONUS: debounce search (no más renders locos) */
 let searchTimer;

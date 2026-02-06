@@ -197,10 +197,10 @@ function renderTerminal(r) {
   card.className = 'entrega';
 
   card.innerHTML = `
-    <div class="entrega-row" style="gap: 10px;">
+    <div class="entrega-row" style="gap: 12px;">
 
-      <div class="entrega-monto" style="margin-bottom: 8px;">
-        Entrega ${r.entrega_id || '—'}
+      <div class="entrega-monto">
+        Entrega ${r.entrega_id}
       </div>
 
       <div class="entrega-ubicacion">
@@ -223,16 +223,10 @@ function renderTerminal(r) {
         ${r.transportadora || '—'}
       </div>
 
-      ${
-        r.ubicacion_fisica
-          ? `
-          <div class="entrega-ubicacion">
-            <span class="material-symbols-rounded">inventory_2</span>
-            ${r.ubicacion_fisica}
-          </div>
-        `
-          : ''
-      }
+      <div class="entrega-ubicacion">
+        <span class="material-symbols-rounded">inventory_2</span>
+        <span id="ubicacion-${r.entrega_id}">—</span>
+      </div>
 
     </div>
 
@@ -257,51 +251,43 @@ async function toggleDetalleTerminal(entregaId) {
   cont.innerHTML = '<small>Cargando detalle…</small>';
 
   try {
-    // 1️⃣ Obtener receptor para saber cliente_nombre
-    const resRec = await fetch(`${API_BASE_URL}/api/receptores`);
-    const jsonRec = await resRec.json();
-
-    const receptor = (jsonRec.data || []).find(
-      r => String(r.entrega_id) === String(entregaId)
-    );
-
-    if (!receptor) {
-      cont.innerHTML = '<small>No se pudo identificar el cliente</small>';
-      return;
-    }
-
-    // 2️⃣ Pedir productos por cliente (API REAL EXISTENTE)
     const res = await fetch(
-      `${API_BASE_URL}/api/cobros/detalle/${encodeURIComponent(receptor.cliente_nombre)}`
+      `${API_BASE_URL}/api/entregas/detalle/${entregaId}`
     );
-
     const productos = await res.json();
 
     let html = '';
     let total = 0;
+    let ubicacionFisica = '';
 
     productos.forEach((p, i) => {
       const monto = Number(p.monto_total_bs || 0);
       total += monto;
+      if (!ubicacionFisica && p.ubicacion_fisica) {
+        ubicacionFisica = p.ubicacion_fisica;
+      }
 
       html += `
         <div class="detalle-item">
           <strong>${i + 1}) ${p.descripcion_producto}</strong><br>
-          <small>
-            ${p.peso_cobrado} × ${p.tipo_de_cobro} × ${p.dolar_cliente}
-            = ${monto} Bs
-          </small>
+          <small>${monto} Bs</small>
         </div>
       `;
     });
 
     html += `
       <div class="detalle-total">
-        Total: ${total} Bs
+        <strong>Total: ${total} Bs</strong>
       </div>
     `;
 
     cont.innerHTML = html;
+
+    // 🔹 Actualizar ubicación física en la tarjeta
+    const ubEl = document.getElementById(`ubicacion-${entregaId}`);
+    if (ubEl && ubicacionFisica) {
+      ubEl.textContent = ubicacionFisica;
+    }
 
   } catch (err) {
     console.error(err);

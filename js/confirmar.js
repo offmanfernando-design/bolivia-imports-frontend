@@ -2,18 +2,6 @@ import API_BASE_URL from './config.js';
 
 let estadoActual = 'en_almacen';
 
-/* 🔹 FIX DUPLICACIÓN: token de render */
-let renderToken = 0;
-
-const lista = document.getElementById('listaEntregas');
-const searchInput = document.getElementById('searchInput');
-
-const tabAlmacen = document.getElementById('tab-almacen');
-const tabTerminal = document.getElementById('tab-terminal');
-const tabHistorial = document.getElementById('tab-historial');
-
-const syncStatus = document.getElementById('syncStatus');
-
 /* =========================
    CONEXIÓN
    ========================= */

@@ -53,15 +53,18 @@ function cambiarEstado(estado) {
    CARGAR
    ========================= */
 async function cargarEntregas() {
+   console.log('🔁 cargarEntregas', estadoActual);
+
   const currentToken = ++renderToken;
 
   lista.innerHTML = '';
   
 
   // 🟡 TERMINAL
-  if (estadoActual === 'terminal') {
-     setConectando();
-    try {
+   if (estadoActual === 'terminal') {
+  console.log('🚀 ENTRÉ A TERMINAL');
+  setConectando();
+   try {
       const res = await fetch(`${API_BASE_URL}/api/receptores`);
       const json = await res.json();
 

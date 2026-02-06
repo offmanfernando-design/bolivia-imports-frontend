@@ -199,57 +199,36 @@ function renderTerminal(r) {
   card.innerHTML = `
     <div class="entrega-row">
 
-      <!-- ENTREGA -->
       <div class="entrega-monto">
         Entrega ${r.entrega_id || '—'}
       </div>
 
-      <!-- DESTINO -->
-      <div class="entrega-producto">
+      <div class="entrega-ubicacion">
         <span class="material-symbols-rounded">location_on</span>
-        ${r.destino || 'Sin destino'}
+        ${r.destino || '—'}
       </div>
 
-      <!-- RECEPTOR -->
       <div class="entrega-ubicacion">
         <span class="material-symbols-rounded">person</span>
-        ${r.nombre_receptor || r.cliente_nombre}
+        ${r.nombre_receptor || r.cliente_nombre || '—'}
       </div>
 
-      <!-- TELÉFONO -->
-      ${r.telefono_receptor ? `
-        <div class="entrega-ubicacion">
-          <span class="material-symbols-rounded">call</span>
-          ${r.telefono_receptor}
-        </div>
-      ` : ''}
+      <div class="entrega-ubicacion">
+        <span class="material-symbols-rounded">call</span>
+        ${r.telefono_receptor || '—'}
+      </div>
 
-      <!-- TRANSPORTADORA -->
-      ${r.transportadora ? `
-        <div class="entrega-ubicacion">
-          <span class="material-symbols-rounded">local_shipping</span>
-          ${r.transportadora}
-        </div>
-      ` : ''}
-
-      <!-- UBICACIÓN FÍSICA -->
-      ${r.ubicacion_fisica ? `
-        <div class="entrega-ubicacion">
-          <span class="material-symbols-rounded">inventory_2</span>
-          ${r.ubicacion_fisica}
-        </div>
-      ` : ''}
-
-      <!-- OBSERVACIONES -->
-      ${r.observaciones ? `
-        <div class="entrega-ubicacion">
-          <span class="material-symbols-rounded">notes</span>
-          ${r.observaciones}
-        </div>
-      ` : ''}
+      <div class="entrega-ubicacion">
+        <span class="material-symbols-rounded">local_shipping</span>
+        ${r.transportadora || '—'}
+      </div>
 
     </div>
+
+    <div class="detalle hidden" id="detalle-${r.entrega_id}"></div>
   `;
+
+  card.onclick = () => toggleDetalleTerminal(r.entrega_id);
 
   return card;
 }
@@ -264,6 +243,7 @@ async function toggleDetalleTerminal(entregaId) {
   }
 
   cont.classList.remove('hidden');
+  cont.innerHTML = '<small>Cargando detalle…</small>';
 
   try {
     const res = await fetch(
@@ -301,7 +281,6 @@ async function toggleDetalleTerminal(entregaId) {
     cont.innerHTML = '<small>Error al cargar detalle</small>';
   }
 }
-
 
 /* =========================
    CONFIRMAR ENTREGA

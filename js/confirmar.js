@@ -64,10 +64,7 @@ async function cargarEntregas() {
       const res = await fetch(`${API_BASE_URL}/api/receptores`);
       const json = await res.json();
 
-      if (currentToken !== renderToken) {
-        setConectado();
-        return;
-      }
+     
 
       const data = json.data || [];
 

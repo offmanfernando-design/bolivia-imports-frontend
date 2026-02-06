@@ -304,6 +304,18 @@ window.avisar = async function (clienteId, telefono) {
   render();
 
   try {
+    // 1️⃣ Generar mensaje (rápido, aún permitido por iOS)
+    const msg = await generarMensaje(clienteId);
+
+    // 2️⃣ Abrir WhatsApp INMEDIATAMENTE
+    if (telefono && msg) {
+      window.open(
+        `https://wa.me/${telefono}?text=${msg}`,
+        '_blank'
+      );
+    }
+
+    // 3️⃣ AHORA sí marcar como avisado
     const res = await fetch(`${API_BASE_URL}/api/cobros/avisar`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
@@ -318,13 +330,10 @@ window.avisar = async function (clienteId, telefono) {
       return;
     }
 
-    const msg = await generarMensaje(clienteId);
-    if (telefono) {
-      window.open(`https://wa.me/${telefono}?text=${msg}`, '_blank');
-    }
-
     actualizarIndicador(true);
-  } catch {
+
+  } catch (err) {
+    console.error(err);
     actualizarIndicador(false);
   }
 
@@ -332,26 +341,6 @@ window.avisar = async function (clienteId, telefono) {
   cargarCobros();
 };
 
-window.pagar = async function (clienteId) {
-  if (pagando) return;
-  pagando = true;
-  render();
-
-  try {
-    await fetch(`${API_BASE_URL}/api/cobros/pagar`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ cliente_id: clienteId })
-    });
-
-    actualizarIndicador(true);
-  } catch {
-    actualizarIndicador(false);
-  }
-
-  pagando = false;
-  cargarCobros();
-};
 
 /* =========================
    MENSAJE WHATSAPP (4 CASOS)

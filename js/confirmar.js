@@ -60,13 +60,10 @@ async function cargarEntregas() {
   setConectando();
 
   // 🟡 TERMINAL
-  if (estadoActual === 'terminal') {
+   if (estadoActual === 'terminal') {
     try {
       const res = await fetch(`${API_BASE_URL}/api/receptores`);
       const json = await res.json();
-
-      /* 🔹 cancelar render viejo */
-      if (currentToken !== renderToken) return;
 
       const data = json.data || [];
 
@@ -97,6 +94,7 @@ async function cargarEntregas() {
       return;
     }
   }
+
 
   // 🔵 ALMACÉN / HISTORIAL
   const search = searchInput.value.trim();

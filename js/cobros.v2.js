@@ -353,7 +353,7 @@ async function generarMensaje(clienteId) {
   const c0 = productos[0];
   const nombre = c0.cliente_nombre || '';
 
-  // 👉 SOLO PARA TEXTO / ENCABEZADO
+  // ⚠️ SOLO para texto del encabezado
   const esSantaCruz = (c0.departamento_destino || '')
     .toLowerCase()
     .includes('santa cruz');
@@ -413,11 +413,12 @@ async function generarMensaje(clienteId) {
       const dataLink = await resLink.json();
 
       if (dataLink.link) {
+        // ✅ CASO TERMINAL → FORMULARIO
         msg +=
           '📦 Para coordinar el envío, completa este formulario:\n' +
           `${dataLink.link}\n\n`;
       } else {
-        // fallback oficina
+        // ✅ CASO OFICINA (fallback)
         msg +=
           '💳 Pago: QR o efectivo (solo Bs)\n\n' +
           '🕒 Horario:\n' +

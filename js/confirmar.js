@@ -62,8 +62,14 @@ async function cargarEntregas() {
   // 🟡 TERMINAL
   if (estadoActual === 'terminal') {
     try {
-      const res = await fetch(`${API_BASE_URL}/api/receptores`);
-      const json = await res.json();
+     const res = await fetch(`${API_BASE_URL}/api/receptores`);
+const json = await res.json();
+
+if (currentToken !== renderToken) {
+  setConectado();
+  return;
+}
+
 
       /* 🔹 cancelar render viejo */
       if (currentToken !== renderToken) return;

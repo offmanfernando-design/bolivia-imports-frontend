@@ -134,7 +134,7 @@ if (estadoActual === 'terminal') {
   }
   return;
 }
-
+}
 
 /* 🔹 BONUS: debounce search (no más renders locos) */
 let searchTimer;

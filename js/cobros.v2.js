@@ -341,7 +341,6 @@ window.avisar = async function (clienteId, telefono) {
   cargarCobros();
 };
 
-
 /* =========================
    MENSAJE WHATSAPP (4 CASOS)
    ========================= */

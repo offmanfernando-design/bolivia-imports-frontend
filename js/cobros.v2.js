@@ -392,28 +392,23 @@ async function generarMensaje(clienteId) {
 
   let total = 0;
 
-  if (esMultiple) {
-    msg += '📦 Detalle:\n';
-  } else {
-    msg += '📦 Producto:\n';
-  }
+  msg += esMultiple ? '📦 Detalle:\n\n' : '📦 Producto:\n\n';
 
   productos.forEach((p, i) => {
-    total += Number(p.monto_total_bs || 0);
+    const cobrarBs = Number(p.cobrar_bs || 0);
+    total += cobrarBs;
 
-    if (esMultiple) {
-      msg += `${i + 1}) ${p.descripcion_producto}\n`;
-      msg += `   Monto: ${p.monto_total_bs} Bs\n\n`;
-    } else {
-      msg += `${p.descripcion_producto}\n\n`;
-    }
+    msg += `${i + 1}) Producto: ${p.descripcion_producto}\n`;
+    msg += `Costo: ${p.peso_cobrado} × ${p.tipo_de_cobro} × ${p.dolar_cliente} = ${cobrarBs} Bs\n\n`;
   });
 
   /* =========================
-     TOTAL
+     TOTAL (solo si es múltiple)
      ========================= */
 
-  msg += `💰 ${esMultiple ? 'Total a pagar' : 'Monto a pagar'}: ${total} Bs\n\n`;
+  if (esMultiple) {
+    msg += `💰 Total a pagar: ${total} Bs\n\n`;
+  }
 
   /* =========================
      BLOQUE FINAL SEGÚN UBICACIÓN
@@ -427,15 +422,24 @@ async function generarMensaje(clienteId) {
       '📍 Ubicación:\n' +
       'https://maps.app.goo.gl/fP472SmY3XjTmJBL8\n\n';
   } else {
-    msg +=
-      'Para coordinar el envío, por favor envíanos:\n' +
-      '• Nombre completo\n' +
-      '• Departamento\n' +
-      '• Ciudad\n' +
-      '• Celular de contacto\n\n';
+    try {
+      const resLink = await fetch(
+        `${API_BASE_URL}/api/receptores/link/${clienteId}`
+      );
+      const dataLink = await resLink.json();
+
+      if (dataLink.link) {
+        msg +=
+          '📦 Para coordinar el envío, completa este formulario:\n' +
+          `${dataLink.link}\n\n`;
+      }
+    } catch (err) {
+      console.error('Error obteniendo link de receptor', err);
+    }
   }
 
   msg += '— Bolivia Imports';
 
   return encodeURIComponent(msg);
 }
+

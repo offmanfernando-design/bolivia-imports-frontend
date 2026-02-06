@@ -96,7 +96,8 @@ async function cargarEntregas() {
       }
       return;
     }
-  } // ← cierre correcto del IF TERMINAL
+  } 
+   return;// ← cierre correcto del IF TERMINAL
 
   // 🔵 ALMACÉN / HISTORIAL
   const search = searchInput.value.trim();

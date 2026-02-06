@@ -337,4 +337,11 @@
   line-height: 20px;
 }
 
+.cliente-linea {
+  display: block;
+  margin-top: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--muted);
+}
 

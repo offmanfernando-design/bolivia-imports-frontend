@@ -197,9 +197,9 @@ function renderTerminal(r) {
   card.className = 'entrega';
 
   card.innerHTML = `
-    <div class="entrega-row">
+    <div class="entrega-row" style="gap: 10px;">
 
-      <div class="entrega-monto">
+      <div class="entrega-monto" style="margin-bottom: 8px;">
         Entrega ${r.entrega_id || '—'}
       </div>
 
@@ -222,6 +222,17 @@ function renderTerminal(r) {
         <span class="material-symbols-rounded">local_shipping</span>
         ${r.transportadora || '—'}
       </div>
+
+      ${
+        r.ubicacion_fisica
+          ? `
+          <div class="entrega-ubicacion">
+            <span class="material-symbols-rounded">inventory_2</span>
+            ${r.ubicacion_fisica}
+          </div>
+        `
+          : ''
+      }
 
     </div>
 
@@ -246,9 +257,24 @@ async function toggleDetalleTerminal(entregaId) {
   cont.innerHTML = '<small>Cargando detalle…</small>';
 
   try {
-    const res = await fetch(
-      `${API_BASE_URL}/api/cobros/entrega/${entregaId}`
+    // 1️⃣ Obtener receptor para saber cliente_nombre
+    const resRec = await fetch(`${API_BASE_URL}/api/receptores`);
+    const jsonRec = await resRec.json();
+
+    const receptor = (jsonRec.data || []).find(
+      r => String(r.entrega_id) === String(entregaId)
     );
+
+    if (!receptor) {
+      cont.innerHTML = '<small>No se pudo identificar el cliente</small>';
+      return;
+    }
+
+    // 2️⃣ Pedir productos por cliente (API REAL EXISTENTE)
+    const res = await fetch(
+      `${API_BASE_URL}/api/cobros/detalle/${encodeURIComponent(receptor.cliente_nombre)}`
+    );
+
     const productos = await res.json();
 
     let html = '';
@@ -277,7 +303,8 @@ async function toggleDetalleTerminal(entregaId) {
 
     cont.innerHTML = html;
 
-  } catch {
+  } catch (err) {
+    console.error(err);
     cont.innerHTML = '<small>Error al cargar detalle</small>';
   }
 }

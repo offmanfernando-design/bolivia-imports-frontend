@@ -345,3 +345,27 @@
   color: var(--muted);
 }
 
+/* =========================
+   FIX ALINEACIÓN ICONO + TEXTO (TERMINAL)
+   ========================= */
+
+.entrega-info {
+  display: flex;
+  align-items: center;        /* 👈 CLAVE */
+  gap: 8px;
+  font-size: 12px;
+  line-height: 1.2;
+  color: var(--muted);
+}
+
+.entrega-info span {
+  display: inline-flex;
+  align-items: center;
+}
+
+.entrega-info .material-symbols-rounded {
+  font-size: 18px;            /* tamaño consistente */
+  line-height: 1;             /* 👈 evita desplazamiento */
+}
+
+

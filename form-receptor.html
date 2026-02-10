@@ -110,6 +110,11 @@
       cursor: pointer;
     }
 
+    button:disabled {
+      opacity: .5;
+      cursor: default;
+    }
+
     .toast {
       position: fixed;
       left: 50%;
@@ -139,14 +144,13 @@
 
     /* =========================
        (NO MÁS CSS AQUÍ)
-       Este formulario YA está bien
        ========================= */
   </style>
 </head>
 
 <body>
 
-<div class="form-container">
+<div class="form-container" id="formContainer">
 
   <h1>Bolivia Imports</h1>
   <div class="subtitle">Coordinación de envío a terminal</div>
@@ -198,7 +202,6 @@
 
 </div>
 
-<!-- FOOTER -->
 <footer class="footer">
   © Bolivia Imports · v2 · by Felipe Antelo
 </footer>
@@ -259,7 +262,15 @@
       });
 
       if (!res.ok) throw new Error();
-      toast('Datos enviados correctamente 🙌');
+
+      toast('Datos enviados correctamente');
+      btnEnviar.disabled = true;
+      btnEnviar.textContent = 'Datos enviados';
+
+      setTimeout(() => {
+        try { window.close(); } catch {}
+      }, 2000);
+
     } catch {
       toast('Error al enviar datos');
     }

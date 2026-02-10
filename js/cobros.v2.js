@@ -226,7 +226,7 @@ function renderBotones(c) {
 }
 
 /* =========================
-   DESGLOSE EXPANDIBLE (FIX TOTAL)
+   DESGLOSE EXPANDIBLE
    ========================= */
 
 async function toggleDetalle(clienteId) {
@@ -247,7 +247,6 @@ async function toggleDetalle(clienteId) {
   let productos = [];
 
   try {
-    // 🔹 Solo evitamos el fetch duplicado
     if (!cont.dataset.loaded) {
       const res = await fetch(`${API_BASE_URL}/api/cobros/detalle/${clienteId}`);
       productos = await res.json();
@@ -280,7 +279,6 @@ async function toggleDetalle(clienteId) {
 
     cont.innerHTML = html;
 
-    // 🔥 SIEMPRE actualizar el total de arriba
     const totalEl = document.getElementById(`total-${clienteId}`);
     if (totalEl) {
       totalEl.textContent = `${total} Bs`;
@@ -292,8 +290,6 @@ async function toggleDetalle(clienteId) {
   }
 }
 
-
-
 /* =========================
    ACCIONES
    ========================= */
@@ -304,10 +300,8 @@ window.avisar = async function (clienteId, telefono) {
   render();
 
   try {
-    // 1️⃣ Generar mensaje (rápido, aún permitido por iOS)
     const msg = await generarMensaje(clienteId);
 
-    // 2️⃣ Abrir WhatsApp INMEDIATAMENTE
     if (telefono && msg) {
       window.open(
         `https://wa.me/${telefono}?text=${msg}`,
@@ -315,7 +309,6 @@ window.avisar = async function (clienteId, telefono) {
       );
     }
 
-    // 3️⃣ AHORA sí marcar como avisado
     const res = await fetch(`${API_BASE_URL}/api/cobros/avisar`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
@@ -353,7 +346,6 @@ async function generarMensaje(clienteId) {
   const c0 = productos[0];
   const nombre = c0.cliente_nombre || '';
 
-  // ⚠️ SOLO para texto del encabezado
   const esSantaCruz = (c0.departamento_destino || '')
     .toLowerCase()
     .includes('santa cruz');
@@ -361,10 +353,6 @@ async function generarMensaje(clienteId) {
   const esMultiple = productos.length > 1;
 
   let msg = `Hola ${nombre} 👋\n\n`;
-
-  /* =========================
-     ENCABEZADO
-     ========================= */
 
   if (esSantaCruz) {
     msg += esMultiple
@@ -376,10 +364,6 @@ async function generarMensaje(clienteId) {
       : 'Tu pedido ya se encuentra disponible para envío.\n\n';
   }
 
-  /* =========================
-     DETALLE DE PRODUCTOS
-     ========================= */
-
   let total = 0;
 
   msg += esMultiple ? '📦 Detalle:\n\n' : '📦 Producto:\n\n';
@@ -389,46 +373,50 @@ async function generarMensaje(clienteId) {
     total += montoBs;
 
     msg += `${i + 1}) Producto: ${p.descripcion_producto}\n`;
-    msg += `Costo: ${p.peso_cobrado} × ${p.tipo_de_cobro} × ${p.dolar_cliente} = ${montoBs} Bs\n\n`;
-  });
 
-  /* =========================
-     TOTAL (solo si es múltiple)
-     ========================= */
+    if (p.peso_cobrado) {
+      msg += `Costo: ${p.peso_cobrado} × ${p.tipo_de_cobro} × ${p.dolar_cliente} = ${montoBs} Bs\n\n`;
+    } else {
+      msg += `Precio: ${montoBs} Bs\n\n`;
+    }
+  });
 
   if (esMultiple) {
     msg += `💰 Total a pagar: ${total} Bs\n\n`;
   }
 
-  /* =========================
-     BLOQUE FINAL (DECIDE BACKEND)
-     ========================= */
+  if (!esSantaCruz) {
+    try {
+      const resLink = await fetch(
+        `${API_BASE_URL}/api/receptores/link/${clienteId}`
+      );
 
-  try {
-    const resLink = await fetch(
-      `${API_BASE_URL}/api/receptores/link/${clienteId}`
-    );
+      if (resLink.ok) {
+        const dataLink = await resLink.json();
 
-    if (resLink.ok) {
-      const dataLink = await resLink.json();
-
-      if (dataLink.link) {
-        // ✅ CASO TERMINAL → FORMULARIO
-        msg +=
-          '📦 Para coordinar el envío, completa este formulario:\n' +
-          `${dataLink.link}\n\n`;
-      } else {
-        // ✅ CASO OFICINA (fallback)
-        msg +=
-          '💳 Pago: QR o efectivo (solo Bs)\n\n' +
-          '🕒 Horario:\n' +
-          '09:30–12:00 / 14:30–18:00\n\n' +
-          '📍 Ubicación:\n' +
-          'https://maps.app.goo.gl/fP472SmY3XjTmJBL8\n\n';
+        if (dataLink.link) {
+          msg +=
+            '📦 Para coordinar el envío, completa este formulario:\n' +
+            `${dataLink.link}\n\n`;
+        } else {
+          msg +=
+            '💳 Pago: QR o efectivo (solo Bs)\n\n' +
+            '🕒 Horario:\n' +
+            '09:30–12:00 / 14:30–18:00\n\n' +
+            '📍 Ubicación:\n' +
+            'https://maps.app.goo.gl/fP472SmY3XjTmJBL8\n\n';
+        }
       }
+    } catch (err) {
+      console.error('Error obteniendo link de receptor', err);
     }
-  } catch (err) {
-    console.error('Error obteniendo link de receptor', err);
+  } else {
+    msg +=
+      '💳 Pago: QR o efectivo (solo Bs)\n\n' +
+      '🕒 Horario:\n' +
+      '09:30–12:00 / 14:30–18:00\n\n' +
+      '📍 Ubicación:\n' +
+      'https://maps.app.goo.gl/fP472SmY3XjTmJBL8\n\n';
   }
 
   msg += '— Bolivia Imports';

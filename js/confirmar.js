@@ -55,30 +55,22 @@ function cambiarEstado(estado) {
    CARGAR
    ========================= */
 async function cargarEntregas() {
-   console.log('🔁 cargarEntregas', estadoActual);
+  console.log('🔁 cargarEntregas', estadoActual);
 
   const currentToken = ++renderToken;
-
   lista.innerHTML = '';
-  
 
-  // 🟡 TERMINAL
-  if (estadoActual === 'terminal') {
-  console.log('🚀 ENTRÉ A TERMINAL');
+  const search = searchInput.value.trim();
+  let url = `${API_BASE_URL}/gestor-entregas?estado=${estadoActual}`;
+  if (search) url += `&search=${encodeURIComponent(search)}`;
+
   setConectando();
 
   try {
-    console.log('🚀 EJECUTANDO FETCH TERMINAL');
-
-    const res = await fetch(
-      `${API_BASE_URL}/api/receptores`,
-      { cache: 'no-store' }
-    );
-
-    console.log('📡 FETCH TERMINAL RESPUESTA', res.status);
-
+    const res = await fetch(url, { cache: 'no-store' });
     const json = await res.json();
-    console.log('📦 DATA TERMINAL', json);
+
+    if (currentToken !== renderToken) return;
 
     const data = json.data || [];
 
@@ -90,43 +82,20 @@ async function cargarEntregas() {
           color: var(--muted);
           font-size: 14px;
         ">
-          No hay entregas a terminal registradas.
+          No hay entregas para mostrar.
         </div>
       `;
       setConectado();
       return;
     }
 
-    data.forEach(r => {
-      lista.appendChild(renderTerminal(r));
-    });
-
-    setConectado();
-    return;
-
-  } catch (err) {
-    console.error('❌ ERROR FETCH TERMINAL', err);
-    if (currentToken === renderToken) {
-      setOffline();
+    if (estadoActual === 'terminal') {
+      data.forEach(r => lista.appendChild(renderTerminal(r)));
+      setConectado();
+      return;
     }
-    return;
-  }
-} // ← cierre correcto del IF TERMINAL
 
-
-  // 🔵 ALMACÉN / HISTORIAL
-  const search = searchInput.value.trim();
-  let url = `${API_BASE_URL}/gestor-entregas?estado=${estadoActual}`;
-  if (search) url += `&search=${encodeURIComponent(search)}`;
-   setConectando();
-
-  try {
-    const res = await fetch(url);
-    const json = await res.json();
-
-    if (currentToken !== renderToken) return;
-
-    const grupos = agruparPorCliente(json.data || []);
+    const grupos = agruparPorCliente(data);
 
     Object.entries(grupos).forEach(([cliente, entregas]) => {
       const h = document.createElement('div');
@@ -138,15 +107,13 @@ async function cargarEntregas() {
     });
 
     setConectado();
-  } catch {
-    if (currentToken === renderToken) {
-      setOffline();
-    }
-    return;
+  } catch (err) {
+    console.error(err);
+    if (currentToken === renderToken) setOffline();
   }
-} // ← cierre correcto de cargarEntregas()
+}
 
-/* 🔹 BONUS: debounce search */
+/* 🔹 debounce search */
 let searchTimer;
 searchInput.oninput = () => {
   clearTimeout(searchTimer);
@@ -188,24 +155,18 @@ function renderEntrega(entrega) {
   if (estadoActual !== 'en_almacen') return card;
 
   let startX = 0;
-  let startY = 0;
   let currentX = 0;
-
   const content = card.querySelector('.swipe-content');
 
   card.addEventListener('touchstart', e => {
     startX = e.touches[0].clientX;
-    startY = e.touches[0].clientY;
+    currentX = 0;
     card.classList.add('swiping');
     content.style.transition = 'none';
   });
 
   card.addEventListener('touchmove', e => {
     const dx = e.touches[0].clientX - startX;
-    const dy = e.touches[0].clientY - startY;
-
-    if (Math.abs(dy) > Math.abs(dx)) return;
-
     if (dx < 0) {
       currentX = dx;
       content.style.transform = `translateX(${dx}px)`;
@@ -220,8 +181,8 @@ function renderEntrega(entrega) {
       await confirmarEntrega(entrega.entrega_id);
     }
 
-    card.classList.remove('swiping');
     content.style.transform = 'translateX(0)';
+    card.classList.remove('swiping');
     currentX = 0;
   });
 
@@ -229,7 +190,7 @@ function renderEntrega(entrega) {
 }
 
 /* =========================
-   TERMINAL (SIN TOCAR)
+   TERMINAL (UNIFICADO)
    ========================= */
 function renderTerminal(r) {
   const card = document.createElement('div');
@@ -283,19 +244,18 @@ function renderTerminal(r) {
 
   cargarResumenEntrega(r.entrega_id);
   habilitarSwipe(card, r.entrega_id);
+
   let tapTimer = 0;
+  card.addEventListener('touchstart', () => {
+    tapTimer = Date.now();
+  });
+  card.addEventListener('touchend', () => {
+    if (Date.now() - tapTimer < 200) {
+      toggleDetalleTerminal(r.entrega_id);
+    }
+  });
 
-card.addEventListener('touchstart', () => {
-  tapTimer = Date.now();
-});
-
-card.addEventListener('touchend', () => {
-  if (Date.now() - tapTimer < 200) {
-    toggleDetalleTerminal(r.entrega_id);
-  }
-});
-
-return card;
+  return card;
 }
 
 /* =========================
@@ -312,7 +272,7 @@ async function confirmarEntrega(id) {
 cargarEntregas();
 
 /* =========================
-   SWIPE TERMINAL (SIN TOCAR)
+   SWIPE TERMINAL
    ========================= */
 function habilitarSwipe(card, entregaId) {
   let startX = 0;
@@ -360,7 +320,6 @@ async function cargarResumenEntrega(entregaId) {
     );
 
     const productos = await res.json();
-
     const cont = document.getElementById(`detalle-${entregaId}`);
     if (!cont) return;
 
@@ -372,7 +331,6 @@ async function cargarResumenEntrega(entregaId) {
       const monto = Number(p.monto_total_bs || 0);
       total += monto;
 
-      // tomar la primera ubicación válida
       if (!ubicacionFisica && p.ubicacion_fisica) {
         ubicacionFisica = p.ubicacion_fisica;
       }
@@ -391,24 +349,15 @@ async function cargarResumenEntrega(entregaId) {
       </div>
     `;
 
-    // 🔹 pintar detalle
     cont.innerHTML = html;
 
-    // 🔹 reflejar ubicación física en la tarjeta
     const ubEl = document.getElementById(`ubicacion-${entregaId}`);
-    if (ubEl) {
-      ubEl.textContent = ubicacionFisica || '—';
-    }
+    if (ubEl) ubEl.textContent = ubicacionFisica || '—';
 
-    // 🔹 reflejar total en la tarjeta
     const totalEl = document.getElementById(`total-${entregaId}`);
-    if (totalEl) {
-      totalEl.textContent = `${total} Bs`;
-    }
+    if (totalEl) totalEl.textContent = `${total} Bs`;
 
-    // 🔹 dejar el detalle cerrado (solo se abre con tap)
     cont.classList.add('hidden');
-
   } catch (err) {
     console.error('Error cargando detalle entrega', err);
   }
@@ -417,7 +366,5 @@ async function cargarResumenEntrega(entregaId) {
 function toggleDetalleTerminal(entregaId) {
   const cont = document.getElementById(`detalle-${entregaId}`);
   if (!cont) return;
-
   cont.classList.toggle('open');
 }
-

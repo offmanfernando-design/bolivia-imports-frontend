@@ -52,6 +52,34 @@ function cambiarEstado(estado) {
 }
 
 /* =========================
+   BUSCADOR INTELIGENTE
+   ========================= */
+function filtrarResultados(data, search) {
+  if (!search) return data;
+
+  const q = search.trim().toLowerCase();
+
+  // 1️⃣ ENTREGA_ID exacto
+  if (q.startsWith('ent-')) {
+    return data.filter(e =>
+      (e.entrega_id || '').toLowerCase() === q
+    );
+  }
+
+  // 2️⃣ TELÉFONO (solo números, >=6)
+  if (/^\d{6,}$/.test(q)) {
+    return data.filter(e =>
+      (e.cliente_telefono || '').includes(q)
+    );
+  }
+
+  // 3️⃣ NOMBRE
+  return data.filter(e =>
+    (e.cliente_nombre || '').toLowerCase().includes(q)
+  );
+}
+
+/* =========================
    CARGAR
    ========================= */
 async function cargarEntregas() {
@@ -61,8 +89,7 @@ async function cargarEntregas() {
   lista.innerHTML = '';
 
   const search = searchInput.value.trim();
-  let url = `${API_BASE_URL}/gestor-entregas?estado=${estadoActual}`;
-  if (search) url += `&search=${encodeURIComponent(search)}`;
+  const url = `${API_BASE_URL}/gestor-entregas?estado=${estadoActual}`;
 
   setConectando();
 
@@ -72,7 +99,8 @@ async function cargarEntregas() {
 
     if (currentToken !== renderToken) return;
 
-    const data = json.data || [];
+    let data = json.data || [];
+    data = filtrarResultados(data, search);
 
     if (!data.length) {
       lista.innerHTML = `
@@ -190,7 +218,7 @@ function renderEntrega(entrega) {
 }
 
 /* =========================
-   TERMINAL (UNIFICADO)
+   TERMINAL
    ========================= */
 function renderTerminal(r) {
   const card = document.createElement('div');

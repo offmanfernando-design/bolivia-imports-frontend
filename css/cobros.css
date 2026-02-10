@@ -142,6 +142,7 @@ body {
   align-items: center;
   gap: 6px;
   padding: 0 10px;
+  height: 40px;
   border-radius: 12px;
   border: 1px solid var(--border);
   background: var(--card);
@@ -152,11 +153,20 @@ body {
   color: var(--muted);
 }
 
-.date-wrapper input {
+.date-wrapper input[type="date"] {
   border: none;
   background: transparent;
-  font-size: 13px;
+  font-size: 14px;
+  height: 100%;
+  line-height: 40px;
+  padding: 0;
   outline: none;
+}
+
+.date-wrapper input[type="date"]::-webkit-inner-spin-button,
+.date-wrapper input[type="date"]::-webkit-calendar-picker-indicator {
+  margin: 0;
+  padding: 0;
 }
 
 /* =========================

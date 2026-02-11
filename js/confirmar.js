@@ -180,39 +180,10 @@ function renderEntrega(entrega) {
     </div>
   `;
 
-  if (estadoActual !== 'en_almacen') return card;
-
-  let startX = 0;
-  let currentX = 0;
-  const content = card.querySelector('.swipe-content');
-
-  card.addEventListener('touchstart', e => {
-    startX = e.touches[0].clientX;
-    currentX = 0;
-    card.classList.add('swiping');
-    content.style.transition = 'none';
-  });
-
-  card.addEventListener('touchmove', e => {
-    const dx = e.touches[0].clientX - startX;
-    if (dx < 0) {
-      currentX = dx;
-      content.style.transform = `translateX(${dx}px)`;
-    }
-  });
-
-  card.addEventListener('touchend', async () => {
-    content.style.transition = 'transform .25s ease';
-
-    if (currentX < -120) {
-      card.classList.add('confirmed');
-      await confirmarEntrega(entrega.entrega_id);
-    }
-
-    content.style.transform = 'translateX(0)';
-    card.classList.remove('swiping');
-    currentX = 0;
-  });
+  // 🔹 Activamos swipe solo en almacén
+  if (estadoActual === 'en_almacen') {
+    activarSwipe(card, entrega.entrega_id);
+  }
 
   return card;
 }
@@ -271,7 +242,7 @@ function renderTerminal(r) {
   `;
 
   cargarResumenEntrega(r.entrega_id);
-  habilitarSwipe(card, r.entrega_id);
+  activarSwipe(card, r.entrega_id);
 
   let tapTimer = 0;
   card.addEventListener('touchstart', () => {
@@ -289,23 +260,31 @@ function renderTerminal(r) {
 /* =========================
    CONFIRMAR ENTREGA
    ========================= */
-async function confirmarEntrega(id) {
-  await fetch(`${API_BASE_URL}/gestor-entregas/${id}/entregar`, {
-    method: 'PATCH'
-  });
-  setTimeout(cargarEntregas, 200);
+async function confirmarEntrega(id, card) {
+  try {
+    // 🔹 Optimistic UI (desaparece suave)
+    card.classList.add('confirmed');
+
+    await fetch(`${API_BASE_URL}/gestor-entregas/${id}/entregar`, {
+      method: 'PATCH'
+    });
+
+    // 🔹 Eliminamos del DOM sin recargar lista
+    setTimeout(() => {
+      card.remove();
+    }, 250);
+
+  } catch (err) {
+    console.error('Error confirmando entrega', err);
+
+    // 🔁 Si falla, revertimos visual
+    card.classList.remove('confirmed');
+  }
 }
 
-/* INIT */
-cargarEntregas();
-
-/* =========================
-   SWIPE TERMINAL
-   ========================= */
-function habilitarSwipe(card, entregaId) {
+function activarSwipe(card, entregaId) {
   let startX = 0;
   let currentX = 0;
-
   const content = card.querySelector('.swipe-content');
 
   card.addEventListener('touchstart', e => {
@@ -327,8 +306,7 @@ function habilitarSwipe(card, entregaId) {
     content.style.transition = 'transform .25s ease';
 
     if (currentX < -120) {
-      card.classList.add('confirmed');
-      await confirmarEntrega(entregaId);
+      await confirmarEntrega(entregaId, card);
     }
 
     content.style.transform = 'translateX(0)';
@@ -336,6 +314,10 @@ function habilitarSwipe(card, entregaId) {
     currentX = 0;
   });
 }
+
+
+/* INIT */
+cargarEntregas();
 
 /* =========================
    DETALLE ENTREGA TERMINAL

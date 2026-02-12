@@ -1,3 +1,5 @@
+console.log("COBROS V2 CARGADO");
+
 import API_BASE_URL from './config.js';
 
 let tabActual = 'pendiente';

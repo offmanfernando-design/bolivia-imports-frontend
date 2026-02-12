@@ -1,5 +1,3 @@
-console.log("COBROS V2 CARGADO");
-
 import API_BASE_URL from './config.js';
 
 let tabActual = 'pendiente';
@@ -347,10 +345,6 @@ async function generarMensaje(clienteId) {
 
   const c0 = productos[0];
   const nombre = c0.cliente_nombre || '';
-   
-console.log("Departamento destino:", c0.departamento_destino);
-onsole.log("Es Santa Cruz:", esSantaCruz);
-
 
   const esSantaCruz = (c0.departamento_destino || '')
     .toLowerCase()
@@ -404,13 +398,6 @@ onsole.log("Es Santa Cruz:", esSantaCruz);
           msg +=
             '📦 Para coordinar el envío, completa este formulario:\n' +
             `${dataLink.link}\n\n`;
-        } else {
-          msg +=
-            '💳 Pago: QR o efectivo (solo Bs)\n\n' +
-            '🕒 Horario:\n' +
-            '09:30–12:00 / 14:30–18:00\n\n' +
-            '📍 Ubicación:\n' +
-            'https://maps.app.goo.gl/fP472SmY3XjTmJBL8\n\n';
         }
       }
     } catch (err) {

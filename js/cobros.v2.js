@@ -345,6 +345,8 @@ async function generarMensaje(clienteId) {
 
   const c0 = productos[0];
   const nombre = c0.cliente_nombre || '';
+   
+console.log("Departamento destino:", c0.departamento_destino);
 
   const esSantaCruz = (c0.departamento_destino || '')
     .toLowerCase()

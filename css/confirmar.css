@@ -373,3 +373,39 @@
 }
 
 
+/* Agregar al final de confirmar.css */
+
+.entrega-print {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.btn-print,
+.btn-select {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 20px;
+  color: var(--muted);
+}
+
+.btn-select.selected {
+  color: #2e7d32;
+}
+
+.btn-lote {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  padding: 12px 18px;
+  border-radius: 999px;
+  border: none;
+  background: #000;
+  color: #fff;
+  font-size: 14px;
+  cursor: pointer;
+  z-index: 999;
+}
+
+

@@ -1,3 +1,5 @@
+// confirmar.js
+
 console.log('CONFIRMAR.JS CARGADO', new Date().toISOString());
 
 import API_BASE_URL from './config.js';
@@ -6,6 +8,9 @@ let estadoActual = 'en_almacen';
 
 /* 🔹 FIX DUPLICACIÓN: token de render */
 let renderToken = 0;
+
+/* 🔹 NUEVO: selección múltiple etiquetas */
+let etiquetasSeleccionadas = [];
 
 const lista = document.getElementById('listaEntregas');
 const searchInput = document.getElementById('searchInput');
@@ -59,21 +64,18 @@ function filtrarResultados(data, search) {
 
   const q = search.trim().toLowerCase();
 
-  // 1️⃣ ENTREGA_ID exacto
   if (q.startsWith('ent-')) {
     return data.filter(e =>
       (e.entrega_id || '').toLowerCase() === q
     );
   }
 
-  // 2️⃣ TELÉFONO (solo números, >=6)
   if (/^\d{6,}$/.test(q)) {
     return data.filter(e =>
       (e.cliente_telefono || '').includes(q)
     );
   }
 
-  // 3️⃣ NOMBRE
   return data.filter(e =>
     (e.cliente_nombre || '').toLowerCase().includes(q)
   );
@@ -83,8 +85,6 @@ function filtrarResultados(data, search) {
    CARGAR
    ========================= */
 async function cargarEntregas() {
-  console.log('🔁 cargarEntregas', estadoActual);
-
   const currentToken = ++renderToken;
   lista.innerHTML = '';
 
@@ -180,7 +180,6 @@ function renderEntrega(entrega) {
     </div>
   `;
 
-  // 🔹 Activamos swipe solo en almacén
   if (estadoActual === 'en_almacen') {
     activarSwipe(card, entrega.entrega_id);
   }
@@ -213,7 +212,7 @@ function renderTerminal(r) {
 
         <div class="entrega-info">
           <span class="material-symbols-rounded">person</span>
-          <span>${r.nombre_receptor || r.cliente_nombre || '—'}</span>
+          <span>${r.nombre_receptor || '—'}</span>
         </div>
 
         <div class="entrega-info">
@@ -234,6 +233,28 @@ function renderTerminal(r) {
         <div class="entrega-info total">
           <span class="material-symbols-rounded">payments</span>
           <span id="total-${r.entrega_id}">— Bs</span>
+        </div>
+
+        <div class="entrega-print">
+          <button 
+            class="btn-print"
+            data-id="${r.entrega_id}"
+            data-nombre="${r.nombre_receptor || ''}"
+            data-destino="${r.destino || ''}"
+            data-telefono="${r.telefono_receptor || ''}"
+          >
+            <span class="material-symbols-rounded">print</span>
+          </button>
+
+          <button 
+            class="btn-select"
+            data-id="${r.entrega_id}"
+            data-nombre="${r.nombre_receptor || ''}"
+            data-destino="${r.destino || ''}"
+            data-telefono="${r.telefono_receptor || ''}"
+          >
+            <span class="material-symbols-rounded">check_circle</span>
+          </button>
         </div>
       </div>
 
@@ -258,63 +279,158 @@ function renderTerminal(r) {
 }
 
 /* =========================
-   CONFIRMAR ENTREGA
+   EVENTOS BOTONES IMPRESIÓN
    ========================= */
-async function confirmarEntrega(id, card) {
-  try {
-    // 🔹 Optimistic UI (desaparece suave)
-    card.classList.add('confirmed');
+document.addEventListener('click', function(e) {
 
-    await fetch(`${API_BASE_URL}/gestor-entregas/${id}/entregar`, {
-      method: 'PATCH'
-    });
+  const printBtn = e.target.closest('.btn-print');
+  if (printBtn) {
+    e.stopPropagation();
 
-    // 🔹 Eliminamos del DOM sin recargar lista
-    setTimeout(() => {
-      card.remove();
-    }, 250);
+    const nombre = printBtn.dataset.nombre || '';
+    const destino = printBtn.dataset.destino || '';
+    const telefono = printBtn.dataset.telefono || '';
 
-  } catch (err) {
-    console.error('Error confirmando entrega', err);
+    imprimirLote([{ nombre, destino, telefono }]);
+    return;
+  }
 
-    // 🔁 Si falla, revertimos visual
-    card.classList.remove('confirmed');
+  const selectBtn = e.target.closest('.btn-select');
+  if (selectBtn) {
+    e.stopPropagation();
+
+    const data = {
+      id: selectBtn.dataset.id,
+      nombre: selectBtn.dataset.nombre || '',
+      destino: selectBtn.dataset.destino || '',
+      telefono: selectBtn.dataset.telefono || ''
+    };
+
+    const existe = etiquetasSeleccionadas.find(e => e.id === data.id);
+
+    if (existe) {
+      etiquetasSeleccionadas = etiquetasSeleccionadas.filter(e => e.id !== data.id);
+      selectBtn.classList.remove('selected');
+    } else {
+      etiquetasSeleccionadas.push(data);
+      selectBtn.classList.add('selected');
+    }
+
+    actualizarBotonLote();
+  }
+
+});
+
+function actualizarBotonLote() {
+  let btn = document.getElementById('btnLote');
+
+  if (!btn && etiquetasSeleccionadas.length) {
+    btn = document.createElement('button');
+    btn.id = 'btnLote';
+    btn.textContent = `Imprimir (${etiquetasSeleccionadas.length})`;
+    btn.className = 'btn-lote';
+    btn.onclick = () => {
+      imprimirLote(etiquetasSeleccionadas);
+      etiquetasSeleccionadas = [];
+      btn.remove();
+      document.querySelectorAll('.btn-select').forEach(b => b.classList.remove('selected'));
+    };
+    document.body.appendChild(btn);
+  }
+
+  if (btn) {
+    if (!etiquetasSeleccionadas.length) {
+      btn.remove();
+    } else {
+      btn.textContent = `Imprimir (${etiquetasSeleccionadas.length})`;
+    }
   }
 }
 
-function activarSwipe(card, entregaId) {
-  let startX = 0;
-  let currentX = 0;
-  const content = card.querySelector('.swipe-content');
+function imprimirLote(lista) {
 
-  card.addEventListener('touchstart', e => {
-    startX = e.touches[0].clientX;
-    currentX = 0;
-    card.classList.add('swiping');
-    content.style.transition = 'none';
-  });
+  const etiquetasHTML = lista.map(e => `
+    <div class="envio">
+      <div class="cliente">${e.nombre}</div>
+      <div class="destino">${e.destino}</div>
+      <div class="telefono">${e.telefono || ''}</div>
+    </div>
+  `).join('');
 
-  card.addEventListener('touchmove', e => {
-    const dx = e.touches[0].clientX - startX;
-    if (dx < 0) {
-      currentX = dx;
-      content.style.transform = `translateX(${dx}px)`;
-    }
-  });
-
-  card.addEventListener('touchend', async () => {
-    content.style.transition = 'transform .25s ease';
-
-    if (currentX < -120) {
-      await confirmarEntrega(entregaId, card);
-    }
-
-    content.style.transform = 'translateX(0)';
-    card.classList.remove('swiping');
-    currentX = 0;
-  });
+  const html = `
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<title>Etiquetas</title>
+<style>
+@page {
+  size: letter;
+  margin: 8mm;
 }
 
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  color: #000;
+  text-transform: uppercase;
+}
+
+/* Letter: 279.4mm alto */
+/* Área útil vertical: 279.4 - 16mm = 263.4mm */
+/* 263.4 / 4 = 65.85mm */
+
+.envio {
+  height: 65.8mm;
+  border: 2px solid #000;
+  padding: 8mm;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  page-break-inside: avoid;
+}
+
+.envio .cliente {
+  font-size: 28px;
+  font-weight: bold;
+  margin-bottom: 5mm;
+}
+
+.envio .destino {
+  font-size: 32px;
+  font-weight: bold;
+  margin-bottom: 5mm;
+}
+
+.envio .telefono {
+  font-size: 22px;
+}
+</style>
+</head>
+<body>
+
+${etiquetasHTML}
+
+<script>
+window.onload = function() {
+  window.print();
+  window.onafterprint = function() {
+    window.close();
+  };
+};
+</script>
+
+</body>
+</html>
+`;
+
+  const win = window.open('', '_blank');
+  win.document.write(html);
+  win.document.close();
+}
 
 /* INIT */
 cargarEntregas();
@@ -377,4 +493,55 @@ function toggleDetalleTerminal(entregaId) {
   const cont = document.getElementById(`detalle-${entregaId}`);
   if (!cont) return;
   cont.classList.toggle('open');
+}
+
+async function confirmarEntrega(id, card) {
+  try {
+    card.classList.add('confirmed');
+
+    await fetch(`${API_BASE_URL}/gestor-entregas/${id}/entregar`, {
+      method: 'PATCH'
+    });
+
+    setTimeout(() => {
+      card.remove();
+    }, 250);
+
+  } catch (err) {
+    console.error('Error confirmando entrega', err);
+    card.classList.remove('confirmed');
+  }
+}
+
+function activarSwipe(card, entregaId) {
+  let startX = 0;
+  let currentX = 0;
+  const content = card.querySelector('.swipe-content');
+
+  card.addEventListener('touchstart', e => {
+    startX = e.touches[0].clientX;
+    currentX = 0;
+    card.classList.add('swiping');
+    content.style.transition = 'none';
+  });
+
+  card.addEventListener('touchmove', e => {
+    const dx = e.touches[0].clientX - startX;
+    if (dx < 0) {
+      currentX = dx;
+      content.style.transform = `translateX(${dx}px)`;
+    }
+  });
+
+  card.addEventListener('touchend', async () => {
+    content.style.transition = 'transform .25s ease';
+
+    if (currentX < -120) {
+      await confirmarEntrega(entregaId, card);
+    }
+
+    content.style.transform = 'translateX(0)';
+    card.classList.remove('swiping');
+    currentX = 0;
+  });
 }

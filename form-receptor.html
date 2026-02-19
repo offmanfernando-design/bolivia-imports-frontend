@@ -7,10 +7,7 @@
 
   <link rel="stylesheet" href="css/app.css">
 
-   <style>
-    /* =========================
-       BASE
-       ========================= */
+  <style>
     body {
       margin: 0;
       background: var(--bg);
@@ -28,18 +25,8 @@
       flex: 1;
     }
 
-    h1 {
-      font-size: 22px;
-      margin-bottom: 4px;
-      text-align: center;
-    }
-
-    .subtitle {
-      font-size: 13px;
-      color: var(--muted);
-      text-align: center;
-      margin-bottom: 20px;
-    }
+    h1 { font-size: 22px; margin-bottom: 4px; text-align: center; }
+    .subtitle { font-size: 13px; color: var(--muted); text-align: center; margin-bottom: 20px; }
 
     .card {
       background: var(--card);
@@ -65,17 +52,9 @@
       background: var(--bg);
     }
 
-    textarea {
-      resize: none;
-      min-height: 80px;
-    }
+    textarea { resize: none; min-height: 80px; }
 
-    .radio-group {
-      display: flex;
-      gap: 12px;
-      margin-top: 8px;
-    }
-
+    .radio-group { display: flex; gap: 12px; margin-top: 8px; }
     .radio-group label {
       flex: 1;
       border: 1px solid var(--border);
@@ -86,17 +65,10 @@
       background: var(--card);
     }
 
-    .radio-group input {
-      display: none;
-    }
+    .radio-group input { display: none; }
+    .radio-group input:checked + span { font-weight: 600; }
 
-    .radio-group input:checked + span {
-      font-weight: 600;
-    }
-
-    .hidden {
-      display: none;
-    }
+    .hidden { display: none; }
 
     button {
       width: 100%;
@@ -110,10 +82,7 @@
       cursor: pointer;
     }
 
-    button:disabled {
-      opacity: .5;
-      cursor: default;
-    }
+    button:disabled { opacity: .5; cursor: default; }
 
     .toast {
       position: fixed;
@@ -141,16 +110,12 @@
       color: var(--muted);
       padding: 14px 0 18px;
     }
-
-    /* =========================
-       (NO MÁS CSS AQUÍ)
-       ========================= */
   </style>
 </head>
 
 <body>
 
-<div class="form-container" id="formContainer">
+<div class="form-container">
 
   <h1>Bolivia Imports</h1>
   <div class="subtitle">Coordinación de envío a terminal</div>
@@ -193,6 +158,12 @@
     <input id="transportadora">
   </div>
 
+  <!-- NUEVO BLOQUE COMPROBANTE -->
+  <div class="card">
+    <label class="label">Comprobante de pago *</label>
+    <input type="file" id="comprobante" accept="image/*,.pdf" required>
+  </div>
+
   <div class="card">
     <label class="label">Observaciones</label>
     <textarea id="observaciones"></textarea>
@@ -230,6 +201,7 @@
   }
 
   btnEnviar.onclick = async () => {
+
     if (!entrega_id || !cliente) {
       toast('Faltan datos del pedido');
       return;
@@ -240,25 +212,31 @@
       return;
     }
 
+    if (!comprobante.files.length) {
+      toast('Debes subir el comprobante de pago');
+      return;
+    }
+
     const recoge = document.querySelector('input[name="recoge"]:checked').value;
 
-    const payload = {
-      entrega_id,
-      cliente_nombre: cliente,
-      recoge_quien: recoge,
-      nombre_receptor: recoge === 'tercero' ? nombreReceptor.value.trim() : cliente,
-      telefono_receptor: recoge === 'tercero' ? telefonoReceptor.value.trim() : '',
-      referencia: referenciaReceptor.value.trim() || '',
-      destino: destino.value.trim(),
-      transportadora: transportadora.value.trim() || '',
-      observaciones: observaciones.value.trim() || ''
-    };
+    const formData = new FormData();
+
+    formData.append('entrega_id', entrega_id);
+    formData.append('cliente_nombre', cliente);
+    formData.append('recoge_quien', recoge);
+    formData.append('nombre_receptor', recoge === 'tercero' ? nombreReceptor.value.trim() : cliente);
+    formData.append('telefono_receptor', recoge === 'tercero' ? telefonoReceptor.value.trim() : '');
+    formData.append('referencia', referenciaReceptor.value.trim() || '');
+    formData.append('destino', destino.value.trim());
+    formData.append('transportadora', transportadora.value.trim() || '');
+    formData.append('observaciones', observaciones.value.trim() || '');
+    formData.append('comprobante', comprobante.files[0]);
 
     try {
+
       const res = await fetch('https://bolivia-imports-backend.fly.dev/api/receptores', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+        body: formData
       });
 
       if (!res.ok) throw new Error();

@@ -339,14 +339,18 @@ window.avisar = async function (clienteId, telefono) {
    ========================= */
 
 async function generarMensaje(clienteId) {
+
   const res = await fetch(`${API_BASE_URL}/api/cobros/detalle/${clienteId}`);
   const productos = await res.json();
 
-console.log(productos);
-   
   if (!productos.length) return '';
 
   const c0 = productos[0];
+
+  console.log('PRODUCTOS:', productos);
+  console.log('C0 COMPLETO:', c0);
+  console.log('DEPARTAMENTO:', c0.departamento_destino);
+
   const nombre = c0.cliente_nombre || '';
 
   const esSantaCruz = (c0.departamento_destino || '')

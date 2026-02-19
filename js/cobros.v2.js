@@ -392,25 +392,27 @@ async function generarMensaje(clienteId) {
     msg += `💰 Total a pagar: ${total} Bs\n\n`;
   }
 
-  if (!esSantaCruz) {
-    try {
-      const resLink = await fetch(
-        `${API_BASE_URL}/api/receptores/link/${clienteId}`
-      );
+if (!esSantaCruz) {
+  try {
+    const resLink = await fetch(
+      `${API_BASE_URL}/api/receptores/link/${clienteId}`
+    );
 
-      if (resLink.ok) {
-        const dataLink = await resLink.json();
+    console.log("STATUS LINK:", resLink.status);
 
-        if (dataLink.link) {
-          msg +=
-            '📦 Para coordinar el envío, completa este formulario:\n' +
-            `${dataLink.link}\n\n`;
-        }
-      }
-    } catch (err) {
-      console.error('Error obteniendo link de receptor', err);
+    const dataLink = await resLink.json();
+    console.log("DATA LINK:", dataLink);
+
+    if (dataLink.link) {
+      msg +=
+        '📦 Para coordinar el envío, completa este formulario:\n' +
+        `${dataLink.link}\n\n`;
     }
-  } else {
+
+  } catch (err) {
+    console.error('Error obteniendo link de receptor', err);
+  }
+}else {
     msg +=
       '💳 Pago: QR o efectivo (solo Bs)\n\n' +
       '🕒 Horario:\n' +

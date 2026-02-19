@@ -339,6 +339,8 @@ window.avisar = async function (clienteId, telefono) {
    ========================= */
 
 async function generarMensaje(clienteId) {
+   console.log(productos);
+
   const res = await fetch(`${API_BASE_URL}/api/cobros/detalle/${clienteId}`);
   const productos = await res.json();
   if (!productos.length) return '';

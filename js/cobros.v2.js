@@ -421,9 +421,7 @@ if (!esSantaCruz) {
       'https://maps.app.goo.gl/fP472SmY3XjTmJBL8\n\n';
   }
 
-  msg +=
-    '📸 Una vez realizado el pago, envíanos el comprobante por este mismo chat.\n\n';
-
+  
   msg += '— Bolivia Imports';
 
   return encodeURIComponent(msg);

@@ -309,27 +309,15 @@ setTimeout(() => {
         Nuestro equipo procesará tu encomienda.
       </p>
 
-      <button 
-  onclick="window.location.replace('https://bolivia-imports-backend.fly.dev')"
-  style="
-    margin-top:35px;
-    padding:14px 28px;
-    background:#000;
-    color:#fff;
-    border:none;
-    border-radius:30px;
-    font-size:14px;
-    cursor:pointer;
-    transition:all 0.2s ease;
-  "
-  onmouseover="this.style.opacity='0.85'"
-  onmouseout="this.style.opacity='1'"
->
-  Finalizar
-</button>
-
     </div>
   `;
+
+  // Bloquea botón atrás
+  history.pushState(null, null, location.href);
+  window.onpopstate = function () {
+    history.go(1);
+  };
+
 }, 800);
     } catch {
       toast('Error al enviar datos');

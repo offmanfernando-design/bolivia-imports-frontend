@@ -241,14 +241,95 @@
 
       if (!res.ok) throw new Error();
 
-      toast('Datos enviados correctamente');
-      btnEnviar.disabled = true;
-      btnEnviar.textContent = 'Datos enviados';
+    toast('Datos enviados correctamente');
+btnEnviar.disabled = true;
+btnEnviar.textContent = 'Datos enviados';
 
-      setTimeout(() => {
-        try { window.close(); } catch {}
-      }, 2000);
+setTimeout(() => {
+  document.body.innerHTML = `
+    <style>
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
 
+      @keyframes scaleIn {
+        from { transform: scale(0.8); opacity: 0; }
+        to { transform: scale(1); opacity: 1; }
+      }
+    </style>
+
+    <div style="
+      height:100vh;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:center;
+      font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background:#ffffff;
+      text-align:center;
+      padding:30px;
+      animation: fadeIn 0.5s ease forwards;
+    ">
+
+      <div style="
+        width:80px;
+        height:80px;
+        border-radius:50%;
+        background:#000;
+        display:flex;
+        justify-content:center;
+        align-items:center;
+        color:#fff;
+        font-size:34px;
+        margin-bottom:25px;
+        animation: scaleIn 0.4s ease forwards;
+      ">
+        ✓
+      </div>
+
+      <h2 style="
+        margin:0;
+        font-weight:600;
+        font-size:20px;
+        letter-spacing:-0.3px;
+      ">
+        Datos enviados correctamente
+      </h2>
+
+      <p style="
+        margin-top:12px;
+        color:#666;
+        font-size:14px;
+        max-width:280px;
+        line-height:1.5;
+      ">
+        Tu comprobante fue registrado exitosamente.
+        Nuestro equipo procesará tu pedido.
+      </p>
+
+      <button 
+        onclick="window.close()"
+        style="
+          margin-top:35px;
+          padding:14px 28px;
+          background:#000;
+          color:#fff;
+          border:none;
+          border-radius:30px;
+          font-size:14px;
+          cursor:pointer;
+          transition:all 0.2s ease;
+        "
+        onmouseover="this.style.opacity='0.85'"
+        onmouseout="this.style.opacity='1'"
+      >
+        Cerrar ventana
+      </button>
+
+    </div>
+  `;
+}, 800);
     } catch {
       toast('Error al enviar datos');
     }

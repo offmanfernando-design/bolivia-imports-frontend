@@ -416,7 +416,7 @@ if (!esSantaCruz) {
     msg +=
       '💳 Pago: QR o efectivo (solo Bs)\n\n' +
       '🕒 Horario:\n' +
-      '09:30–12:00 / 14:30–18:00\n\n' +
+      'Lunes - Viernes 09:30–12:00 / 14:30–18:00 / Sabados 09:30-12:00\n\n' +
       '📍 Ubicación:\n' +
       'https://maps.app.goo.gl/fP472SmY3XjTmJBL8\n\n';
   }

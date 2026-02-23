@@ -214,72 +214,78 @@
 
   btnEnviar.onclick = async () => {
 
-    if (!entrega_id || !cliente) {
-      toast('Faltan datos del pedido');
-      return;
-    }
+  if (!entrega_id || !cliente) {
+    toast('Faltan datos del pedido');
+    return;
+  }
 
-    const recoge = document.querySelector('input[name="recoge"]:checked').value;
+  const recoge = document.querySelector('input[name="recoge"]:checked').value;
 
-    if (recoge === 'tercero' && !nombreReceptor.value.trim()) {
-      toast('Debes ingresar el nombre del receptor');
-      return;
-    }
+  if (recoge === 'tercero' && !nombreReceptor.value.trim()) {
+    toast('Debes ingresar el nombre del receptor');
+    return;
+  }
 
-    if (!telefonoReceptor.value.trim()) {
-      toast('Debes ingresar el teléfono');
-      return;
-    }
+  if (!telefonoReceptor.value.trim()) {
+    toast('Debes ingresar el teléfono');
+    return;
+  }
 
-    if (!referenciaReceptor.value.trim()) {
-      toast('Debes ingresar el CI o referencia');
-      return;
-    }
+  if (!referenciaReceptor.value.trim()) {
+    toast('Debes ingresar el CI o referencia');
+    return;
+  }
 
-    if (!destino.value.trim()) {
-      toast('Debes ingresar el destino');
-      return;
-    }
+  if (!destino.value.trim()) {
+    toast('Debes ingresar el destino');
+    return;
+  }
 
-    if (!comprobante.files.length) {
-      toast('Debes subir el comprobante de pago');
-      return;
-    }
+  if (!comprobante.files.length) {
+    toast('Debes subir el comprobante de pago');
+    return;
+  }
 
-    const formData = new FormData();
+  // 🔥 DESHABILITAR INMEDIATAMENTE
+  btnEnviar.disabled = true;
+  btnEnviar.textContent = "Enviando...";
 
-    formData.append('entrega_id', entrega_id);
-    formData.append('cliente_nombre', cliente);
-    formData.append('recoge_quien', recoge);
-    formData.append('nombre_receptor', recoge === 'tercero' ? nombreReceptor.value.trim() : cliente);
-    formData.append('telefono_receptor', telefonoReceptor.value.trim());
-    formData.append('referencia', referenciaReceptor.value.trim());
-    formData.append('destino', destino.value.trim());
-    formData.append('transportadora', transportadora.value.trim() || '');
-    formData.append('observaciones', observaciones.value.trim() || '');
-    formData.append('comprobante', comprobante.files[0]);
+  const formData = new FormData();
 
-    try {
+  formData.append('entrega_id', entrega_id);
+  formData.append('cliente_nombre', cliente);
+  formData.append('recoge_quien', recoge);
+  formData.append('nombre_receptor', recoge === 'tercero' ? nombreReceptor.value.trim() : cliente);
+  formData.append('telefono_receptor', telefonoReceptor.value.trim());
+  formData.append('referencia', referenciaReceptor.value.trim());
+  formData.append('destino', destino.value.trim());
+  formData.append('transportadora', transportadora.value.trim() || '');
+  formData.append('observaciones', observaciones.value.trim() || '');
+  formData.append('comprobante', comprobante.files[0]);
 
-      const res = await fetch('https://bolivia-imports-backend.fly.dev/api/receptores', {
-        method: 'POST',
-        body: formData
-      });
+  try {
 
-      if (!res.ok) throw new Error();
+    const res = await fetch('https://bolivia-imports-backend.fly.dev/api/receptores', {
+      method: 'POST',
+      body: formData
+    });
 
-      toast('Datos enviados correctamente');
-      btnEnviar.disabled = true;
-      btnEnviar.textContent = 'Datos enviados';
+    if (!res.ok) throw new Error();
 
-      setTimeout(() => {
-        location.reload();
-      }, 1500);
+    toast('Datos enviados correctamente');
+    btnEnviar.textContent = 'Datos enviados';
 
-    } catch {
-      toast('Error al enviar datos');
-    }
-  };
+    setTimeout(() => {
+      location.reload();
+    }, 1500);
+
+  } catch {
+    // 🔥 SI FALLA, REHABILITAR
+    btnEnviar.disabled = false;
+    btnEnviar.textContent = "Confirmar datos de envío";
+    toast('Error al enviar datos');
+  }
+};
 </script>
 
 </body>

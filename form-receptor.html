@@ -41,6 +41,11 @@
       font-weight: 600;
       margin-bottom: 6px;
       display: block;
+      margin-top: 12px;
+    }
+
+    .label:first-child {
+      margin-top: 0;
     }
 
     input, textarea {
@@ -139,31 +144,36 @@
     </div>
   </div>
 
-  <div class="card hidden" id="datosReceptor">
-    <label class="label">Nombre completo del receptor *</label>
-    <input id="nombreReceptor">
+  <!-- CARD PRINCIPAL DE DATOS -->
+  <div class="card">
+
+    <!-- SOLO PARA TERCERO -->
+    <div id="campoNombreReceptor" class="hidden">
+      <label class="label">Nombre completo del receptor *</label>
+      <input id="nombreReceptor">
+    </div>
 
     <label class="label">Teléfono *</label>
     <input id="telefonoReceptor">
 
-    <label class="label">CI / referencia</label>
+    <label class="label">CI / referencia *</label>
     <input id="referenciaReceptor">
-  </div>
 
-  <div class="card">
     <label class="label">Departamento / ciudad *</label>
     <input id="destino">
 
     <label class="label">Transportadora (opcional)</label>
     <input id="transportadora">
+
   </div>
 
-  <!-- NUEVO BLOQUE COMPROBANTE -->
+  <!-- COMPROBANTE -->
   <div class="card">
     <label class="label">Comprobante de pago *</label>
     <input type="file" id="comprobante" accept="image/*,.pdf" required>
   </div>
 
+  <!-- OBSERVACIONES -->
   <div class="card">
     <label class="label">Observaciones</label>
     <textarea id="observaciones"></textarea>
@@ -188,9 +198,11 @@
   entregaLabel.textContent = entrega_id || '—';
   clienteNombre.textContent = cliente || '—';
 
+  const campoNombreReceptor = document.getElementById("campoNombreReceptor");
+
   document.querySelectorAll('input[name="recoge"]').forEach(r =>
     r.onchange = () =>
-      datosReceptor.classList.toggle('hidden', r.value !== 'tercero')
+      campoNombreReceptor.classList.toggle('hidden', r.value !== 'tercero')
   );
 
   function toast(msg) {
@@ -207,6 +219,23 @@
       return;
     }
 
+    const recoge = document.querySelector('input[name="recoge"]:checked').value;
+
+    if (recoge === 'tercero' && !nombreReceptor.value.trim()) {
+      toast('Debes ingresar el nombre del receptor');
+      return;
+    }
+
+    if (!telefonoReceptor.value.trim()) {
+      toast('Debes ingresar el teléfono');
+      return;
+    }
+
+    if (!referenciaReceptor.value.trim()) {
+      toast('Debes ingresar el CI o referencia');
+      return;
+    }
+
     if (!destino.value.trim()) {
       toast('Debes ingresar el destino');
       return;
@@ -217,16 +246,14 @@
       return;
     }
 
-    const recoge = document.querySelector('input[name="recoge"]:checked').value;
-
     const formData = new FormData();
 
     formData.append('entrega_id', entrega_id);
     formData.append('cliente_nombre', cliente);
     formData.append('recoge_quien', recoge);
     formData.append('nombre_receptor', recoge === 'tercero' ? nombreReceptor.value.trim() : cliente);
-    formData.append('telefono_receptor', recoge === 'tercero' ? telefonoReceptor.value.trim() : '');
-    formData.append('referencia', referenciaReceptor.value.trim() || '');
+    formData.append('telefono_receptor', telefonoReceptor.value.trim());
+    formData.append('referencia', referenciaReceptor.value.trim());
     formData.append('destino', destino.value.trim());
     formData.append('transportadora', transportadora.value.trim() || '');
     formData.append('observaciones', observaciones.value.trim() || '');
@@ -241,84 +268,14 @@
 
       if (!res.ok) throw new Error();
 
-    toast('Datos enviados correctamente');
-btnEnviar.disabled = true;
-btnEnviar.textContent = 'Enviando...';
-btnEnviar.textContent = 'Datos enviados';
+      toast('Datos enviados correctamente');
+      btnEnviar.disabled = true;
+      btnEnviar.textContent = 'Datos enviados';
 
-setTimeout(() => {
-  document.body.innerHTML = `
-    <style>
-      @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
-      }
+      setTimeout(() => {
+        location.reload();
+      }, 1500);
 
-      @keyframes scaleIn {
-        from { transform: scale(0.8); opacity: 0; }
-        to { transform: scale(1); opacity: 1; }
-      }
-    </style>
-
-    <div style="
-      height:100vh;
-      display:flex;
-      flex-direction:column;
-      justify-content:center;
-      align-items:center;
-      font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background:#ffffff;
-      text-align:center;
-      padding:30px;
-      animation: fadeIn 0.5s ease forwards;
-    ">
-
-      <div style="
-        width:80px;
-        height:80px;
-        border-radius:50%;
-        background:#000;
-        display:flex;
-        justify-content:center;
-        align-items:center;
-        color:#fff;
-        font-size:34px;
-        margin-bottom:25px;
-        animation: scaleIn 0.4s ease forwards;
-      ">
-        ✓
-      </div>
-
-      <h2 style="
-        margin:0;
-        font-weight:600;
-        font-size:20px;
-        letter-spacing:-0.3px;
-      ">
-        Datos enviados correctamente
-      </h2>
-
-      <p style="
-        margin-top:12px;
-        color:#666;
-        font-size:14px;
-        max-width:280px;
-        line-height:1.5;
-      ">
-        Tu comprobante fue registrado exitosamente.
-        Nuestro equipo procesará tu encomienda.
-      </p>
-
-    </div>
-  `;
-
-  // Bloquea botón atrás
-  history.pushState(null, null, location.href);
-  window.onpopstate = function () {
-    history.go(1);
-  };
-
-}, 800);
     } catch {
       toast('Error al enviar datos');
     }

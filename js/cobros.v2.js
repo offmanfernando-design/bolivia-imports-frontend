@@ -303,8 +303,9 @@ window.avisar = async function (clienteId, telefono) {
     const msg = await generarMensaje(clienteId);
 
     if (telefono && msg) {
-      window.location.href =
-  `https://wa.me/${telefono}?text=${msg}`;
+      window.open(
+  `https://wa.me/${telefono}?text=${msg}`,
+  '_blank'
       );
     }
 

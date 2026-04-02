@@ -405,7 +405,10 @@ if (!esSantaCruz) {
 
     if (dataLink.link) {
       msg +=
-        '📦 Para coordinar el envío, completa este formulario:\n' +
+        '📦 NUESTRO FORMULARIO SE ENCUENTRA DESHABILITADO TEMPORALMENTE, POR FAVOR ENVIAR SUS DATOS EN ESTE MISMO CHAT\n\n' +
+         'DESTINATARIO:\n\n' +
+         'DESTINO:\n\n' +
+         'CELULAR:\n\n' +
         `${dataLink.link}\n\n`;
     }
 
@@ -418,7 +421,7 @@ if (!esSantaCruz) {
       '🕒 Horario:\n' +
       'Lunes - Viernes 09:30–12:00 / 14:30–18:00 / Sabados 09:30-12:00\n\n' +
       '📍 Ubicación:\n' +
-      'https://maps.app.goo.gl/fP472SmY3XjTmJBL8\n\n';
+      'https://maps.app.goo.gl/gZSwDVJryLSwL8xZ7\n\n';
   }
 
   
